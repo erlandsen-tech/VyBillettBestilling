@@ -13,5 +13,9 @@ namespace VyBillettBestilling.Controllers
         {
             return View();
         }
+        public ActionResult Bestilling()
+        {
+            return View();
+        }
     }
 }
