@@ -3,16 +3,17 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <title>@ViewBag.Title</title>
     <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
     <link href="~/Content/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <script src="~/Scripts/modernizr-2.8.3.js"></script>
+    @RenderSection("Styles", required: false)
 </head>
 <body>
-    <div class="navbar navbar-light navbar-inverse navbar-fixed-top" style="background-color: #c8def3">
+    <div class="navbar navbar-light navbar-inverse navbar-fixed-top" style="background-color: #b0aec6">
         <div class="container">
             <a class="navbar-brand">
-                <img src="~/Resources/Images/vyLogo.png" alt="VyLogoHer" class="d-inline-block align-top" style="max-width: 60px" />
+                <img src="~/Resources/Images/vy_logo.png" alt="VyLogoHer" class="d-inline-block align-top" style="max-width: 60px" />
             </a>
             <div class="navbar-header">
 
@@ -21,7 +22,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @Html.ActionLink("- Samme gamle røra", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" , @style = "margin-top: 10px"})
+                @Html.ActionLink("- Det går alltid et tog", "Index", "Home", new { area = "" }, new { @class = "navbar-brand", @style = "margin-top: 10px" })
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
@@ -30,6 +31,7 @@
         </div>
     </div>
 
+
     <div class="container body-content">
         @RenderBody()
         <hr />
@@ -37,7 +39,6 @@
             <p>&copy; @DateTime.Now.Year - Vy - Det går eitt tog - etterkvart</p>
         </footer>
     </div>
-
     <script src="~/Scripts/jquery-3.3.1.min.js"></script>
     <script src="~/Scripts/bootstrap.min.js"></script>
 </body>
