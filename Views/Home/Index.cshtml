@@ -1,9 +1,21 @@
-﻿
-@{
-    ViewBag.Title = "Velkommen til VY";
-}
-<h2>Heimeside</h2>
-@section Styles
+﻿<head>
+    @{
+        ViewBag.Title = "Velkommen til VY";
+    }
+    @section Styles
 {
-    <link href="@Url.Content("~/CSS/Index.css")" rel="stylesheet" type="text/css" />
-}
+        <link href="@Url.Content("~/Content/Index.css")" rel="stylesheet" type="text/css" />
+    }
+</head>
+<body>
+    <div class="bg container-fluid">
+        <div class="panel-heading header" align="center">
+            <h2>Hvor vil du reise?</h2>
+        </div>
+        <div class="form-group has-search" align="center">
+            <span class="fa fa-search form-control-feedback"></span>
+            <input type="text" class="form-control mb-1" placeholder="Reise Fra">
+            <input type="text" class="form-control til" placeholder="Reise Til">
+        </div>
+    </div>
+</body>

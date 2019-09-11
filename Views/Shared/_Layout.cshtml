@@ -4,40 +4,41 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title</title>
-    <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
     <link href="~/Content/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
     <script src="~/Scripts/modernizr-2.8.3.js"></script>
     @RenderSection("Styles", required: false)
 </head>
 <body>
-    <div class="navbar navbar-light navbar-inverse navbar-fixed-top" style="background-color: #b0aec6">
-        <div class="container">
-            <a class="navbar-brand">
-                <img src="~/Resources/Images/vy_logo.png" alt="VyLogoHer" class="d-inline-block align-top" style="max-width: 60px" />
-            </a>
-            <div class="navbar-header">
+    <div class="navbar navbar-inverse navbar-fixed-top navbar-static-top navbar-color">
 
+        <div class="container navbar-color">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/Home/Index">
+                    <img src="~/Resources/Images/vy_logo.png" class="img-fluid" style="max-height:100%; width:auto;"alt="">
+                </a>
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @Html.ActionLink("- Det går alltid et tog", "Index", "Home", new { area = "" }, new { @class = "navbar-brand", @style = "margin-top: 10px" })
             </div>
-            <div class="navbar-collapse collapse">
+            <div class="navbar-collapse collapse navbar-dark bg-light">
                 <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Kundeliste", "Liste", "Kunde")</li>
+                    <li>@Html.ActionLink("Registrer", "Registrer", "Kunde")</li>
                 </ul>
             </div>
         </div>
     </div>
 
-
     <div class="container body-content">
         @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - Vy - Det går eitt tog - etterkvart</p>
-        </footer>
+        <div class="footer">
+            <footer>
+                <p>&copy; @DateTime.Now.Year - Vy - Det går eitt tog - etterkvart</p>
+            </footer>
+        </div>
     </div>
     <script src="~/Scripts/jquery-3.3.1.min.js"></script>
     <script src="~/Scripts/bootstrap.min.js"></script>

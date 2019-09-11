@@ -101,12 +101,13 @@
     <Content Include="Content\Site.css" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
+    <Content Include="Resources\Images\background_search.jpg" />
     <Content Include="Resources\Images\railroad-tracks-163518_1280.jpg" />
     <Content Include="Resources\Images\train-362101_1920.jpg" />
     <Content Include="Resources\Images\vy_logo.png" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
-    <Content Include="CSS\Index.css" />
+    <Content Include="Content\Index.css" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.3.1.js" />
     <Content Include="Scripts\jquery-3.3.1.min.js" />
