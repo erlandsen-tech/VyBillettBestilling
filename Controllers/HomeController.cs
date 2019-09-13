@@ -8,7 +8,7 @@ namespace VyBillettBestilling.Controllers
 {
     public class HomeController : Controller
     {
-        // GET: Home
+        // GET: Home Tullekommentar
         public ActionResult Index()
         {
             return View();
