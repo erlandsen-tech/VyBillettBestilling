@@ -3,17 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using VyBillettBestilling.Models;
 
 namespace VyBillettBestilling.Controllers
 {
-    public class HomeController : Controller
+    public class HandlekurvController : Controller
     {
-        // GET: Home
+        // GET: Handlekurv
         public ActionResult Index()
-        {
-            return View();
-        }
-        public ActionResult Handlekurv()
         {
             return View();
         }
