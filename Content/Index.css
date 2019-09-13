@@ -1,0 +1,54 @@
+﻿
+.bg {
+    background-image: url('/Resources/Images/background_search.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    margin: 0;
+    width: 100vw;
+    position: relative;
+    min-height: 40%;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+}
+
+.header {
+    text-shadow: 0px 1px #333333;
+}
+
+input.til {
+    text-align: right;
+    margin-top: 1em;
+}
+
+.input-icons i {
+    position: absolute;
+}
+
+.input-icons {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.icon {
+    padding: 10px;
+    color: #3365a4;
+    min-width: 50px;
+    text-align: center;
+}
+
+.input-field {
+    width: 100%;
+    padding: 10px;
+    text-align: center;
+}
+
+.femti {
+    display: inline-block;
+    height: 50%;
+    position: fixed;
+    width: 100%;
+}
+
