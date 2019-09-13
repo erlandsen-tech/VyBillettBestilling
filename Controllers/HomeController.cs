@@ -13,7 +13,7 @@ namespace VyBillettBestilling.Controllers
         {
             return View();
         }
-        public ActionResult Bestilling()
+        public ActionResult Handlekurv()
         {
             return View();
         }

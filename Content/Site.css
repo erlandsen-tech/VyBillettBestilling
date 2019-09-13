@@ -1,6 +1,7 @@
 ﻿body {
     padding-top: 50px;
     padding-bottom: 20px;
+    background-color: #6d7987;
 }
 
 /* Set padding to keep content from hitting the edges */
@@ -15,4 +16,31 @@ select,
 textarea {
     max-width: 280px;
 }
+
+footer {
+    position: absolute;
+    bottom: 0;
+    color: #070304;
+}
+
+.navbar-color {
+    background-color: #3365a4
+}
+
+.navbar-inverse .navbar-nav li a {
+    color: #ffffff
+}
+
+.navbar-header {
+    background-color: #3365a4
+}
+
+.navbar-inverse .navbar-collapse, .navbar-inverse .navbar-form {
+    background-color: #3365a4
+}
+
+.navbar .navbar-inverse .navbar-fixed-top .navbar-static-top {
+    background-color: #3365a4
+}
+
 
