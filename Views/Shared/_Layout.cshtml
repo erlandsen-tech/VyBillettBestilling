@@ -6,7 +6,14 @@
     <title>@ViewBag.Title</title>
     <link href="~/Content/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/font-awesome.css" rel="stylesheet" />
+    <link href="~/Content/css/select2.min.css" rel="stylesheet" />
+    <link rel="icon" type="image/png" href="@Url.Content("~/Resources/Images/vy_logo.png")" />
     <script src="~/Scripts/modernizr-2.8.3.js"></script>
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/jquery-ui-1.12.1.min.js"></script>
+    <script src="~/Scripts/select2.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
     @RenderSection("Styles", required: false)
 </head>
 <body>
@@ -15,7 +22,7 @@
         <div class="container navbar-color">
             <div class="navbar-header">
                 <a class="navbar-brand" href="/Home/Index">
-                    <img src="~/Resources/Images/vy_logo.png" class="img-fluid" style="max-height:100%; width:auto;"alt="">
+                    <img src="~/Resources/Images/vy_logo.png" class="img-fluid" style="max-height:100%; width:auto;" alt="">
                 </a>
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                     <span class="icon-bar"></span>
@@ -25,8 +32,22 @@
             </div>
             <div class="navbar-collapse collapse navbar-dark bg-light">
                 <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Kundeliste", "Liste", "Kunde")</li>
-                    <li>@Html.ActionLink("Registrer", "Registrer", "Kunde")</li>
+                    <li>
+                        <a href="@Url.Action("Index", "Home")" class="btn btn-primary">
+                            <i class="fa fa-home"></i>
+                            <span>
+                                <strong>Hjem</strong>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="@Url.Action("Handlekurv", "Home")" class="btn btn-primary">
+                            <i class="fa fa-shopping-cart"></i>
+                            <span>
+                                <strong>Handlekurv</strong>
+                            </span>
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -40,7 +61,5 @@
             </footer>
         </div>
     </div>
-    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
-    <script src="~/Scripts/bootstrap.min.js"></script>
 </body>
 </html>

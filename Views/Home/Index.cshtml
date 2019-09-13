@@ -5,17 +5,44 @@
     @section Styles
 {
         <link href="@Url.Content("~/Content/Index.css")" rel="stylesheet" type="text/css" />
+
     }
+
 </head>
 <body>
-    <div class="bg container-fluid">
+    <div class="bg container-fluid femti">
         <div class="panel-heading header" align="center">
             <h2>Hvor vil du reise?</h2>
         </div>
         <div class="form-group has-search" align="center">
-            <span class="fa fa-search form-control-feedback"></span>
-            <input type="text" class="form-control mb-1" placeholder="Reise Fra">
-            <input type="text" class="form-control til" placeholder="Reise Til">
+            <div class="input-icons">
+                <i class="fa fa-search icon"></i>
+                <select class="reiseFra input-field" placeholder="Reise Fra" data-icon="fa fa-search" name="reiseFra">
+                    <option></option>
+                    <option value="AL">Alabama</option>
+                    <option value="WY">Wyoming</option>
+                </select>
+                <i class="fa fa-search icon"></i>
+
+                <select class="reiseTil input-field" placeholder="Reise Fra" name="reiseTil">
+                    <option></option>
+                    <option value="AL">Alabama</option>
+                    <option value="WY">Wyoming</option>
+                </select>
+            </div>
         </div>
+
     </div>
+    <script>
+        $(document).ready(function () {
+            $('.reiseFra').select2({
+                placeholder: "Reise Fra",
+                allowClear: true
+            });
+            $('.reiseTil').select2({
+                placeholder: "Reise Til",
+                allowClear: true
+            });
+        });
+    </script>
 </body>

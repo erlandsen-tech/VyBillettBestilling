@@ -22,3 +22,33 @@ input.til {
     text-align: right;
     margin-top: 1em;
 }
+
+.input-icons i {
+    position: absolute;
+}
+
+.input-icons {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.icon {
+    padding: 10px;
+    color: #3365a4;
+    min-width: 50px;
+    text-align: center;
+}
+
+.input-field {
+    width: 100%;
+    padding: 10px;
+    text-align: center;
+}
+
+.femti {
+    display: inline-block;
+    height: 50%;
+    position: fixed;
+    width: 100%;
+}
+
