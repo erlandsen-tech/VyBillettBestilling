@@ -109,6 +109,7 @@
     <Content Include="Scripts\jquery-3.3.1.slim.js" />
     <Content Include="Scripts\jquery-3.3.1.slim.min.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="Scripts\Pages\Index.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -117,7 +118,9 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\Bestilling.cs" />
     <Compile Include="Models\Billett.cs" />
+    <Compile Include="Models\Reise.cs" />
     <Compile Include="Models\Fjas.cs" />
     <Compile Include="Models\VyDbContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

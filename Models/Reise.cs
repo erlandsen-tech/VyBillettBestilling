@@ -6,11 +6,11 @@ using System.Web;
 
 namespace VyBillettBestilling.Models
 {
-    public class Handlekurv
+    public class Reise
     {
         [Key]
-        public string HandlekurvId { get; set; }
-        public List<Billett> Billetter { get; set; }
-        public System.DateTime SistOppdatert { get; set; }
+        public int Id { get; set; }
+        public string ReiseFra { get; set; }
+        public string ReiseTil { get; set; }
     }
 }
