@@ -185,9 +185,12 @@
     <Compile Include="Models\Bestilling.cs" />
     <Compile Include="Models\Billett.cs" />
     <Compile Include="Models\DummyData.cs" />
+    <Compile Include="Models\Stasjon.cs" />
+    <Compile Include="Models\Utilities.cs" />
     <Compile Include="Models\Reise.cs" />
     <Compile Include="Models\Fjas.cs" />
     <Compile Include="Models\VyDbContext.cs" />
+    <Compile Include="Models\VyDbTilgang.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
