@@ -1,4 +1,4 @@
-﻿@Model Models.Bestilling;
+﻿@model VyBillettBestilling.Models.Bestilling
 
 <head>
     @{
@@ -7,40 +7,67 @@
     @section Styles
         {
         <link href="@Url.Content("~/Content/Index.css")" rel="stylesheet" type="text/css" />
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-touchspin/4.2.5/jquery.bootstrap-touchspin.min.css">
+        <link rel="stylesheet" type="text/css" href="~/Scripts/Plugins/datetimepicker/jquery.datetimepicker.min.css">
     }
 </head>
+
 <body>
+    <form method="post" action="~/Home/Bestilling">
+        <div class="bg container femti">
+            <div class="panel-heading header" align="left">
+                <h2>Hvor vil du reise?</h2>
+            </div>
 
+            <div class="form-group has-search" align="left">
+                <div class="input-icons">
+                    <i class="fa fa-search icon"></i>
 
-    <div class="bg container-fluid femti">
-        <div class="panel-heading header" align="center">
-            <h2>Hvor vil du reise?</h2>
-        </div>
-        <div class="form-group has-search" align="center">
-            <div class="input-icons">
-                <i class="fa fa-search icon"></i>
-                <select class="reiseFra input-field" placeholder="Reise Fra" data-icon="fa fa-search" name="reiseFra">
-                    <option></option>
-                    <option value="oslo">Oslo</option>
-                    <option value="bergen">Bergen</option>
-                    <option value="kristiansand">Kristiansand</option>
-                </select>
-                <i class="fa fa-search icon"></i>
+                    <select class="reiseFra input-field form-control" placeholder="Reise Fra" data-icon="fa fa-search" name="ReiseFra">
+                        <option></option>
+                        <option value="oslo">Oslo</option>
+                        <option value="bergen">Bergen</option>
+                        <option value="kristiansand">Kristiansand</option>
+                    </select>
+                    <br />
+                    <i class="fa fa-search icon"></i>
 
-                <select class="reiseTil input-field" placeholder="Reise Fra" name="reiseTil">
-                    <option></option>
-                    <option value="oslo">Oslo</option>
-                    <option value="bergen">Bergen</option>
-                    <option value="kristiansand">Kristiansand</option>
-                </select>
+                    <select class="reiseTil input-field form-control" placeholder="Reise Fra" name="ReiseTil">
+                        <option></option>
+                        <option value="oslo">Oslo</option>
+                        <option value="bergen">Bergen</option>
+                        <option value="kristiansand">Kristiansand</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="d-flex flex-row form-group" style="max-width:150px;" align="left" id="seleksjonsBoks">
+                <p class="font-weight-bold text-color-white">Voksen:</p>
+                <input type="number" class="form-control" value="1" id="voksen" name="AntallVoksne">
+
+                <p class="font-weight-bold text-color-white">Barn:</p>
+                <input type="number" class="form-control" value="0" id="barn" name="AntallBarn">
+
+                <p class="font-weight-bold text-color-white">Student/Honnør:</p>
+                <input type="number" class="form-control" value="0" id="student" name="AntallStudent">
+                <br />
+
+                <p class="font-weight-bold text-color-white">Tidspunkt:</p>
+                <input type="text" id="date" name="DateTime" />
+
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" value="Sjekk tilgjengelighet og bestill" class="btn btn-primary" />
+                    </div>
+                </div>
+
             </div>
         </div>
-        <div class="qty mt-5">
-            <span class="minus bg-dark">-</span>
-            <input type="number" class="count" name="qty" value="1">
-            <span class="plus bg-dark">+</span>
-        </div>
 
-    </div>
+    </form>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-touchspin/4.2.5/jquery.bootstrap-touchspin.min.js"></script>
+    <script src="~/Scripts/Plugins/datetimepicker/jquery.datetimepicker.full.min.js"></script>
     <script type="text/javascript" src='@Url.Content("~/Scripts/Pages/Index.js")'></script>
 </body>

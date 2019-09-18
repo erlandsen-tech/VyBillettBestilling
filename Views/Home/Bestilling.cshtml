@@ -1,0 +1,28 @@
+﻿@model VyBillettBestilling.Models.Bestilling
+
+@{
+    ViewBag.Title = "Bestilling";
+}
+
+@section Styles
+        {
+    <link href="@Url.Content("~/Content/Bestilling.css")" rel="stylesheet" type="text/css" />
+}
+<body>
+    <div class="bg container femti">
+
+        <h2>Bestilling</h2>
+        <table class="table">
+            <tr>
+                <th>Reise fra:</th>
+                <th>Reise til:</th>
+
+            </tr>
+            <tr>
+                <td>@Model.ReiseFra</td>
+                <td>@Model.ReiseTil</td>
+            </tr>
+        </table>
+    </div>
+</body>
+
