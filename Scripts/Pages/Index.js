@@ -10,6 +10,7 @@ $(document).ready(function () {
 
     });
     $(".reiseTil").prop("disabled", true);
+    $("#seleksjonsBoks").hide();
 });
 
 $(".reiseFra").change(function () {
@@ -23,5 +24,36 @@ $(".reiseFra").change(function () {
 });
 
 $(".reiseTil").change(function () {
-
+    if ($(".reiseTil").val() == "") {
+        $("#seleksjonsBoks").hide( 'slow¨' );
+    }
+    else {
+        $("#seleksjonsBoks").show( 'slow' );
+    }
 })
+
+$("#voksen").TouchSpin({
+    min: 0,
+    max: 100,
+    step: 1
+});
+
+$("#barn").TouchSpin({
+    min: 0,
+    max: 100,
+    step: 1
+});
+
+$("#student").TouchSpin({
+    min: 0,
+    max: 100,
+    step: 1
+});
+$('#date').datetimepicker(
+    {
+        step: 5,
+        minDate: 0,
+        minTime: '00:00',
+        locale: 'no'
+    });
+
