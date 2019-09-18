@@ -1,8 +1,11 @@
 {
   "ExpandedNodes": [
     "",
-    "\\Controllers"
+    "\\Controllers",
+    "\\Models",
+    "\\Views",
+    "\\Views\\Home"
   ],
-  "SelectedNode": "\\Controllers\\HomeController.cs",
+  "SelectedNode": "\\VyBillettBestilling.csproj",
   "PreviewInSolutionExplorer": false
 }
