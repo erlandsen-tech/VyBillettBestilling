@@ -116,6 +116,9 @@ namespace VyBillettBestilling.Models
             public virtual List<DbHovedstrekning> Hovedstrekninger { get; set; } // De fleste stasjoner har en i denne lista.
             // De som har >= 2 utgjor sammenknytninger mellom DbHovedstrekninger,
             // og er samtidig endepunkt for de tilknyttede hovedstrekningene
+            // NBNBNBNB!!! : Ringbaner bor fa satt begge endene i denne lista for at stisokingen skal fungere riktig,
+            // altsa; samme stasjon (tilknytningsstasjonen) skal settes i lista to ganger. Mulig det lager basekroll, ma i sa
+            // fall ordne det pa annen mate
 
 
             // Dropper 
