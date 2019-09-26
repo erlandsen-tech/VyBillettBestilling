@@ -9,32 +9,32 @@ namespace VyBillettBestilling.Models
     public class VyDbTilgang
     {
 
+
+        VyDbContext db = new VyDbContext();
         public IEnumerable<Stasjon> HentAlleStasjoner()
         {
-            using (var db = new VyDbContext())
+            var alleStasjoner = db.Stasjoner.Select(dbst => new Stasjon
             {
-                return db.Stasjoner.Select(dbst => new Stasjon
-                {
-                    id = dbst.StasjonId,
-                    stasjon_navn = dbst.StasjNavn,
-                    stasjon_sted = dbst.StasjSted,
-                    breddegrad = dbst.Breddegrad,
-                    lengdegrad = dbst.Lengdegrad,
-                    hovedstrekninger = dbst.Hovedstrekninger.Select(hs => hs.HovstrId).ToArray(),
-                    nett_id = dbst.NettId,
-                    nett_navn = dbst.Nett.Nettnavn
-                });
+                id = dbst.StasjonId,
+                stasjon_navn = dbst.StasjNavn,
+                stasjon_sted = dbst.StasjSted,
+                breddegrad = dbst.Breddegrad,
+                lengdegrad = dbst.Lengdegrad,
+                hovedstrekninger = dbst.Hovedstrekninger.Select(hs => hs.HovstrId),
+                nett_id = dbst.NettId,
+                nett_navn = dbst.Nett.Nettnavn
+            });
+            return alleStasjoner;
 
-                // Demonstrasjon pa hvordan gjore det pa en annen mate:
-                // Vet ikke om denne Distinct-en gjor susen. SJEKK! Da kan slutt-Distinct-en droppes:
-                //return db.Hovedstrekninger.SelectMany(hs => hs.Stasjoner//.Distinct()
-                //,
-                //    (dbhs, dbst) => new Stasjon
-                //    {
-                //        stasjon_navn = dbst.StasjNavn
-                //    }
-                //).Distinct().OrderBy(n => n.stasjon_navn+n.stasjon_sted);
-            }
+            // Demonstrasjon pa hvordan gjore det pa en annen mate:
+            // Vet ikke om denne Distinct-en gjor susen. SJEKK! Da kan slutt-Distinct-en droppes:
+            //return db.Hovedstrekninger.SelectMany(hs => hs.Stasjoner//.Distinct()
+            //,
+            //    (dbhs, dbst) => new Stasjon
+            //    {
+            //        stasjon_navn = dbst.StasjNavn
+            //    }
+            //).Distinct().OrderBy(n => n.stasjon_navn+n.stasjon_sted);
         }
 
         public IEnumerable<Stasjon> HentStasjonerPaNett(int nettId)
@@ -75,7 +75,7 @@ namespace VyBillettBestilling.Models
                 DbStasjon a = db.Stasjoner.Find(ida);
                 DbStasjon b = db.Stasjoner.Find(idb);
                 if (ida == idb) // Start- og stoppstasjon er den samme. Det er bare tull, men returnerer en "sti" likevel
-                    return new []{new []{ new Stasjon
+                    return new[]{new []{ new Stasjon
                     {
                         id = a.StasjonId,
                         stasjon_navn = a.StasjNavn,

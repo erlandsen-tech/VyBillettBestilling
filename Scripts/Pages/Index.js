@@ -1,5 +1,7 @@
 ﻿
 $(document).ready(function () {
+    HentStasjoner();
+
     $('.reiseFra').select2({
         placeholder: "Reise Fra",
         allowClear: true
@@ -25,10 +27,10 @@ $(".reiseFra").change(function () {
 
 $(".reiseTil").change(function () {
     if ($(".reiseTil").val() == "") {
-        $("#seleksjonsBoks").hide( 'slow¨' );
+        $("#seleksjonsBoks").hide('slow¨');
     }
     else {
-        $("#seleksjonsBoks").show( 'slow' );
+        $("#seleksjonsBoks").show('slow');
     }
 })
 
@@ -57,3 +59,42 @@ $('#date').datetimepicker(
         locale: 'no'
     });
 
+
+function VisDropDown(stasjon) {
+    var utStreng = "";
+    for (var i in stasjon) {
+        //Legger kun til stasjon i reiseTil listen dersom denne ikke er valg i reisefra
+        if (stasjon[i].id != $("#ReiseFra option:selected").val()) {
+            console.log(stasjon[i].id + " <-- stasjon selected --> " + $("#ReiseFra option:selected").val())
+            utStreng += "<option value='" + stasjon[i].id + "'>" + stasjon[i].stasjon_navn + "</option>";
+        }
+    }
+    //Sjekker om det finnes elementer i listen fra før
+    if ($("#ReiseFra option:selected").val() == "" && $("#ReiseFra option").length < 2) {
+        $("#ReiseFra").append(utStreng);
+    }
+    else {
+        $("#ReiseTil").append(utStreng);
+    }
+}
+
+function skifte() {
+    //Sørger for å tømme listen i ReiseTil ved skifte av frastasjon
+    $("#ReiseTil").empty();
+    HentStasjoner();
+}
+
+
+function HentStasjoner() {
+    $.ajax({
+        url: '/home/stasjonsliste',
+        type: 'GET',
+        dataType: 'json',
+        success: function (stasjon) {
+            VisDropDown(stasjon);
+        },
+        error: function (x, y, z) {
+            alert(x + '\n' + y + '\n' + z);
+        }
+    });
+}

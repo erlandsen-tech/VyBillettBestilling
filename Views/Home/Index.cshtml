@@ -1,5 +1,4 @@
 ﻿@model VyBillettBestilling.Models.Bestilling
-
 <head>
     @{
         ViewBag.Title = "Velkommen til VY";
@@ -11,6 +10,9 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-touchspin/4.2.5/jquery.bootstrap-touchspin.min.css">
         <link rel="stylesheet" type="text/css" href="~/Scripts/Plugins/datetimepicker/jquery.datetimepicker.min.css">
     }
+
+    <script type="text/javascript">
+    </script>
 </head>
 
 <body>
@@ -24,20 +26,14 @@
                 <div class="input-icons">
                     <i class="fa fa-search icon"></i>
 
-                    <select class="reiseFra input-field form-control" placeholder="Reise Fra" data-icon="fa fa-search" name="ReiseFra">
+                    <select class="reiseFra input-field form-control" onchange="skifte()" placeholder="Reise Fra" data-icon="fa fa-search" id="ReiseFra" name="ReiseFra">
                         <option></option>
-                        <option value="oslo">Oslo</option>
-                        <option value="bergen">Bergen</option>
-                        <option value="kristiansand">Kristiansand</option>
                     </select>
                     <br />
                     <i class="fa fa-search icon"></i>
 
-                    <select class="reiseTil input-field form-control" placeholder="Reise Fra" name="ReiseTil">
+                    <select class="reiseTil input-field form-control" placeholder="Reise Fra" id="ReiseTil" name="ReiseTil">
                         <option></option>
-                        <option value="oslo">Oslo</option>
-                        <option value="bergen">Bergen</option>
-                        <option value="kristiansand">Kristiansand</option>
                     </select>
                 </div>
             </div>
@@ -66,8 +62,9 @@
         </div>
 
     </form>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-touchspin/4.2.5/jquery.bootstrap-touchspin.min.js"></script>
-    <script src="~/Scripts/Plugins/datetimepicker/jquery.datetimepicker.full.min.js"></script>
-    <script type="text/javascript" src='@Url.Content("~/Scripts/Pages/Index.js")'></script>
 </body>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-touchspin/4.2.5/jquery.bootstrap-touchspin.min.js"></script>
+<script src="~/Scripts/Plugins/datetimepicker/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript" src='@Url.Content("~/Scripts/Pages/Index.js")'></script>

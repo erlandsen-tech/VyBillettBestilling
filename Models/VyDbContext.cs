@@ -22,7 +22,7 @@ namespace VyBillettBestilling.Models
 
         public DbSet<DbKunde> Kunder { get; set; } // Navn, adresse, tlf o.l.
         public DbSet<DbPassasjertype> Passasjertyper { get; set; } // Ordinaer, student, honnor osv. med tilhorende rabatter
-        
+
         // Tabeller for linjenettet:
         public DbSet<DbStasjon> Stasjoner { get; set; }
         // Opplisting av stasjoner, ev. med data om plattformer, geografisk plassering og annet (betjent?, toalett? osv.)
@@ -55,7 +55,7 @@ namespace VyBillettBestilling.Models
             public virtual List<DbHovedstrekning> Hovedstrekninger { get; set; } // IEnumerable eller ICollection?
             public virtual List<DbStasjon> Stasjoner { get; set; } // IEnumerable eller ICollection? // Droppe denne?
         }
-        
+
         public class DbHovedstrekning
         {
             [Key]
@@ -138,7 +138,7 @@ namespace VyBillettBestilling.Models
             [Key]
             public int PasstypId { get; set; }
 
-            [Required] 
+            [Required]
             public String TypeNavn { get; set; } // Ordinaer, student, barn, honnor, verneplikt, avtale(navn) m/prosent, osv.
             [Range(0, 100, ErrorMessage = "Rabatt min. 0 %, max 100 %")] // Gjor dette verdien Required? Nei, sjekker bare non-NULL-verdier
             public double Rabatt { get; set; }
@@ -181,10 +181,11 @@ namespace VyBillettBestilling.Models
             public double Pris { get; set; }
             public String Passasjertype { get; set; }
             public double Rabattsats { get; set; }
-    }
+        }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
+            modelBuilder.Conventions.Remove<OneToManyCascadeDeleteConvention>();
             modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
         }
     }
