@@ -10,31 +10,32 @@ namespace VyBillettBestilling.Models
     {
 
         public IQueryable<Stasjon> HentAlleStasjoner()
-        {
-            using (var db = new VyDbContext())
-            {
-                return db.Stasjoner.Select(dbst => new Stasjon
-                {
-                    id = dbst.StasjonId,
-                    stasjon_navn = dbst.StasjNavn,
-                    stasjon_sted = dbst.StasjSted,
-                    breddegrad = dbst.Breddegrad,
-                    lengdegrad = dbst.Lengdegrad,
-                    hovedstrekninger = dbst.Hovedstrekninger.Select(hs => hs.HovstrId).ToArray(),
-                    nett_id = dbst.NettId,
-                    nett_navn = dbst.Nett.Nettnavn
-                });
 
-                // Demonstrasjon pa hvordan gjore det pa en annen mate:
-                // Vet ikke om denne Distinct-en gjor susen. SJEKK! Da kan slutt-Distinct-en droppes:
-                //return db.Hovedstrekninger.SelectMany(hs => hs.Stasjoner//.Distinct()
-                //,
-                //    (dbhs, dbst) => new Stasjon
-                //    {
-                //        stasjon_navn = dbst.StasjNavn
-                //    }
-                //).Distinct().OrderBy(n => n.stasjon_navn+n.stasjon_sted);
-            }
+
+        VyDbContext db = new VyDbContext();
+        {
+            var alleStasjoner = db.Stasjoner.Select(dbst => new Stasjon
+            {
+                id = dbst.StasjonId,
+                stasjon_navn = dbst.StasjNavn,
+                stasjon_sted = dbst.StasjSted,
+                breddegrad = dbst.Breddegrad,
+                lengdegrad = dbst.Lengdegrad,
+                hovedstrekninger = dbst.Hovedstrekninger.Select(hs => hs.HovstrId),
+                nett_id = dbst.NettId,
+                nett_navn = dbst.Nett.Nettnavn
+            });
+            return alleStasjoner;
+
+            // Demonstrasjon pa hvordan gjore det pa en annen mate:
+            // Vet ikke om denne Distinct-en gjor susen. SJEKK! Da kan slutt-Distinct-en droppes:
+            //return db.Hovedstrekninger.SelectMany(hs => hs.Stasjoner//.Distinct()
+            //,
+            //    (dbhs, dbst) => new Stasjon
+            //    {
+            //        stasjon_navn = dbst.StasjNavn
+            //    }
+            //).Distinct().OrderBy(n => n.stasjon_navn+n.stasjon_sted);
         }
 
         public IQueryable<Stasjon> HentStasjonerPaNett(int nettId)
@@ -84,6 +85,7 @@ namespace VyBillettBestilling.Models
 
             using (var db = new VyDbContext())
             {
+
                 bool ikkeferdig = true; // hjelpeverdi til metodeflyt
 
                 a = db.Stasjoner.Find(ida);
@@ -104,6 +106,7 @@ namespace VyBillettBestilling.Models
                         strekninger.Add(new List<DbHovedstrekning> { hs });
                     ikkeferdig = false;
                     return new List<List<Stasjon>> { new List<Stasjon> { new Stasjon
+
                     {
                         id = a.StasjonId,
                         stasjon_navn = a.StasjNavn,
