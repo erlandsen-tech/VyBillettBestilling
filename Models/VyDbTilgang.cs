@@ -10,32 +10,32 @@ namespace VyBillettBestilling.Models
     {
 
         public IQueryable<Stasjon> HentAlleStasjoner()
-
-
-        VyDbContext db = new VyDbContext();
         {
-            var alleStasjoner = db.Stasjoner.Select(dbst => new Stasjon
+            VyDbContext db = new VyDbContext();
             {
-                id = dbst.StasjonId,
-                stasjon_navn = dbst.StasjNavn,
-                stasjon_sted = dbst.StasjSted,
-                breddegrad = dbst.Breddegrad,
-                lengdegrad = dbst.Lengdegrad,
-                hovedstrekninger = dbst.Hovedstrekninger.Select(hs => hs.HovstrId),
-                nett_id = dbst.NettId,
-                nett_navn = dbst.Nett.Nettnavn
-            });
-            return alleStasjoner;
+                var alleStasjoner = db.Stasjoner.Select(dbst => new Stasjon
+                {
+                    id = dbst.StasjonId,
+                    stasjon_navn = dbst.StasjNavn,
+                    stasjon_sted = dbst.StasjSted,
+                    breddegrad = dbst.Breddegrad,
+                    lengdegrad = dbst.Lengdegrad,
+                    hovedstrekninger = dbst.Hovedstrekninger.Select(hs => hs.HovstrId),
+                    nett_id = dbst.NettId,
+                    nett_navn = dbst.Nett.Nettnavn
+                });
+                return alleStasjoner;
 
-            // Demonstrasjon pa hvordan gjore det pa en annen mate:
-            // Vet ikke om denne Distinct-en gjor susen. SJEKK! Da kan slutt-Distinct-en droppes:
-            //return db.Hovedstrekninger.SelectMany(hs => hs.Stasjoner//.Distinct()
-            //,
-            //    (dbhs, dbst) => new Stasjon
-            //    {
-            //        stasjon_navn = dbst.StasjNavn
-            //    }
-            //).Distinct().OrderBy(n => n.stasjon_navn+n.stasjon_sted);
+                // Demonstrasjon pa hvordan gjore det pa en annen mate:
+                // Vet ikke om denne Distinct-en gjor susen. SJEKK! Da kan slutt-Distinct-en droppes:
+                //return db.Hovedstrekninger.SelectMany(hs => hs.Stasjoner//.Distinct()
+                //,
+                //    (dbhs, dbst) => new Stasjon
+                //    {
+                //        stasjon_navn = dbst.StasjNavn
+                //    }
+                //).Distinct().OrderBy(n => n.stasjon_navn+n.stasjon_sted);
+            }
         }
 
         public IQueryable<Stasjon> HentStasjonerPaNett(int nettId)
@@ -147,7 +147,7 @@ namespace VyBillettBestilling.Models
                         List<Stasjon> revListe = new List<Stasjon>(2 + stasj.Count - stListe.Count);
                         aidx -= stListe.Count * inkr; // setter aidx tilbake
                         inkr = -inkr; // negerer, for na skal det telles andre veien
-                        for (stopp = (inkr == 1)? stasj.Count : -1; aidx != stopp; aidx += inkr)
+                        for (stopp = (inkr == 1) ? stasj.Count : -1; aidx != stopp; aidx += inkr)
                             revListe.Add(konverterStasjon(stasj[aidx]));
                         aidx = (inkr == 1) ? 0 : stasj.Count - 1;
                         for (stopp = bidx + inkr; aidx != stopp; aidx += inkr)
@@ -173,8 +173,8 @@ namespace VyBillettBestilling.Models
 
                 IEnumerable<DbHovedstrekning> nabohs;
 
-                List<DbHovedstrekning>traverserfraForste = new List<DbHovedstrekning>();
-                List<DbHovedstrekning>traverserfraSiste = new List<DbHovedstrekning>();
+                List<DbHovedstrekning> traverserfraForste = new List<DbHovedstrekning>();
+                List<DbHovedstrekning> traverserfraSiste = new List<DbHovedstrekning>();
 
                 if (ikkeferdig && ahs.Count() == 1)
                 {   // A ikke pa knutepunkt. A har da bare en hovedstrekning.
@@ -185,7 +185,7 @@ namespace VyBillettBestilling.Models
                     stitilna.Add(ahs.First());
                     if (sammeHs)
                     {   // Finner hvilken ende av hovedstrekningen som lista skal bygges fra.
-                        asisteSt = (ahs.First().Stasjoner.IndexOf(a) < ahs.First().Stasjoner.IndexOf(b))?
+                        asisteSt = (ahs.First().Stasjoner.IndexOf(a) < ahs.First().Stasjoner.IndexOf(b)) ?
                             ahs.First().Stasjoner.First() : ahs.First().Stasjoner.Last();
                         strekninger.Add(new List<DbHovedstrekning>(stitilna)); // Legger inn fellesstrekningen
                     }
@@ -398,7 +398,7 @@ namespace VyBillettBestilling.Models
                     ++g;
                 }
 
-                
+
 
 
             }
@@ -412,7 +412,7 @@ namespace VyBillettBestilling.Models
                 for (int i = 0; i <= aidx; ++i)
                     stListe.Add(konverterStasjon(dbStasjList[i]));
                 List<Stasjon> stListe2 = new List<Stasjon>(dbStasjList.Count - aidx);
-                for ( ; aidx < dbStasjList.Count; ++aidx)
+                for (; aidx < dbStasjList.Count; ++aidx)
                     stListe2.Add(konverterStasjon(dbStasjList[aidx]));
                 return new List<Stasjon>[] { stListe, stListe2 };
             }
