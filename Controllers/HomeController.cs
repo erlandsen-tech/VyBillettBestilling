@@ -9,7 +9,6 @@ namespace VyBillettBestilling.Controllers
 {
     public class HomeController : Controller
     {
-        VyDbContext Context = new VyDbContext();
         public ActionResult Index()
         {
             Session["Bestilling"] = new Bestilling();
@@ -23,6 +22,19 @@ namespace VyBillettBestilling.Controllers
         public ActionResult Bestilling(Bestilling InnBestilling)
         {
             return View(InnBestilling);
+        }
+        [HttpGet]
+        public JsonResult Stasjonsliste()
+        {
+            VyDbTilgang Context = new VyDbTilgang();
+            return Json(Context.HentAlleStasjoner(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public JsonResult ReiseRute(int stasjA, int stasjB)
+        {
+            var repo = new VyDbTilgang();
+            return Json(repo.stierMellomStasjoner(stasjA, stasjB), JsonRequestBehavior.AllowGet);
         }
     }
 }
