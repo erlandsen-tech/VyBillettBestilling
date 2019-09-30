@@ -66,7 +66,7 @@ namespace VyBillettBestilling.Models
             public virtual DbNett Nett { get; set; } // DbHovedstrekning-er pa samme Nett er forbundet med hverandre med et antall DbHovedstrekninger
 
             public virtual List<DbDelstrekning> Delstrekninger { get; set; }
-            public virtual List<DbStasjon> Stasjoner { get; set; } // Droppe denne?
+            public virtual List<DbStasjon> Stasjoner { get; set; }
         }
 
         public class DbDelstrekning
@@ -184,7 +184,9 @@ namespace VyBillettBestilling.Models
             public double Pris { get; set; }
             public String Passasjertype { get; set; }
             public double Rabattsats { get; set; }
-    }
+            public DateTime Kjopsdato { get; set; }
+
+        }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

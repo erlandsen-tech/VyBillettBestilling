@@ -26,9 +26,30 @@ namespace VyBillettBestilling.Models
         public double lengdegrad { get; set; }
 
         public int nett_id { get; set; }
+        [Display(Name = "Nettnavn")]
         public String nett_navn { get; set; }
-        public IEnumerable<int> hovedstrekninger { get; set; } // De fleste stasjoner har en i denne lista.
+        public IList<int> hovedstrekninger { get; set; } // De fleste stasjoner har en i denne lista.
         // De som har >= 2 utgjor sammenknytninger mellom DbHovedstrekninger,
         // og er samtidig endepunkt for de tilknyttede hovedstrekningene
     }
+
+    public class Nett
+    {
+        public int id { get; set; }
+        [Display(Name = "Nettnavn")]
+        public String nett_navn { get; set; }
+        public IList<int> hovedstrekninger { get; set; }
+        public IList<int> stasjoner { get; set; }
+    }
+
+    public class Hovedstrekning
+    {
+        public int id { get; set; }
+        public int nett_id { get; set; }
+        [Display(Name = "Nettnavn")]
+        public String nett_navn { get; set; }
+        //public IList<int> delstrekninger { get; set; } // Dropper denne; delstrekninger er en intern db-konstruksjon
+        public IList<int> stasjoner { get; set; }
+    }
+
 }

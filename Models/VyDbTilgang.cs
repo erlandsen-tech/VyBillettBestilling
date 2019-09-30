@@ -2,28 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+//using System.Data.Entity;
 using static VyBillettBestilling.Models.VyDbContext;
 
 namespace VyBillettBestilling.Models
 {
     public class VyDbTilgang
     {
-
-        public IQueryable<Stasjon> HentAlleStasjoner()
+        public Stasjon HentStasjon(int stasjId)
         {
             using (var db = new VyDbContext())
             {
-                return db.Stasjoner.Select(dbst => new Stasjon
-                {
-                    id = dbst.StasjonId,
-                    stasjon_navn = dbst.StasjNavn,
-                    stasjon_sted = dbst.StasjSted,
-                    breddegrad = dbst.Breddegrad,
-                    lengdegrad = dbst.Lengdegrad,
-                    hovedstrekninger = dbst.Hovedstrekninger.Select(hs => hs.HovstrId).ToArray(),
-                    nett_id = dbst.NettId,
-                    nett_navn = dbst.Nett.Nettnavn
-                });
+                var funnet = db.Stasjoner.Find(stasjId);
+                return (funnet == null) ? null : konverterStasjon(funnet);
+            }
+        }
+        public IEnumerable<Stasjon> HentAlleStasjoner()
+        {
+            using (var db = new VyDbContext())
+            {
+                return db.Stasjoner.Select(dbst => konverterStasjon(dbst));
 
                 // Demonstrasjon pa hvordan gjore det pa en annen mate:
                 // Vet ikke om denne Distinct-en gjor susen. SJEKK! Da kan slutt-Distinct-en droppes:
@@ -36,35 +34,38 @@ namespace VyBillettBestilling.Models
                 //).Distinct().OrderBy(n => n.stasjon_navn+n.stasjon_sted);
             }
         }
-
-        public IQueryable<Stasjon> HentStasjonerPaNett(int nettId)
+        public IEnumerable<Stasjon> HentStasjonerPaNett(int nettId)
         {
             using (var db = new VyDbContext())
             {
-                return db.Stasjoner.Where(dbst => dbst.NettId == nettId).Select(dbst => new Stasjon
-                {
-                    id = dbst.StasjonId,
-                    stasjon_navn = dbst.StasjNavn,
-                    stasjon_sted = dbst.StasjSted,
-                    breddegrad = dbst.Breddegrad,
-                    lengdegrad = dbst.Lengdegrad,
-                    hovedstrekninger = dbst.Hovedstrekninger.Select(hs => hs.HovstrId).ToArray(),
-                    nett_id = dbst.NettId,
-                    nett_navn = dbst.Nett.Nettnavn
-                });
+                var funnet = db.Nett.Find(nettId);
+                return (funnet == null) ? null : funnet.Stasjoner.Select(dbst => konverterStasjon(dbst));
 
-                // Demonstrasjon pa hvordan gjore det pa en annen mate:
-                //return db.Nett.Find(nettId).Stasjoner.Select(dbst => new Stasjon
-                //{
-                //    id = dbst.StasjonId,
-                //    stasjon_navn = dbst.StasjNavn,
-                //    stasjon_sted = dbst.StasjSted,
-                //    breddegrad = dbst.Breddegrad,
-                //    lengdegrad = dbst.Lengdegrad,
-                //    hovedstrekninger = dbst.Hovedstrekninger.Select(hs => hs.HovstrId).ToArray(),
-                //    nett_id = dbst.NettId,
-                //    nett_navn = dbst.Nett.Nettnavn
-                //});
+                //Demonstrasjon pa hvordan gjore det pa en annen mate:
+                //return db.Stasjoner.Where(dbst => dbst.NettId == nettId).Select(dbst => konverterStasjon(dbst));
+            }
+        }
+        public IList<Stasjon> HentStasjonerPaHovedstrekning(int hovstrId)
+        {
+            using (var db = new VyDbContext())
+            {
+                var funnet = db.Hovedstrekninger.Find(hovstrId);
+                return (funnet == null) ? null : funnet.Stasjoner.Select(dbst => konverterStasjon(dbst)).ToList();
+            }
+        }
+        public IEnumerable<Stasjon> HentStasjoner(String stasjNavn, String optSted = "")
+        {
+            using (var db = new VyDbContext())
+            {
+                return db.Stasjoner.Where(st => st.StasjNavn.Equals(stasjNavn) && (optSted.Length == 0 || st.StasjSted.Equals(optSted)))
+                    .Select(st => konverterStasjon(st));
+            }
+        }
+        public IEnumerable<Stasjon> HentStasjonerEtterBegNavn(String begNavn)
+        {
+            using (var db = new VyDbContext())
+            {
+                return db.Stasjoner.Where(st => st.StasjNavn.StartsWith(begNavn)).Select(st => konverterStasjon(st));
             }
         }
 
@@ -88,6 +89,8 @@ namespace VyBillettBestilling.Models
 
                 a = db.Stasjoner.Find(ida);
                 b = db.Stasjoner.Find(idb);
+                if (a == null || b == null)
+                    return null;
                 //bbredde = b.Breddegrad; blengde = b.Lengdegrad;
 
                 if (a.NettId != b.NettId) // Ingen sti finnes.
@@ -97,23 +100,14 @@ namespace VyBillettBestilling.Models
                 bhs = b.Hovedstrekninger;
                 felleshs = ahs.Intersect(bhs);
 
-                if (ida == idb) // Start- og stoppstasjon er den samme. Det er bare tull, men returnerer en/flere "stier" likevel
+                // Start- og stoppstasjon er den samme. Det er bare tull, men returnerer en/flere "stier" likevel
+                if (ida == idb)
                 {
                     // Putter tilknyttede hovedstrekning(er) i strekninger forst, for ev. senere bruk:
-                    foreach (DbHovedstrekning hs in ahs)
-                        strekninger.Add(new List<DbHovedstrekning> { hs });
+                    //foreach (DbHovedstrekning hs in ahs)
+                    //    strekninger.Add(new List<DbHovedstrekning> { hs });
                     ikkeferdig = false;
-                    return new List<List<Stasjon>> { new List<Stasjon> { new Stasjon
-                    {
-                        id = a.StasjonId,
-                        stasjon_navn = a.StasjNavn,
-                        stasjon_sted = a.StasjSted,
-                        breddegrad = a.Breddegrad,
-                        lengdegrad = a.Lengdegrad,
-                        hovedstrekninger = ahs.Select(hs => hs.HovstrId).ToArray(),
-                        nett_id = a.NettId,
-                        nett_navn = a.Nett.Nettnavn
-                    } } };
+                    return new List<List<Stasjon>> { new List<Stasjon> { konverterStasjon(a) } };
                 }
 
                 // Spesialtilfelle: A og B er pa samme blindbane eller ringbane
@@ -123,16 +117,16 @@ namespace VyBillettBestilling.Models
                     if (stasj.First().Hovedstrekninger.Count() == 1 || stasj.Last().Hovedstrekninger.Count() == 1)
                     {    // Er blindbane. Bare en sti.
                          // Putter tilknyttede hovedstrekning(er) i strekninger forst, for ev. senere bruk:
-                        strekninger.Add(new List<DbHovedstrekning> { felleshs.First() });
+                         //strekninger.Add(new List<DbHovedstrekning> { felleshs.First() });
 
                         ikkeferdig = false;
-                        return new List<List<Stasjon>> { stasjAtilB(a, b, stasj) };
+                        return new List<List<Stasjon>> { stasjAtilB(a, b, stasj).Select(st => konverterStasjon(st)).ToList() };
                     }
                     else if (stasj.First() == stasj.Last())
                     {   // Er ringbane. Legger inn de to stiene, en med en hovedstrekning og en med to,
                         // for a vise at "enden" ma krysses. Gjore det pa annen mate?
-                        strekninger.Add(new List<DbHovedstrekning> { felleshs.First() });
-                        strekninger.Add(new List<DbHovedstrekning> { felleshs.First(), felleshs.First() });
+                        //strekninger.Add(new List<DbHovedstrekning> { felleshs.First() });
+                        //strekninger.Add(new List<DbHovedstrekning> { felleshs.First(), felleshs.First() });
 
                         int aidx = stasj.IndexOf(a);
                         int bidx = stasj.IndexOf(b);
@@ -144,7 +138,7 @@ namespace VyBillettBestilling.Models
                         List<Stasjon> revListe = new List<Stasjon>(2 + stasj.Count - stListe.Count);
                         aidx -= stListe.Count * inkr; // setter aidx tilbake
                         inkr = -inkr; // negerer, for na skal det telles andre veien
-                        for (stopp = (inkr == 1)? stasj.Count : -1; aidx != stopp; aidx += inkr)
+                        for (stopp = (inkr == 1) ? stasj.Count - 1 : 0; aidx != stopp; aidx += inkr)
                             revListe.Add(konverterStasjon(stasj[aidx]));
                         aidx = (inkr == 1) ? 0 : stasj.Count - 1;
                         for (stopp = bidx + inkr; aidx != stopp; aidx += inkr)
@@ -154,8 +148,6 @@ namespace VyBillettBestilling.Models
                     }
                     //else // ingenting, det er ikke en blind- eller ringbane
                 }
-
-
 
                 // 1) Hvis noen av nabohovedstrekningene finnes tidligere i grenen; bitt i halen, ikke ga videre pa noen av hovedstrekningene
                 // 2) Hvis noen av nabohovedstrekningene har stasjon b er det funnet en sti (av hovedstrekninger). Lagre den, og ikke ga videre pa den hovedstrekningen
@@ -169,20 +161,20 @@ namespace VyBillettBestilling.Models
                 // 
 
                 IEnumerable<DbHovedstrekning> nabohs;
+                List<DbHovedstrekning> traverserfraForste = new List<DbHovedstrekning>();
+                List<DbHovedstrekning> traverserfraSiste = new List<DbHovedstrekning>();
 
-                List<DbHovedstrekning>traverserfraForste = new List<DbHovedstrekning>();
-                List<DbHovedstrekning>traverserfraSiste = new List<DbHovedstrekning>();
-
+                // A ikke pa knutepunkt. A har da bare en hovedstrekning:
                 if (ikkeferdig && ahs.Count() == 1)
-                {   // A ikke pa knutepunkt. A har da bare en hovedstrekning.
-                    // Litt triksing nedenfor for a hoppe over kode nar a og b pa samme strekning
+                {
+                    // Litt triksing nedenfor for a hoppe over kode nar a og b pa samme strekning (sammeHs == true)
                     DbStasjon aforsteSt = null;
                     DbStasjon asisteSt = null;
                     bool sammeHs = (felleshs.Count() == 1);
                     stitilna.Add(ahs.First());
                     if (sammeHs)
                     {   // Finner hvilken ende av hovedstrekningen som lista skal bygges fra.
-                        asisteSt = (ahs.First().Stasjoner.IndexOf(a) < ahs.First().Stasjoner.IndexOf(b))?
+                        asisteSt = (ahs.First().Stasjoner.IndexOf(a) < ahs.First().Stasjoner.IndexOf(b)) ?
                             ahs.First().Stasjoner.First() : ahs.First().Stasjoner.Last();
                         strekninger.Add(new List<DbHovedstrekning>(stitilna)); // Legger inn fellesstrekningen
                     }
@@ -200,10 +192,8 @@ namespace VyBillettBestilling.Models
                                 stitilna.RemoveAt(stitilna.Count - 1); // Fjerner den midlertidig tillagte
                             }
                             else if (hs.Stasjoner.First().Hovedstrekninger.Count() < 2 || hs.Stasjoner.Last().Hovedstrekninger.Count() < 2
-                                || hs.Stasjoner.First() == hs.Stasjoner.Last()) // Er blind eller ringbane
-                            {
+                                        || hs.Stasjoner.First() == hs.Stasjoner.Last()) // Er blind eller ringbane
                                 blinde.Add(hs);
-                            }
                             else
                                 traverserfraForste.Add(hs);
                         }
@@ -219,10 +209,8 @@ namespace VyBillettBestilling.Models
                             stitilna.RemoveAt(stitilna.Count - 1); // Fjerner den midlertidig tillagte
                         }
                         else if (hs.Stasjoner.First().Hovedstrekninger.Count() < 2 || hs.Stasjoner.Last().Hovedstrekninger.Count() < 2
-                            || hs.Stasjoner.First() == hs.Stasjoner.Last()) // Er blind eller ringbane
-                        {
+                                    || hs.Stasjoner.First() == hs.Stasjoner.Last()) // Er blind eller ringbane
                             blinde.Add(hs);
-                        }
                         else
                             traverserfraSiste.Add(hs);
                     }
@@ -252,20 +240,17 @@ namespace VyBillettBestilling.Models
                     ikkeferdig = false;
                 }
 
-                else if (ikkeferdig)  // A pa knutepunkt, b pa samme hovedstrekning fungerer fint:
+                // A pa knutepunkt, b pa samme hovedstrekning fungerer fint:
+                else if (ikkeferdig)
                 {
                     nabohs = ahs;
                     foreach (DbHovedstrekning hs in nabohs)
                     {
                         if (bhs.Contains(hs))
-                        {
                             strekninger.Add(new List<DbHovedstrekning> { hs });
-                        }
                         else if (hs.Stasjoner.First().Hovedstrekninger.Count() < 2 || hs.Stasjoner.Last().Hovedstrekninger.Count() < 2
                                 || hs.Stasjoner.First() == hs.Stasjoner.Last()) // Er blind eller ringbane
-                        {
                             blinde.Add(hs);
-                        }
                         else
                         {
                             traverserfraForste.Add(hs);
@@ -282,45 +267,11 @@ namespace VyBillettBestilling.Models
                     ikkeferdig = false;
                 }
 
-                {
-                    //IList<DbStasjon> tmp, tmq;
-                    //List<List<DbHovedstrekning>> trygge = strekninger.Where(li => (li.Count <= 1) || ( // Lengde 1 er alltid trygg
-                    //    (
-                    //        (tmp = li[0].Stasjoner)[0] == a || tmp.Last() == a // Starter i knutepunkt
-                    //        || tmp[0] == tmp.Last() // Starter i ring
-                    //        || tmp[0].Hovedstrekninger.Count() == 1 || tmp.Last().Hovedstrekninger.Count() == 1 // Starter i blindbane
-                    //    )&&(
-                    //        (tmp = li.Last().Stasjoner)[0] == b || tmp.Last() == b // Slutter i knutepunkt
-                    //        || tmp[0] == tmp.Last() // Slutter i ring
-                    //        || tmp[0].Hovedstrekninger.Count() == 1 || tmp.Last().Hovedstrekninger.Count() == 1 // Slutter i blindbane
-                    //    )
-                    //    )).Distinct().ToList();
-                    //strekninger.RemoveAll(li => trygge.Contains(li)); // Fjerner de utplukkede trygge
+                var stierEtterLengde = strekninger.Distinct().GroupBy(li => li.Count).OrderBy(ig => ig.Key).ToList();
+                int antgrp = stierEtterLengde.Count, g = 0;
+                List<DbStasjon>[] starter;  // Alltid lengde == 1 eller 2 
+                List<DbStasjon>[] stopper;  // Alltid lengde == 1 eller 2
 
-                    //IEnumerable<List<DbHovedstrekning>> tmpenli = strekninger.Where(li => li.Count <= 1 || // her finnes flere trygge
-
-                    //        (!endelike(li[0].Stasjoner, li[1].Stasjoner)
-                    //        && !endelike(li[li.Count - 1].Stasjoner, li[li.Count - 2].Stasjoner))
-                    //    ).Distinct();
-                    //strekninger.RemoveAll(li => tmpenli.Contains(li)); // Fjerner de utplukkede trygge
-                    //trygge.AddRange(tmpenli); // ..og legger dem til i trygge-lista
-                    //// Uproblematiske: begge ender ring eller endestasjon, len == 1,
-
-                    //tmpenli = strekninger.Where(li =>  // Finner de som er utrygge bare i starten
-                    //        ((tmp = li[0].Stasjoner).First() == (tmq = li[1].Stasjoner).First() || tmp.First() != tmq.Last()
-                    //        && tmp.Last() != tmq.First() && tmp.Last() != tmq.Last())
-                    //    &&
-                    //        ((tmp = li[li.Count - 1].Stasjoner).First() != (tmq = li[li.Count - 2].Stasjoner).First() && tmp.First() != tmq.Last()
-                    //        && tmp.Last() != tmq.First() && tmp.Last() != tmq.Last())
-                    //    );
-                }
-
-                var stierEtterLengde = strekninger.GroupBy(li => li.Count).OrderBy(ig => ig.Key).ToArray();
-                int antgrp = stierEtterLengde.Length, g = 0;
-                List<Stasjon>[] ringstarter;  // Alltid lengde == 2
-                List<Stasjon>[] ringstopper;  // Alltid lengde == 2
-                List<DbHovedstrekning> liho;
-                List<List<DbHovedstrekning>> liliho;
                 if (g < antgrp && stierEtterLengde[g].Key == 0) // Det skal ikke vaere noen med lengde 0 her. I sa fall er noe feil
                 {
                     throw new Exception("Feil i stifinningen");
@@ -328,102 +279,165 @@ namespace VyBillettBestilling.Models
                 }
                 if (g < antgrp && stierEtterLengde[g].Key == 1) // Det skal vaere maks 1 med lengde 1 her. Blir det flere er det noe feil
                 {
-                    foreach (var lenen in stierEtterLengde[g]) // Droppe lokka nar det er konstatert at dette virker riktig
-                        retur.Add(stasjAtilB(a, b, lenen[0].Stasjoner));
+                    foreach (IList<DbHovedstrekning> lenen in stierEtterLengde[g]) // Droppe lokka nar det er konstatert at dette virker riktig
+                        retur.Add(stasjAtilB(a, b, lenen[0].Stasjoner).Select(st => konverterStasjon(st)).ToList());
+                    retur.Add(stasjAtilB(a, b, stierEtterLengde[g].First()[0].Stasjoner).Select(st => konverterStasjon(st)).ToList());
                     ++g;
                 }
-                if (g < antgrp && stierEtterLengde[g].Key == 2)
+                if (g < antgrp && stierEtterLengde[g].Key == 2) // Det skal vaere maks 4 med lengde 2 her. Blir det flere er det noe feil
                 {
-                    foreach (var lento in stierEtterLengde[g])
+                    IList<DbStasjon> forste, siste;
+                    foreach (IList<DbHovedstrekning> lento in stierEtterLengde[g])
                     {
-                        IList<DbStasjon> forste = lento[0].Stasjoner;
-                        IList<DbStasjon> siste = lento[1].Stasjoner;
+                        forste = lento[0].Stasjoner;
+                        siste = lento[1].Stasjoner;
                         if (erEndelike(forste, siste))
-                        {
-                            ringstarter = fratilBeggeEnder(a, forste); // Alltid lengde == 2
-                            ringstarter[0].Reverse();
-                            ringstopper = fratilBeggeEnder(b, siste); // Alltid lengde == 2
-                            ringstopper[1].Reverse();
+                        { // To stier
+                            starter = fraTilBeggeEnder(a, forste); // Alltid lengde == 2
+                            stopper = fraBeggeEnderTil(siste, b); // Alltid lengde == 2
+                            starter[0].RemoveAt(starter[0].Count - 1);
+                            starter[1].RemoveAt(starter[1].Count - 1);
+                            if (forste.First() == siste.First())
+                            {
+                                retur.Add(starter[0].Concat(stopper[0]).Select(st => konverterStasjon(st)).ToList());
+                                retur.Add(starter[1].Concat(stopper[1]).Select(st => konverterStasjon(st)).ToList());
+                            }
+                            else
+                            {
+                                retur.Add(starter[0].Concat(stopper[1]).Select(st => konverterStasjon(st)).ToList());
+                                retur.Add(starter[1].Concat(stopper[0]).Select(st => konverterStasjon(st)).ToList());
+                            }
                         }
                         else
                         {
                             if (erRingbane(forste))
-                            {
-                                ringstarter = fratilBeggeEnder(a, forste); // Alltid lengde == 2
-                                ringstarter[0].Reverse();
-                            }
+                                starter = fraTilBeggeEnder(a, forste); // Alltid lengde == 2
                             else
-                                ringstarter = new List<Stasjon>[] { stasjAtilB(a, fellesende(forste, siste), forste) };
+                                starter = new List<DbStasjon>[] { stasjAtilB(a, fellesende(forste, siste), forste) };
                             if (erRingbane(siste))
-                            {
-                                ringstopper = fratilBeggeEnder(b, siste); // Alltid lengde == 2
-                                ringstopper[1].Reverse();
-                            }
+                                stopper = fraBeggeEnderTil(siste, b); // Alltid lengde == 2
                             else
-                                ringstopper = new List<Stasjon>[] { stasjAtilB(fellesende(forste, siste), b, siste) };
-                        }
-                        if (erRingbane(forste) && erRingbane(siste)) // "Attetall"; fire mulige stier
-                        {
-                            ringstarter[0].RemoveAt(ringstarter[0].Count - 1);
-                            ringstarter[1].RemoveAt(ringstarter[1].Count - 1);
-                            retur.Add(ringstarter[1].Concat(ringstopper[0]).ToList());
-                            retur.Add(ringstarter[1].Concat(ringstopper[1]).ToList());
-                            retur.Add(ringstarter[0].Concat(ringstopper[0]).ToList());
-                            retur.Add(ringstarter[0].Concat(ringstopper[1]).ToList());
-                        }
-                        else if (erEndelike(forste, siste))
-                        { // To mulige stier
-                            ringstarter[0].RemoveAt(ringstarter[0].Count - 1);
-                            ringstarter[1].RemoveAt(ringstarter[1].Count - 1);
-                            if (forste.Last() == siste.First())
+                                stopper = new List<DbStasjon>[] { stasjAtilB(fellesende(forste, siste), b, siste) };
+                            foreach (List<DbStasjon> stli in starter)
                             {
-                                retur.Add(ringstarter[1].Concat(ringstopper[0]).ToList());
-                                retur.Add(ringstarter[0].Concat(ringstopper[1]).ToList());
-                            }
-                            else
-                            {
-                                retur.Add(ringstarter[1].Concat(ringstopper[1]).ToList());
-                                retur.Add(ringstarter[0].Concat(ringstopper[0]).ToList());
-                            }
-                        }
-                        else
-                        {
-
-                            foreach (var li in ringstarter) ;
+                                stli.RemoveAt(stli.Count - 1);
+                                foreach (List<DbStasjon> stlii in stopper)
+                                    retur.Add(stli.Concat(stlii).Select(st => konverterStasjon(st)).ToList());
+                            };
                         }
                     }
                     ++g;
                 }
+                if (g < antgrp && stierEtterLengde[g].Key == 3)
+                {
+                    IList<DbStasjon> forste, andre, siste;
+                    DbStasjon veimerke;
+                    List<DbStasjon> midtstykke;
+                    List<DbStasjon> ret = new List<DbStasjon>();
+                    foreach (IList<DbHovedstrekning> lentre in stierEtterLengde[g])
+                    {
+                        forste = lentre[0].Stasjoner;
+                        andre = lentre[1].Stasjoner;
+                        siste = lentre[2].Stasjoner;
+                        if (erEndelike(forste, andre) && erEndelike(andre, siste)) // To stier; "sikk-sakk"
+                        {
+                            starter = fraTilBeggeEnder(a, forste); // Alltid lengde == 2
+                            stopper = fraBeggeEnderTil(siste, b); // Alltid lengde == 2
+                            starter[0].RemoveAt(starter[0].Count - 1);
+                            starter[1].RemoveAt(starter[1].Count - 1);
 
-                
+                            ret.Clear();
+                            ret.AddRange(starter[0]);
+                            veimerke = (forste.First() == andre.First()) ? andre.First() : andre.Last();
+                            ret.AddRange(heleFraEndeUSiste(veimerke, andre));
+                            veimerke = motsattEnde(veimerke, andre);
+                            ret.AddRange((veimerke == siste.First()) ? stopper[0] : stopper[1]);
+                            retur.Add(ret.Select(st => konverterStasjon(st)).ToList());
 
+                            ret.Clear();
+                            ret.AddRange(starter[1]);
+                            veimerke = (forste.Last() == andre.First()) ? andre.First() : andre.Last();
+                            ret.AddRange(heleFraEndeUSiste(veimerke, andre));
+                            veimerke = motsattEnde(veimerke, andre);
+                            ret.AddRange((veimerke == siste.First()) ? stopper[0] : stopper[1]);
+                            retur.Add(ret.Select(st => konverterStasjon(st)).ToList());
+                        }
+                        else
+                        {
+                            if (erRingbane(forste))
+                                starter = fraTilBeggeEnder(a, forste); // Alltid lengde == 2
+                            else
+                            {
+                                veimerke = (erEndelike(forste, andre)) ? motsattEnde(fellesende(andre, siste), andre) : fellesende(forste, andre);
+                                starter = new List<DbStasjon>[] { stasjAtilB(a, veimerke, forste) };
+                            }
+                            if (erRingbane(siste))
+                                stopper = fraBeggeEnderTil(siste, b); // Alltid lengde == 2
+                            else
+                            {
+                                veimerke = (erEndelike(siste, andre)) ? motsattEnde(fellesende(andre, forste), andre) : fellesende(siste, andre);
+                                stopper = new List<DbStasjon>[] { stasjAtilB(veimerke, b, siste) };
+                            }
 
+                            veimerke = (erEndelike(forste, andre)) ? motsattEnde(fellesende(andre, siste), andre) : fellesende(forste, andre);
+                            midtstykke = heleFraEndeUSiste(veimerke, andre);
+
+                            foreach (List<DbStasjon> stli in starter)
+                            {
+                                stli.RemoveAt(stli.Count - 1);
+                                foreach (List<DbStasjon> stlii in stopper)
+                                    retur.Add(stli.Concat(midtstykke).Concat(stlii).Select(st => konverterStasjon(st)).ToList());
+                            }
+                        }
+                    }
+                    ++g;
+                }
+                while (g < antgrp) // Key >= 4
+                {
+                    IList<DbStasjon> forste, andre, nestsiste, siste;
+                    DbStasjon veimerke;
+                    List<DbStasjon> midtstykke;
+                    foreach (IList<DbHovedstrekning> lenx in stierEtterLengde[g])
+                    {
+                        forste = lenx[0].Stasjoner;
+                        andre = lenx[1].Stasjoner;
+                        nestsiste = lenx[lenx.Count - 2].Stasjoner;
+                        siste = lenx[lenx.Count - 1].Stasjoner;
+
+                        if (erRingbane(forste))
+                            starter = fraTilBeggeEnder(a, forste); // Alltid lengde == 2
+                        else
+                        {
+                            veimerke = motsattEnde(fellesende(andre, lenx[2].Stasjoner), andre);
+                            starter = new List<DbStasjon>[] { stasjAtilB(a, veimerke, forste) };
+                        }
+                        if (erRingbane(siste))
+                            stopper = fraBeggeEnderTil(siste, b); // Alltid lengde == 2
+                        else
+                        {
+                            veimerke = motsattEnde(fellesende(nestsiste, lenx[lenx.Count - 3].Stasjoner), nestsiste);
+                            stopper = new List<DbStasjon>[] { stasjAtilB(veimerke, b, siste) };
+                        }
+
+                        veimerke = motsattEnde(fellesende(andre, lenx[2].Stasjoner), andre);
+                        midtstykke = new List<DbStasjon>();
+                        for (int i = 1; i < lenx.Count - 1; ++i)
+                        {
+                            midtstykke.AddRange(heleFraEndeUSiste(veimerke, lenx[i].Stasjoner));
+                            veimerke = motsattEnde(veimerke, lenx[i].Stasjoner);
+                        }
+
+                        foreach (List<DbStasjon> stli in starter)
+                        {
+                            stli.RemoveAt(stli.Count - 1);
+                            foreach (List<DbStasjon> stlii in stopper)
+                                retur.Add(stli.Concat(midtstykke).Concat(stlii).Select(st => konverterStasjon(st)).ToList());
+                        }
+                    }
+                    ++g;
+                }
             }
-
-
-            return null;
-            List<Stasjon>[] fratilBeggeEnder(DbStasjon aDbSt, IList<DbStasjon> dbStasjList)
-            {
-                int aidx = dbStasjList.IndexOf(aDbSt);
-                List<Stasjon> stListe = new List<Stasjon>(aidx + 1);
-                for (int i = 0; i <= aidx; ++i)
-                    stListe.Add(konverterStasjon(dbStasjList[i]));
-                List<Stasjon> stListe2 = new List<Stasjon>(dbStasjList.Count - aidx);
-                for ( ; aidx < dbStasjList.Count; ++aidx)
-                    stListe2.Add(konverterStasjon(dbStasjList[aidx]));
-                return new List<Stasjon>[] { stListe, stListe2 };
-            }
-            List<Stasjon> stasjAtilB(DbStasjon aDbSt, DbStasjon bDbSt, IList<DbStasjon> dbStasjList)
-            {
-
-                int aidx = dbStasjList.IndexOf(aDbSt);
-                int bidx = dbStasjList.IndexOf(bDbSt);
-                int inkr = (aidx < bidx) ? 1 : -1;
-                List<Stasjon> stListe = new List<Stasjon>((bidx - aidx) * inkr + 1);
-                for (bidx += inkr; aidx != bidx; aidx += inkr)
-                    stListe.Add(konverterStasjon(dbStasjList[aidx]));
-                return stListe;
-            }
+            return retur;
 
             bool traverser(DbHovedstrekning hovstr, DbStasjon feilEnde)
             {
@@ -456,9 +470,7 @@ namespace VyBillettBestilling.Models
                         blind = false;
                     }
                     else if (!blinde.Contains(hs))
-                    {
                         traverserVidere.Add(hs);
-                    }
                 }
 
                 // Sortere traverserVidere med hensyn pa hvilke hovedstrekninger som ligger geografisk naermest B?
@@ -480,23 +492,150 @@ namespace VyBillettBestilling.Models
                 return blind;
             } // Slutt traverser()
 
-            bool erRingbane(IList<DbStasjon> erring)
+            bool erRingbane(IEnumerable<DbStasjon> erring)
             {
                 return erring.First() == erring.Last();
             }
-            bool erEndelike(IList<DbStasjon> lia, IList<DbStasjon> lib)
+            bool erEndelike(IEnumerable<DbStasjon> lia, IEnumerable<DbStasjon> lib)
             {
-                return (lia.First() == lib.First() & lia.Last() == lib.Last())
-                    | (lia.First() == lib.Last() & lia.Last() == lib.First());
+                return (lia.First() == lib.First() && lia.Last() == lib.Last())
+                    || (lia.First() == lib.Last() && lia.Last() == lib.First());
             }
-            DbStasjon fellesende(IList<DbStasjon> lia, IList<DbStasjon> lib)
+            List<DbStasjon>[] fraTilBeggeEnder(DbStasjon fra, IList<DbStasjon> dbStasjList)
+            {
+                int i, idx = dbStasjList.IndexOf(fra);
+                List<DbStasjon> stListe = new List<DbStasjon>(idx + 1);
+                List<DbStasjon> stListe2 = new List<DbStasjon>(dbStasjList.Count - idx);
+                for (i = idx; i > -1; --i)
+                    stListe.Add(dbStasjList[i]);
+                for (i = dbStasjList.Count; idx < i; ++idx)
+                    stListe2.Add(dbStasjList[idx]);
+                return new List<DbStasjon>[] { stListe, stListe2 };
+            }
+            List<DbStasjon>[] fraBeggeEnderTil(IList<DbStasjon> dbStasjList, DbStasjon til)
+            {
+                int i, idx = dbStasjList.IndexOf(til);
+                List<DbStasjon> stListe = new List<DbStasjon>(idx + 1);
+                List<DbStasjon> stListe2 = new List<DbStasjon>(dbStasjList.Count - idx);
+                for (i = 0; i <= idx; ++i)
+                    stListe.Add(dbStasjList[i]);
+                for (i = dbStasjList.Count - 1; i >= idx; --i)
+                    stListe2.Add(dbStasjList[i]);
+                return new List<DbStasjon>[] { stListe, stListe2 };
+            }
+            List<DbStasjon> stasjAtilB(DbStasjon aDbSt, DbStasjon bDbSt, IList<DbStasjon> dbStasjList)
+            {
+                int aidx = dbStasjList.IndexOf(aDbSt);
+                int bidx = dbStasjList.IndexOf(bDbSt);
+                int inkr = (aidx < bidx) ? 1 : -1;
+                List<DbStasjon> stListe = new List<DbStasjon>(((inkr == 1) ? bidx - aidx : aidx - bidx) + 1);
+                for (bidx += inkr; aidx != bidx; aidx += inkr)
+                    stListe.Add(dbStasjList[aidx]);
+                return stListe;
+            }
+            List<DbStasjon> heleFraEndeUSiste(DbStasjon ende, IList<DbStasjon> dbStasjList)
+            {
+                if (ende == dbStasjList.First())
+                    return dbStasjList.Take(dbStasjList.Count - 1).ToList();
+                else if (ende == dbStasjList.Last())
+                    return dbStasjList.Skip(1).Reverse().ToList();
+                return null;
+            }
+            DbStasjon motsattEnde(DbStasjon ende, IEnumerable<DbStasjon> dbStasjList)
+            {
+                return (ende == dbStasjList.First()) ? dbStasjList.Last() : (ende == dbStasjList.Last()) ? dbStasjList.First() : null;
+            }
+            DbStasjon fellesende(IEnumerable<DbStasjon> lia, IEnumerable<DbStasjon> lib)
             {
                 return (lia.First() == lib.First() || lia.First() == lib.Last()) ? lia.First()
                     : (lia.Last() == lib.Last() || lia.Last() == lib.First()) ? lia.Last() : null;
             }
+            List<DbStasjon> heleFraEnde(DbStasjon ende, IList<DbStasjon> dbStasjList)
+            {
+                if (ende == dbStasjList.First())
+                    return dbStasjList.Take(dbStasjList.Count).ToList();
+                else if (ende == dbStasjList.Last())
+                    return dbStasjList.Skip(0).Reverse().ToList();
+                return null;
+            }
+            List<Stasjon> konvHeleFraEnde(DbStasjon ende, IList<DbStasjon> dbStasjList)
+            {
+                if (ende == dbStasjList.First())
+                    return dbStasjList.Select(st => konverterStasjon(st)).ToList();
+                else if (ende == dbStasjList.Last())
+                    return dbStasjList.Select(st => konverterStasjon(st)).Reverse().ToList();
+                return null;
+            }
+            List<Stasjon> KonvHeleFraEndeUSiste(DbStasjon ende, IList<DbStasjon> dbStasjList)
+            {
+                List<Stasjon> ret = null;
+                if (ende == dbStasjList.First())
+                {
+                    ret = dbStasjList.Select(st => konverterStasjon(st)).ToList();
+                    ret.RemoveAt(ret.Count - 1);
+                }
+                else if (ende == dbStasjList.Last())
+                {
+                    ret = dbStasjList.Select(st => konverterStasjon(st)).Reverse().ToList();
+                    ret.RemoveAt(ret.Count - 1);
+                }
+                return ret;
+            }
+
         }
 
-        Stasjon konverterStasjon(DbStasjon dbst)
+
+        public Hovedstrekning HentHovedstrekning(int hovstrId)
+        {
+            using (var db = new VyDbContext())
+            {
+                var funnet = db.Hovedstrekninger.Find(hovstrId);
+                return (funnet == null) ? null : konverterHovedstrekning(funnet);
+            }
+        }
+        public IEnumerable<Hovedstrekning> HentAlleHovedstrekninger()
+        {
+            using (var db = new VyDbContext())
+            {
+                return db.Hovedstrekninger.Select(dbho => konverterHovedstrekning(dbho));
+            }
+        }
+        public IEnumerable<Hovedstrekning> HentHovedstrekningerPaNett(int nettId)
+        {
+            using (var db = new VyDbContext())
+            {
+                var funnet = db.Nett.Find(nettId);
+                return (funnet == null) ? null : funnet.Hovedstrekninger.Select(dbho => konverterHovedstrekning(dbho));
+            }
+        }
+        public IEnumerable<Hovedstrekning> HentHovedstrekningerTilStasjon(int stasjId)
+        {
+            using (var db = new VyDbContext())
+            {
+                var funnet = db.Stasjoner.Find(stasjId);
+                return (funnet == null) ? null : funnet.Hovedstrekninger.Select(dbho => konverterHovedstrekning(dbho));
+            }
+        }
+
+
+        public Nett HentNett(int nettId)
+        {
+            using (var db = new VyDbContext())
+            {
+                var funnet = db.Nett.Find(nettId);
+                return (funnet == null) ? null : konverterNett(funnet);
+            }
+        }
+        public IEnumerable<Nett> HentAlleNett()
+        {
+            using (var db = new VyDbContext())
+            {
+                return db.Nett.Select(dbne => konverterNett(dbne));
+            }
+        }
+
+
+        private Stasjon konverterStasjon(DbStasjon dbst)
         {
             return new Stasjon
             {
@@ -505,11 +644,36 @@ namespace VyBillettBestilling.Models
                 stasjon_sted = dbst.StasjSted,
                 breddegrad = dbst.Breddegrad,
                 lengdegrad = dbst.Lengdegrad,
-                hovedstrekninger = dbst.Hovedstrekninger.Select(hs => hs.HovstrId).ToArray(),
+                // Droppe denne?:
+                hovedstrekninger = dbst.Hovedstrekninger.Select(hs => hs.HovstrId).ToList(),
                 nett_id = dbst.NettId,
                 nett_navn = dbst.Nett.Nettnavn
             };
         }
+        private Hovedstrekning konverterHovedstrekning(DbHovedstrekning dbho)
+        {
+            return new Hovedstrekning
+            {
+                id = dbho.HovstrId,
+                // Droppe denne?:
+                stasjoner = dbho.Stasjoner.Select(st => st.StasjonId).ToList(),
+                nett_id = dbho.NettId,
+                nett_navn = dbho.Nett.Nettnavn,
+            };
+        }
+        private Nett konverterNett(DbNett dbne)
+        {
+            return new Nett
+            {
+                id = dbne.NettId,
+                nett_navn = dbne.Nettnavn,
+                // Droppe disse?:
+                hovedstrekninger = dbne.Hovedstrekninger.Select(hs => hs.HovstrId).ToList(),
+                stasjoner = dbne.Stasjoner.Select(st => st.StasjonId).ToList(),
+            };
+        }
+
+
 
     }
 }
