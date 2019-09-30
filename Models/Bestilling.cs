@@ -8,8 +8,11 @@ namespace VyBillettBestilling.Models
 {
     public class Bestilling
     {
-        [Key]
-        public int Id { get; set; }
-        public List <Billett> Billetter { get; set; }
+        public string ReiseFra { get; set; }
+        public string ReiseTil { get; set; }
+        public int AntallVoksne { get; set; }
+        public int AntallBarn { get; set; }
+        public int AntallStudent { get; set; }
+        public DateTime DateTime { get; set; }
     }
 }

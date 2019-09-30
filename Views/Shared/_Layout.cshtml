@@ -10,7 +10,7 @@
     <link href="~/Content/css/select2.min.css" rel="stylesheet" />
     <link rel="icon" type="image/png" href="@Url.Content("~/Resources/Images/vy_logo.png")" />
     <script src="~/Scripts/modernizr-2.8.3.js"></script>
-    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/jquery-3.4.1.min.js"></script>
     <script src="~/Scripts/jquery-ui-1.12.1.min.js"></script>
     <script src="~/Scripts/select2.min.js"></script>
     <script src="~/Scripts/bootstrap.min.js"></script>
@@ -53,6 +53,10 @@
         </div>
     </div>
 
+    <button class="fixed-button wobble show-mobile" onclick="hello()" type="button">
+        <i class="fa fa-shopping-cart"></i>
+        <span class="badge badge-danger">100</span>
+    </button>
     <div class="container body-content">
         @RenderBody()
         <div class="footer">

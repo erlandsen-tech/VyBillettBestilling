@@ -1,0 +1,29 @@
+﻿@model VyBillettBestilling.Models.Bestilling
+
+@{
+    ViewBag.Title = "Bestilling";
+}
+
+@section Styles
+        {
+    <link href="@Url.Content("~/Content/Bestilling.css")" rel="stylesheet" type="text/css" />
+}
+<body>
+
+    <div class="container">
+        <button type="button" onclick="HentStasjoner(@Model.ReiseFra, @Model.ReiseTil)">Trykkeknana</button>
+    </div>
+    <div class="bg container femti">
+
+        <h2>Bestilling</h2>
+        <table class="table" id="MuligeReiser">
+            <tr>
+                <th>Reise fra:</th>
+                <th>Reise til:</th>
+            </tr>
+        </table>
+    </div>
+</body>
+
+<script type="text/javascript" src='@Url.Content("~/Scripts/Pages/Bestilling.js")'></script>
+
