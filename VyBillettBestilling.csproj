@@ -241,11 +241,13 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\Banemodeller.cs" />
     <Compile Include="Methods\HandlekurvMethods.cs" />
     <Compile Include="Methods\HomeMethods.cs" />
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Bestilling.cs" />
     <Compile Include="Models\Billett.cs" />
+    <Compile Include="Models\Rutetabell.cs" />
     <Compile Include="Models\CSVstasjon.cs" />
     <Compile Include="Models\Handlekurv.cs" />
     <Compile Include="Models\Rute.cs" />
