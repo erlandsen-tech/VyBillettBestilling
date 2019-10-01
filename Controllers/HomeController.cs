@@ -19,7 +19,8 @@ namespace VyBillettBestilling.Controllers
             {
                 Session["Handlekurv"] = new Handlekurv();
             }
-
+//Eksempeldata 
+/**
             VyDbTilgang dbt = new VyDbTilgang();
 
             dbt.addPassasjertyper();
@@ -37,7 +38,8 @@ namespace VyBillettBestilling.Controllers
                     dbt.addRute(i, rInt);
                 }
             }
-
+    **/
+// ferdig
 
             return View();
         }

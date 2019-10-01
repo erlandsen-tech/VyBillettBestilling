@@ -40,8 +40,8 @@ namespace VyBillettBestilling.Methods
         {
             VyDbTilgang vyDb = new VyDbTilgang();
             var reiser = new Reise();
-            var startstasjon = vyDb.HentStasjonMedId(ruter[0].Start_id);
-            var stoppstasjon = vyDb.HentStasjonMedId(ruter[1].Stopp_id);
+            var startstasjon = vyDb.HentStasjon(ruter[0].Start_id);
+            var stoppstasjon = vyDb.HentStasjon(ruter[1].Stopp_id);
             foreach (Rute rute in ruter)
             {
 

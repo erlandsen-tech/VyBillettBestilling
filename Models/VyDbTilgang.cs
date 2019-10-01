@@ -16,16 +16,17 @@ namespace VyBillettBestilling.Models
                 return (funnet == null) ? null : konverterStasjon(funnet);
             }
         }
-        public IEnumerable<Stasjon> HentAlleStasjoner()
+        public List<Stasjon> HentAlleStasjoner()
         {
+            var alle = new List<Stasjon>();
             using (var db = new VyDbContext())
             {
-                return db.Stasjoner.Select(dbst => konverterStasjon(dbst));
-        public Stasjon HentStasjonMedId(int id)
-        {
-            using (var db = new VyDbContext())
-            {
-                return konverterStasjon(db.Stasjoner.Find(id));
+                List<DbStasjon> alleStasj = db.Stasjoner.Select(dbst => dbst).ToList();
+                foreach(DbStasjon stasjon in alleStasj)
+                {
+                    alle.Add(konverterStasjon(stasjon));
+                }
+                return alle;
             }
         }
         public string HentStasjonsnavnMedId(int id)
@@ -53,34 +54,6 @@ namespace VyBillettBestilling.Models
             }
         }
 
-        public IQueryable<Stasjon> HentAlleStasjoner()
-        {
-            VyDbContext db = new VyDbContext();
-            {
-                var alleStasjoner = db.Stasjoner.Select(dbst => new Stasjon
-                {
-                    id = dbst.StasjonId,
-                    stasjon_navn = dbst.StasjNavn,
-                    stasjon_sted = dbst.StasjSted,
-                    breddegrad = dbst.Breddegrad,
-                    lengdegrad = dbst.Lengdegrad,
-                    hovedstrekninger = dbst.Hovedstrekninger.Select(hs => hs.HovstrId),
-                    nett_id = dbst.NettId,
-                    nett_navn = dbst.Nett.Nettnavn
-                });
-                return alleStasjoner;
-
-                // Demonstrasjon pa hvordan gjore det pa en annen mate:
-                // Vet ikke om denne Distinct-en gjor susen. SJEKK! Da kan slutt-Distinct-en droppes:
-                //return db.Hovedstrekninger.SelectMany(hs => hs.Stasjoner//.Distinct()
-                //,
-                //    (dbhs, dbst) => new Stasjon
-                //    {
-                //        stasjon_navn = dbst.StasjNavn
-                //    }
-                //).Distinct().OrderBy(n => n.stasjon_navn+n.stasjon_sted);
-            }
-        }
         public IEnumerable<Stasjon> HentStasjonerPaNett(int nettId)
         {
             using (var db = new VyDbContext())
@@ -322,7 +295,6 @@ namespace VyBillettBestilling.Models
                 if (g < antgrp && stierEtterLengde[g].Key == 0) // Det skal ikke vaere noen med lengde 0 her. I sa fall er noe feil
                 {
                     throw new Exception("Feil i stifinningen");
-                    ++g;
                 }
                 if (g < antgrp && stierEtterLengde[g].Key == 1) // Det skal vaere maks 1 med lengde 1 her. Blir det flere er det noe feil
                 {
@@ -774,15 +746,17 @@ namespace VyBillettBestilling.Models
                 List<CSVstasjon> liste = CSVstasjon.convertEngine();
                 foreach (CSVstasjon stasjon in liste)
                 {
+                    List<DbHovedstrekning> hvdstr = new List<DbHovedstrekning>();
+                    DbHovedstrekning dbhvst = GetDbHovedstrekning(1);
+                    hvdstr.Add(dbhvst);
                     DbStasjon st = new DbStasjon
                     {
-                        stasjon_navn = stasjon.name,
-                        stasjon_sted = stasjon.name,
-                        nett_id = 1,
-                        hovedstrekninger = Rnd(),
-                        nett_navn = stasjon.country,
-                        lengdegrad = stasjon.longitude,
-                        breddegrad = stasjon.latitude
+                        StasjSted = stasjon.name,
+                        StasjNavn = stasjon.name,
+                        Hovedstrekninger = hvdstr,
+                        Nett = dbt.GetDbNett(1),
+                        Lengdegrad = stasjon.longitude,
+                        Breddegrad = stasjon.latitude
                     };
                     db.Stasjoner.Add(st);
                 }
@@ -829,12 +803,12 @@ namespace VyBillettBestilling.Models
             using (var db = new VyDbContext())
             {
                 DbNett nett = new DbNett();
-                nett.NettId = 1;
+                nett.Id = 1;
                 nett.Nettnavn = "Norge";
                 db.Nett.Add(nett);
                 db.SaveChanges();
             }
-            
+
         }
         private Hovedstrekning konverterHovedstrekning(DbHovedstrekning dbho)
         {
@@ -851,7 +825,7 @@ namespace VyBillettBestilling.Models
         {
             return new Nett
             {
-                id = dbne.NettId,
+                id = dbne.Id,
                 nett_navn = dbne.Nettnavn,
                 // Droppe disse?:
                 hovedstrekninger = dbne.Hovedstrekninger.Select(hs => hs.HovstrId).ToList(),
