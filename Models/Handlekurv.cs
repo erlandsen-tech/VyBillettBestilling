@@ -9,7 +9,7 @@ namespace VyBillettBestilling.Models
     public class Handlekurv
     {
         [Key]
-        public string HandlekurvId { get; set; }
+        public int HandlekurvId { get; set; }
         public List<Billett> Billetter { get; set; }
         public System.DateTime SistOppdatert { get; set; }
     }

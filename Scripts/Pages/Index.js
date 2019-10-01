@@ -51,6 +51,12 @@ $("#student").TouchSpin({
     max: 100,
     step: 1
 });
+
+$("#honnor").TouchSpin({
+    min: 0,
+    max: 100,
+    step: 1
+});
 $('#date').datetimepicker(
     {
         step: 5,
@@ -65,7 +71,6 @@ function VisDropDown(stasjon) {
     for (var i in stasjon) {
         //Legger kun til stasjon i reiseTil listen dersom denne ikke er valg i reisefra
         if (stasjon[i].id != $("#ReiseFra option:selected").val()) {
-            console.log(stasjon[i].id + " <-- stasjon selected --> " + $("#ReiseFra option:selected").val())
             utStreng += "<option value='" + stasjon[i].id + "'>" + stasjon[i].stasjon_navn + "</option>";
         }
     }

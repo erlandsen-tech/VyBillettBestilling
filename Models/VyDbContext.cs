@@ -15,6 +15,8 @@ namespace VyBillettBestilling.Models
         {
             Database.CreateIfNotExists();
         }
+        //Rutetabell
+        public DbSet<DbRute> Ruter { get; set; }
 
         public DbSet<DbBillett> Billetter { get; set; } // Kunde, start- og stopp-stasjon, passasjertype, pris (med rabattsats)
         // stasjonsliste(?), distanse(?)
@@ -48,8 +50,12 @@ namespace VyBillettBestilling.Models
 
         public class DbNett
         {
+            // For automatisk tillegging av nett i databasen
+            // har vi hatt problemer med ekstra ID
+            // derfor liggger denne lagret på denne måten
+            // dette fører til krøll når vi legger til eksempeldata.
             [Key]
-            public int NettId { get; set; }
+            public int Id { get; set; }
             [Required]
             public String Nettnavn { get; set; } // Sor-Norge, Ofoten, Japan osv.
             public virtual List<DbHovedstrekning> Hovedstrekninger { get; set; } // IEnumerable eller ICollection?
@@ -184,6 +190,16 @@ namespace VyBillettBestilling.Models
             public double Pris { get; set; }
             public String Passasjertype { get; set; }
             public double Rabattsats { get; set; }
+        }
+
+        public class DbRute
+        {
+            [Key]
+            public int RuteID { get; set; }
+            [Required]
+            public int Start_id { get; set; }
+            public int Stopp_id { get; set; }
+            public DateTime DateTime { get; set; }
         }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)

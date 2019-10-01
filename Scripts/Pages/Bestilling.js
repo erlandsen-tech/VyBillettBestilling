@@ -12,6 +12,31 @@
         }
     });
 }
+function LeggIHandleKurv(Id, voksen, barn, student, honnor) {
+    oppdaterantall(voksen, barn, student, honnor);
+    $.ajax({
+        url: '/handlekurv/leggoppi',
+        type: 'POST',
+        data: { "Id": Id, "Voksen": voksen, "Barn": barn, "Student": student, "Honnor": honnor },
+        traditional: true
+    });
+}
+
+async function HentStasjonsNavn(id, i) {
+    $.ajax({
+        url: '/home/HentStasjonsnavnMedId',
+        type: 'GET',
+        data: { "id": id },
+        datatype: 'string',
+        success: function (navn) {
+            console.log(navn);
+            return navn;
+        },
+        error: function (x, y, z) {
+            alert(x + '\n' + y + '\n' + z);
+        }
+    });
+}
 
 
 function VisDropDown(stasjon) {
@@ -24,4 +49,8 @@ function VisDropDown(stasjon) {
         $("#MuligeReiser").append(utStreng);
     }
     $("#MuligeReiser").append("</tr>")
+}
+function oppdaterantall()
+{
+    document.getElementById("handleikon").innerHTML = 'New Phrase';
 }

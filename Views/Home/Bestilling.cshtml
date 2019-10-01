@@ -1,4 +1,4 @@
-﻿@model VyBillettBestilling.Models.Bestilling
+﻿@model List<VyBillettBestilling.Models.RuteView>
 
 @{
     ViewBag.Title = "Bestilling";
@@ -8,22 +8,39 @@
         {
     <link href="@Url.Content("~/Content/Bestilling.css")" rel="stylesheet" type="text/css" />
 }
+
 <body>
 
-    <div class="container">
-        <button type="button" onclick="HentStasjoner(@Model.ReiseFra, @Model.ReiseTil)">Trykkeknana</button>
-    </div>
+    <script type="text/javascript" src='@Url.Content("~/Scripts/Pages/Bestilling.js")'></script>
     <div class="bg container femti">
-
         <h2>Bestilling</h2>
-        <table class="table" id="MuligeReiser">
+        <table class="text-color-white table tabellbakgrunn table-bordered" id="MuligeReiser">
             <tr>
                 <th>Reise fra:</th>
                 <th>Reise til:</th>
+                <th>Tidspunkt og dato: </th>
+                <th></th>
             </tr>
+            <!-- Denne må utvides med reiserute og tidstabell
+                 Nå viser den bare det den får servert pluss noen random tider
+                 Trenger også en base med antall biletter per strekning per tid-->
+            @{
+                for (var i = 0; i < 7; i++)
+                {
+                    <tr>
+                        <td>@Model[i].StoppNavn</td>
+                        <td>@Model[i].StartNavn</td>
+                        <td>@Model[i].DateTime</td>
+                        <td>
+<a onclick="LeggIHandleKurv(@Model[i].Id, @Model[i].AntallVoksne, @Model[i].AntallBarn, @Model[i].AntallStudent, @Model[i].AntallHonnor)"
+value="Legg i kurven" class="btn btn-primary">Kjøp</a>
+                            <input type="button" class="btn btn-primary" value="Detaljer">
+                        </td>
+                    </tr>
+                }
+            }
         </table>
     </div>
 </body>
 
-<script type="text/javascript" src='@Url.Content("~/Scripts/Pages/Bestilling.js")'></script>
 

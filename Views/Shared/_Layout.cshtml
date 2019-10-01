@@ -41,10 +41,10 @@
                         </a>
                     </li>
                     <li>
-                        <a href="@Url.Action("Handlekurv", "Home")" class="btn btn-primary">
+                        <a href="@Url.Action("Handlekurv", "Handlekurv")" class="btn btn-primary">
                             <i class="fa fa-shopping-cart"></i>
                             <span>
-                                <strong>Handlekurv</strong>
+                                <strong>Handlekurv</strong><text id="antallHeader"> 0 </text>
                             </span>
                         </a>
                     </li>
@@ -53,9 +53,9 @@
         </div>
     </div>
 
-    <button class="fixed-button wobble show-mobile" onclick="hello()" type="button">
+    <button class="fixed-button wobble show-mobile" onclick="location.href='@Url.Action("Handlekurv", "Handlekurv")'" type="button">
         <i class="fa fa-shopping-cart"></i>
-        <span class="badge badge-danger">100</span>
+        <span class="badge badge-danger" id="handleikon">0</span>
     </button>
     <div class="container body-content">
         @RenderBody()

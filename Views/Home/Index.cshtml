@@ -45,15 +45,19 @@
                 <p class="font-weight-bold text-color-white">Barn:</p>
                 <input type="number" class="form-control" value="0" id="barn" name="AntallBarn">
 
-                <p class="font-weight-bold text-color-white">Student/Honnør:</p>
+                <p class="font-weight-bold text-color-white">Student:</p>
                 <input type="number" class="form-control" value="0" id="student" name="AntallStudent">
+                <br />
+
+                <p class="font-weight-bold text-color-white">Honnør:</p>
+                <input type="number" class="form-control" value="0" id="honnor" name="AntallHonnor">
                 <br />
 
                 <p class="font-weight-bold text-color-white">Tidspunkt:</p>
                 <input type="text" id="date" name="DateTime" />
-
+                <br />
                 <div class="form-group">
-                    <div class="col-md-offset-2 col-md-10">
+                    <div class="font-weight-bold text-color-white">
                         <input type="submit" value="Sjekk tilgjengelighet og bestill" class="btn btn-primary" />
                     </div>
                 </div>
@@ -62,9 +66,10 @@
         </div>
 
     </form>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-touchspin/4.2.5/jquery.bootstrap-touchspin.min.js"></script>
+    <script src="~/Scripts/Plugins/datetimepicker/jquery.datetimepicker.full.min.js"></script>
+    <script type="text/javascript" src='@Url.Content("~/Scripts/Pages/Index.js")'></script>
 </body>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-touchspin/4.2.5/jquery.bootstrap-touchspin.min.js"></script>
-<script src="~/Scripts/Plugins/datetimepicker/jquery.datetimepicker.full.min.js"></script>
-<script type="text/javascript" src='@Url.Content("~/Scripts/Pages/Index.js")'></script>

@@ -8,6 +8,37 @@ namespace VyBillettBestilling.Models
 {
     public class VyDbTilgang
     {
+        public Stasjon HentStasjonMedId(int id)
+        {
+            using (var db = new VyDbContext())
+            {
+                return konverterStasjon(db.Stasjoner.Find(id));
+            }
+        }
+        public string HentStasjonsnavnMedId(int id)
+        {
+            using (var db = new VyDbContext())
+            {
+                return (db.Stasjoner.Find(id).StasjNavn);
+            }
+        }
+        public IQueryable<Rute> HentRute(int start, int stopp, DateTime starttid)
+        {
+            //TODO
+            //Må oppdateres med stifinning.
+            VyDbContext db = new VyDbContext();
+            {
+                var alleAktuelleRuter = db.Ruter.Where(dbrt => dbrt.Start_id == start && dbrt.DateTime > starttid).Select(dbrt => new Rute
+                {
+                    Id = dbrt.RuteID,
+                    Start_id = dbrt.Start_id,
+                    Stopp_id = stopp,
+                    DateTime = dbrt.DateTime
+                }); ;
+
+                return alleAktuelleRuter;
+            }
+        }
 
         public IQueryable<Stasjon> HentAlleStasjoner()
         {
@@ -499,6 +530,10 @@ namespace VyBillettBestilling.Models
             }
         }
 
+        /** 
+         * Herunder følger metoder for å legge til testdata
+         * 
+         **/
         Stasjon konverterStasjon(DbStasjon dbst)
         {
             return new Stasjon
@@ -512,6 +547,145 @@ namespace VyBillettBestilling.Models
                 nett_id = dbst.NettId,
                 nett_navn = dbst.Nett.Nettnavn
             };
+        }
+
+        Rute konverterRute(DbRute dbrt)
+        {
+            return new Rute
+            {
+                DateTime = dbrt.DateTime,
+                Id = dbrt.RuteID,
+                Start_id = dbrt.Start_id,
+                Stopp_id = dbrt.Stopp_id
+            };
+        }
+
+        DbRute konverterDbRute(Rute dbrt)
+        {
+            return new DbRute
+            {
+                DateTime = dbrt.DateTime,
+                Start_id = dbrt.Start_id,
+                Stopp_id = dbrt.Stopp_id
+            };
+        }
+        public void addRute(int start, int stopp)
+        {
+            DateTime now = DateTime.Now;
+            using (var db = new VyDbContext())
+            {
+                for (int i = 0; i < 24; i++)
+                {
+                    now = now.AddHours(3);
+                    Rute rute = new Rute();
+                    rute.Start_id = start;
+                    rute.Stopp_id = stopp;
+                    rute.DateTime = now;
+                    db.Ruter.Add(konverterDbRute(rute));
+                }
+                db.SaveChanges();
+            }
+        }
+        DbStasjon KonverterDbStasjon(Stasjon st)
+        {
+
+            return new DbStasjon
+            {
+                StasjonId = st.id,
+                StasjNavn = st.stasjon_navn,
+                StasjSted = st.stasjon_sted,
+                Breddegrad = st.breddegrad,
+                Lengdegrad = st.lengdegrad,
+                Hovedstrekninger = st.hovedstrekninger.Select(hs => GetDbHovedstrekning(hs)).ToList(),
+                //dette ser rart ut, men det er bare et nett i vårt eksempel
+                NettId = st.nett_id,
+                Nett = GetDbNett(st.nett_id)
+            };
+        }
+        DbHovedstrekning GetDbHovedstrekning(int id)
+        {
+            using (var db = new VyDbContext())
+            {
+                return db.Hovedstrekninger.Find(id);
+            }
+        }
+
+        DbNett GetDbNett(int id)
+        {
+            using (var db = new VyDbContext())
+            {
+                return db.Nett.Find(id);
+            }
+        }
+        public void AddStasjoner()
+        {
+            using (var db = new VyDbContext())
+            {
+                VyDbTilgang dbt = new VyDbTilgang();
+                List<CSVstasjon> liste = CSVstasjon.convertEngine();
+                foreach (CSVstasjon stasjon in liste)
+                {
+                    DbStasjon st = new DbStasjon
+                    {
+                        stasjon_navn = stasjon.name,
+                        stasjon_sted = stasjon.name,
+                        nett_id = 1,
+                        hovedstrekninger = Rnd(),
+                        nett_navn = stasjon.country,
+                        lengdegrad = stasjon.longitude,
+                        breddegrad = stasjon.latitude
+                    };
+                    db.Stasjoner.Add(st);
+                }
+                db.SaveChanges();
+            }
+        }
+        IEnumerable<int> Rnd()
+        {
+            List<int> randList = new List<int>();
+            Random r = new Random();
+            Random rndAntall = new Random();
+            for (int i = 0; i < rndAntall.Next(1, 7); i++)
+            {
+                int rInt = r.Next(0, 60); //for ints
+                randList.Add(rInt);
+            }
+            return randList;
+        }
+
+        public void addPassasjertyper()
+        {
+            using (var db = new VyDbContext())
+            {
+                string[] typeNavn = { "Voksen", "Barn", "Student", "Honnor" };
+                int[] rabatt = { 0, 60, 50, 60 };
+                int[] ovrealder = { 67, 17, 35, 999 };
+                int[] nedrealder = { 18, 0, 0, 68 };
+                for (int i = 0; i < typeNavn.Length; i++)
+                {
+                    DbPassasjertype dbp = new DbPassasjertype
+                    {
+                        Rabatt = rabatt[i],
+                        TypeNavn = typeNavn[i],
+                        OvreAldersgrense = ovrealder[i],
+                        NedreAldersgrense = nedrealder[i]
+                    };
+                    db.Passasjertyper.Add(dbp);
+                }
+                db.SaveChanges();
+            }
+        }
+        public void addNett()
+        {
+            using (var db = new VyDbContext())
+            {
+                DbNett nett = new DbNett();
+                nett.NettId = 1;
+                nett.Nettnavn = "Norge";
+                db.Nett.Add(nett);
+                db.SaveChanges();
+            }
+            
         }
 
     }
