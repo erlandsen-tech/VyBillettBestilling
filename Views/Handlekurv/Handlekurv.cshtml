@@ -1,0 +1,48 @@
+﻿@using VyBillettBestilling.Models;
+
+@{
+    ViewBag.Title = "Handlekurv";
+}
+
+@section Styles
+        {
+    <link href="@Url.Content("~/Content/Handlekurv.css")" rel="stylesheet" type="text/css" />
+}
+
+<script type="text/javascript" src='@Url.Content("~/Scripts/Pages/Handlekurv.js")'></script>
+<h2>Innholdet i kurven</h2>
+<div class="femti bg">
+    @{ var kurv = Session["Handlekurv"] as Handlekurv;
+        if (kurv != null && kurv.Billetter != null && kurv.Billetter.Count > 0)
+        {
+            <table class="text-color-white table tabellbakgrunn table-bordered" id="MuligeReiser">
+                <tr>
+                    <th>Fra</th>
+                    <th>Til</th>
+                    <th>Tidspunkt</th>
+                    <th>Kategori</th>
+                    <th>Antall</th>
+                </tr>
+                @foreach (var billett in kurv.Billetter)
+                {
+
+                    <tr>
+                        <td> @billett.ReiseFra </td>
+                        <td> @billett.ReiseTil </td>
+                        <td> Nei</td>
+                        <td> @billett.Type </td>
+                        <td> @billett.Antall </td>
+
+                    </tr>
+                }
+            </table>
+            <input type="button" class="btn btn-primary" value="Betal" onclick="betal()">
+        }
+        else
+        {
+            <div class="container">
+                <p>Kurven er tom.</p>
+            </div>
+        }
+    }
+</div>

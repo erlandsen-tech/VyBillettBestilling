@@ -6,14 +6,19 @@ using System.Web;
 
 namespace VyBillettBestilling.Models
 {
-    public class Bestilling
+    //trenger en rutetabell for togene
+    //Denne benyttes til bestilling
+    // og visning av togtider
+    public class RuteView
     {
-        public int ReiseFra { get; set; }
-        public int ReiseTil { get; set; }
+        [Key]
+        public int Id { get; set; }
+        public string StartNavn { get; set; }
+        public string StoppNavn { get; set; }
+        public DateTime DateTime{ get; set; }
         public int AntallVoksne { get; set; }
         public int AntallBarn { get; set; }
         public int AntallStudent { get; set; }
         public int AntallHonnor { get; set; }
-        public DateTime StartTid { get; set; }
     }
 }
