@@ -18,54 +18,39 @@ namespace VyBillettBestilling.Models
         }
         public List<Stasjon> HentAlleStasjoner()
         {
-            var alle = new List<Stasjon>();
             using (var db = new VyDbContext())
             {
-                List<DbStasjon> alleStasj = db.Stasjoner.Select(dbst => dbst).ToList();
-                foreach(DbStasjon stasjon in alleStasj)
-                {
-                    alle.Add(konverterStasjon(stasjon));
-                }
-                return alle;
+                return db.Stasjoner.Select(dbst => konverterStasjon(dbst)).ToList();
             }
         }
-        public string HentStasjonsnavnMedId(int id)
-        {
-            using (var db = new VyDbContext())
-            {
-                return (db.Stasjoner.Find(id).StasjNavn);
-            }
-        }
-        public IQueryable<Rute> HentRute(int start, int stopp, DateTime starttid)
+        public List<Rute> HentRute(int start, int stopp, DateTime starttid)
         {
             //TODO
             //Må oppdateres med stifinning.
             VyDbContext db = new VyDbContext();
             {
-                var alleAktuelleRuter = db.Ruter.Where(dbrt => dbrt.Start_id == start && dbrt.DateTime > starttid).Select(dbrt => new Rute
+                return db.Ruter.Where(dbrt => dbrt.Start_id == start && dbrt.DateTime > starttid).Select(dbrt => new Rute
                 {
                     Id = dbrt.RuteID,
                     Start_id = dbrt.Start_id,
                     Stopp_id = stopp,
                     DateTime = dbrt.DateTime
-                }); ;
-
-                return alleAktuelleRuter;
+                }).ToList();
             }
         }
 
-        public IEnumerable<Stasjon> HentStasjonerPaNett(int nettId)
+        public List<Stasjon> HentStasjonerPaNett(int nettId)
         {
             using (var db = new VyDbContext())
             {
                 var funnet = db.Nett.Find(nettId);
-                return (funnet == null) ? null : funnet.Stasjoner.Select(dbst => konverterStasjon(dbst));
+                return (funnet == null) ? null : funnet.Stasjoner.Select(dbst => konverterStasjon(dbst)).ToList();
 
                 //Demonstrasjon pa hvordan gjore det pa en annen mate:
                 //return db.Stasjoner.Where(dbst => dbst.NettId == nettId).Select(dbst => konverterStasjon(dbst));
             }
         }
-        public IList<Stasjon> HentStasjonerPaHovedstrekning(int hovstrId)
+        public List<Stasjon> HentStasjonerPaHovedstrekning(int hovstrId)
         {
             using (var db = new VyDbContext())
             {
@@ -73,19 +58,19 @@ namespace VyBillettBestilling.Models
                 return (funnet == null) ? null : funnet.Stasjoner.Select(dbst => konverterStasjon(dbst)).ToList();
             }
         }
-        public IEnumerable<Stasjon> HentStasjoner(String stasjNavn, String optSted = "")
+        public List<Stasjon> HentStasjoner(String stasjNavn, String optSted = "")
         {
             using (var db = new VyDbContext())
             {
                 return db.Stasjoner.Where(st => st.StasjNavn.Equals(stasjNavn) && (optSted.Length == 0 || st.StasjSted.Equals(optSted)))
-                    .Select(st => konverterStasjon(st));
+                    .Select(st => konverterStasjon(st)).ToList();
             }
         }
-        public IEnumerable<Stasjon> HentStasjonerEtterBegNavn(String begNavn)
+        public List<Stasjon> HentStasjonerEtterBegNavn(String begNavn)
         {
             using (var db = new VyDbContext())
             {
-                return db.Stasjoner.Where(st => st.StasjNavn.StartsWith(begNavn)).Select(st => konverterStasjon(st));
+                return db.Stasjoner.Where(st => st.StasjNavn.StartsWith(begNavn)).Select(st => konverterStasjon(st)).ToList();
             }
         }
 
@@ -612,27 +597,27 @@ namespace VyBillettBestilling.Models
                 return (funnet == null) ? null : konverterHovedstrekning(funnet);
             }
         }
-        public IEnumerable<Hovedstrekning> HentAlleHovedstrekninger()
+        public List<Hovedstrekning> HentAlleHovedstrekninger()
         {
             using (var db = new VyDbContext())
             {
-                return db.Hovedstrekninger.Select(dbho => konverterHovedstrekning(dbho));
+                return db.Hovedstrekninger.Select(dbho => konverterHovedstrekning(dbho)).ToList();
             }
         }
-        public IEnumerable<Hovedstrekning> HentHovedstrekningerPaNett(int nettId)
+        public List<Hovedstrekning> HentHovedstrekningerPaNett(int nettId)
         {
             using (var db = new VyDbContext())
             {
                 var funnet = db.Nett.Find(nettId);
-                return (funnet == null) ? null : funnet.Hovedstrekninger.Select(dbho => konverterHovedstrekning(dbho));
+                return (funnet == null) ? null : funnet.Hovedstrekninger.Select(dbho => konverterHovedstrekning(dbho)).ToList();
             }
         }
-        public IEnumerable<Hovedstrekning> HentHovedstrekningerTilStasjon(int stasjId)
+        public List<Hovedstrekning> HentHovedstrekningerTilStasjon(int stasjId)
         {
             using (var db = new VyDbContext())
             {
                 var funnet = db.Stasjoner.Find(stasjId);
-                return (funnet == null) ? null : funnet.Hovedstrekninger.Select(dbho => konverterHovedstrekning(dbho));
+                return (funnet == null) ? null : funnet.Hovedstrekninger.Select(dbho => konverterHovedstrekning(dbho)).ToList();
             }
         }
 
@@ -645,11 +630,11 @@ namespace VyBillettBestilling.Models
                 return (funnet == null) ? null : konverterNett(funnet);
             }
         }
-        public IEnumerable<Nett> HentAlleNett()
+        public List<Nett> HentAlleNett()
         {
             using (var db = new VyDbContext())
             {
-                return db.Nett.Select(dbne => konverterNett(dbne));
+                return db.Nett.Select(dbne => konverterNett(dbne)).ToList();
             }
         }
 
