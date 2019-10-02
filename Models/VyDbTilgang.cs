@@ -16,6 +16,19 @@ namespace VyBillettBestilling.Models
                 return (funnet == null) ? null : konverterStasjon(funnet);
             }
         }
+        public Passasjer Passasjertype(int typeId)
+        {
+            using (var db = new VyDbContext())
+            {
+                var dbpass = db.Passasjertyper.Find(typeId);
+                var pass = new Passasjer
+                {
+                    rabatt = dbpass.Rabatt,
+                    typenavn = dbpass.TypeNavn
+                };
+                return pass;
+            }
+        }
         public List<Stasjon> HentAlleStasjoner()
         {
             using (var db = new VyDbContext())
@@ -647,6 +660,9 @@ namespace VyBillettBestilling.Models
             }
         }
 
+/** 
+ * Under har vi metoder for å manipulere databasen og legge til eksempeldata
+ * **/
 
         private Stasjon konverterStasjon(DbStasjon dbst)
         {
@@ -826,8 +842,6 @@ namespace VyBillettBestilling.Models
                 stasjoner = dbne.Stasjoner.Select(st => st.StasjonId).ToList(),
             };
         }
-
-
 
     }
 }

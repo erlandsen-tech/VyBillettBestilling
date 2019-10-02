@@ -14,33 +14,42 @@
     <script type="text/javascript" src='@Url.Content("~/Scripts/Pages/Bestilling.js")'></script>
     <div class="bg container femti">
         <h2>Bestilling</h2>
-        <table class="text-color-white table tabellbakgrunn table-bordered" id="MuligeReiser">
-            <tr>
-                <th>Reise fra:</th>
-                <th>Reise til:</th>
-                <th>Tidspunkt og dato: </th>
-                <th></th>
-            </tr>
-            <!-- Denne må utvides med reiserute og tidstabell
-                 Nå viser den bare det den får servert pluss noen random tider
-                 Trenger også en base med antall biletter per strekning per tid-->
-            @{
-                for (var i = 0; i < 7; i++)
-                {
+        <div class="table-wrapper-scroll-y my-custom-scrollbar">
+            <table class="text-color-white table tabellbakgrunn table-bordered" id="MuligeReiser">
+                <thead>
                     <tr>
-                        <td>@Model[i].StoppNavn</td>
-                        <td>@Model[i].StartNavn</td>
-                        <td>@Model[i].DateTime</td>
-                        <td>
-<a onclick="LeggIHandleKurv(@Model[i].Id, @Model[i].AntallVoksne, @Model[i].AntallBarn, @Model[i].AntallStudent, @Model[i].AntallHonnor)"
-value="Legg i kurven" class="btn btn-primary">Kjøp</a>
-                            <input type="button" class="btn btn-primary" value="Detaljer">
-                        </td>
+                        <th>Reise</th>
+                        <th>Avreise</th>
+                        <th></th>
                     </tr>
-                }
-            }
-        </table>
+                </thead>
+                <tbody>
+                    @{
+                        for (var i = 0; i < 7; i++)
+                        {
+                            <tr>
+                                <td>@Model[i].StartNavn - @Model[i].StoppNavn</td>
+                                <td>@Model[i].DateTime.ToString("dd.mm.yy hh:mm")</td>
+                                <td>
+                                    <a onclick="LeggIHandleKurv(@Model[i].StoppId, @Model[i].StartId, @Model[i].AntallVoksne, @Model[i].AntallBarn, @Model[i].AntallStudent, @Model[i].AntallHonnor , @Model[i].DateTime.Ticks)"
+                                       value="Legg i kurven" class="btn btn-primary" id="bestillingsknapp">Kjøp</a>
+
+                                    <!--
+                                    <input type="button" class="btn btn-primary" value="Detaljer">
+                                        -->
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
     </div>
+
+        <div id="dialog-confirm" title="Empty the recycle bin?">
+            <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>These items will be permanently deleted and cannot be recovered. Are you sure?</p>
+        </div>
 </body>
 
 

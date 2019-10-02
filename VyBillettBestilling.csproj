@@ -121,6 +121,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\css\jquery-ui.min.css" />
     <Content Include="Scripts\BugFixQuery.sql" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
@@ -223,6 +224,7 @@
     <Content Include="Scripts\Pages\Bestilling.js" />
     <Content Include="Scripts\Pages\Handlekurv.js" />
     <Content Include="Scripts\Pages\Index.js" />
+    <Content Include="Scripts\Pages\Global.js" />
     <Content Include="Scripts\Plugins\datetimepicker\jquery.datetimepicker.full.min.js" />
     <Content Include="Scripts\Plugins\datetimepicker\jquery.datetimepicker.min.css" />
     <Content Include="Scripts\popper-utils.js" />
@@ -250,6 +252,7 @@
     <Compile Include="Models\Billett.cs" />
     <Compile Include="Models\CSVstasjon.cs" />
     <Compile Include="Models\Handlekurv.cs" />
+    <Compile Include="Models\Passasjer.cs" />
     <Compile Include="Models\Rute.cs" />
     <Compile Include="Models\Tog.cs" />
     <Compile Include="Models\Utilities.cs" />
