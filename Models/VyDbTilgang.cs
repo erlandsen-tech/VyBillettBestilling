@@ -22,6 +22,15 @@ namespace VyBillettBestilling.Models
             {
                 return db.Stasjoner.Select(dbst => konverterStasjon(dbst)).ToList();
             }
+            // Demonstrasjon pa hvordan gjore det pa en annen mate:
+            // Vet ikke om denne Distinct-en gjor susen. SJEKK! Da kan slutt-Distinct-en droppes:
+            //return db.Hovedstrekninger.SelectMany(hs => hs.Stasjoner//.Distinct()
+            //,
+            //    (dbhs, dbst) => new Stasjon
+            //    {
+            //        stasjon_navn = dbst.StasjNavn
+            //    }
+            //).Distinct().OrderBy(n => n.stasjon_navn+n.stasjon_sted);
         }
         public List<Rute> HentRute(int start, int stopp, DateTime starttid)
         {
@@ -788,7 +797,7 @@ namespace VyBillettBestilling.Models
             using (var db = new VyDbContext())
             {
                 DbNett nett = new DbNett();
-                nett.Id = 1;
+                nett.NettId = 1;
                 nett.Nettnavn = "Norge";
                 db.Nett.Add(nett);
                 db.SaveChanges();
@@ -810,7 +819,7 @@ namespace VyBillettBestilling.Models
         {
             return new Nett
             {
-                id = dbne.Id,
+                id = dbne.NettId,
                 nett_navn = dbne.Nettnavn,
                 // Droppe disse?:
                 hovedstrekninger = dbne.Hovedstrekninger.Select(hs => hs.HovstrId).ToList(),
