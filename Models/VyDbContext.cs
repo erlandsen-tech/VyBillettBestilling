@@ -55,7 +55,7 @@ namespace VyBillettBestilling.Models
             // derfor liggger denne lagret på denne måten
             // dette fører til krøll når vi legger til eksempeldata.
             [Key]
-            public int Id { get; set; }
+            public int NettId { get; set; }
             [Required]
             public String Nettnavn { get; set; } // Sor-Norge, Ofoten, Japan osv.
             public virtual List<DbHovedstrekning> Hovedstrekninger { get; set; } // IEnumerable eller ICollection?
@@ -155,11 +155,31 @@ namespace VyBillettBestilling.Models
             public int NedreAldersgrense { get; set; }
         }
 
+        //public class DbKunde
+        //{
+        //    [Key]
+        //    public int KundeId { get; set; }
+        //    public virtual List<DbBillett> Billetter { get; set; }
+
+        //    [Required] // [EmailAddress] // ?
+        //    public String Epost { get; set; } // Brukernavn, pakrevet (for a sende billett, og senere for palogging)
+        //    public DateTime Foedt { get; set; } // For a sjekke aldersgrense, kanskje
+        //    // [Required] // ?
+        //    public String Fornavn { get; set; }
+        //    // [Required]
+        //    public String Etternavn { get; set; }
+        //    // [Phone] // ?
+        //    public String Mobilnr { get; set; }
+        //    //public String[] Bet_kort { get; set; } // Gjor det enklere, lagrer bare ett:
+        //    // [CreditCard] // ?
+        //    public String Bet_kort { get; set; } // Skal lagres som sifferstreng, uten mellomrom (?)
+        //}
+
         public class DbKunde
         {
             [Key]
             public int KundeId { get; set; }
-            public virtual List<DbBillett> Billetter { get; set; }
+            public virtual List<DbBillettKjop> Kjop { get; set; }
 
             [Required] // [EmailAddress] // ?
             public String Epost { get; set; } // Brukernavn, pakrevet (for a sende billett, og senere for palogging)
@@ -172,7 +192,21 @@ namespace VyBillettBestilling.Models
             public String Mobilnr { get; set; }
             //public String[] Bet_kort { get; set; } // Gjor det enklere, lagrer bare ett:
             // [CreditCard] // ?
-            public String Bet_kort { get; set; } // Skal lagres som sifferstreng, uten mellomrom (?)
+            public String Bet_kort { get; set; } // Skal lagres som sifferstreng uten mellomrom(?)
+        }
+
+        public class DbBillettKjop
+        {
+            [Key]
+            public int BillKjopId { get; set; }
+            [Required]
+            public int KundeId { get; set; }
+            public virtual DbKunde Kunde { get; set; }
+            public virtual List<DbBillett> Billetter { get; set; }
+
+            // [CreditCard] // ?
+            public String Bet_kort { get; set; } // Skal lagres som sifferstreng uten mellomrom(?). Kort til hvert kjop ma lagres, siden kundens kort kan forandre seg
+            public DateTime Kjopsdato { get; set; }
         }
 
         public class DbBillett
@@ -180,19 +214,37 @@ namespace VyBillettBestilling.Models
             [Key]
             public int BillId { get; set; }
             [Required]
-            public int KundeId { get; set; }
-            public virtual DbKunde Kunde { get; set; }
+            public int BillKjopId { get; set; }
+            public virtual DbBillettKjop Kjop { get; set; }
 
             // Mest hensiksmessig a lagre tekstverdiene som skal sta pa billetten i DbBillett-en
             public String StartStasjon { get; set; }
             public String StoppStasjon { get; set; }
+            public DateTime Avreisetid { get; set; }
+            public DateTime Ankomsttid { get; set; }
             // Pris, passasjertype og rabattsats ma fikseres i billetten, siden de kan endre seg etter kjopet.
             public double Pris { get; set; }
             public String Passasjertype { get; set; }
             public double Rabattsats { get; set; }
-            public DateTime Kjopsdato { get; set; }
-
         }
+        //public class DbBillett
+        //{
+        //    [Key]
+        //    public int BillId { get; set; }
+        //    [Required]
+        //    public int KundeId { get; set; }
+        //    public virtual DbKunde Kunde { get; set; }
+
+        //    // Mest hensiksmessig a lagre tekstverdiene som skal sta pa billetten i DbBillett-en
+        //    public String StartStasjon { get; set; }
+        //    public String StoppStasjon { get; set; }
+        //    // Pris, passasjertype og rabattsats ma fikseres i billetten, siden de kan endre seg etter kjopet.
+        //    public double Pris { get; set; }
+        //    public String Passasjertype { get; set; }
+        //    public double Rabattsats { get; set; }
+        //    public DateTime Kjopsdato { get; set; }
+
+        //}
 
         public class DbRute
         {

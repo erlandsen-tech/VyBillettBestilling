@@ -71,7 +71,7 @@ namespace VyBillettBestilling.Controllers
         public string HentStasjonsnavnMedId(int id)
         {
             VyDbTilgang context = new VyDbTilgang();
-            return context.HentStasjonsnavnMedId(id);
+            return context.HentStasjon(id).stasjon_navn;
         }
 
         [HttpGet]
