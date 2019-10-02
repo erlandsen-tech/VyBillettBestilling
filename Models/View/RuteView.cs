@@ -15,6 +15,8 @@ namespace VyBillettBestilling.Models
         public int Id { get; set; }
         public string StartNavn { get; set; }
         public string StoppNavn { get; set; }
+        public int StartId { get; set; }
+        public int StoppId { get; set; }
         public DateTime DateTime{ get; set; }
         public int AntallVoksne { get; set; }
         public int AntallBarn { get; set; }

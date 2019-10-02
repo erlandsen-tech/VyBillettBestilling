@@ -48,7 +48,6 @@ namespace VyBillettBestilling.Models
         public int nett_id { get; set; }
         [Display(Name = "Nettnavn")]
         public String nett_navn { get; set; }
-        //public IList<int> delstrekninger { get; set; } // Dropper denne; delstrekninger er en intern db-konstruksjon
         public IList<int> stasjoner { get; set; }
     }
 

@@ -1,48 +1,59 @@
 ﻿@using VyBillettBestilling.Models;
-
 @{
     ViewBag.Title = "Handlekurv";
 }
-
 @section Styles
         {
     <link href="@Url.Content("~/Content/Handlekurv.css")" rel="stylesheet" type="text/css" />
 }
-
 <script type="text/javascript" src='@Url.Content("~/Scripts/Pages/Handlekurv.js")'></script>
 <h2>Innholdet i kurven</h2>
 <div class="femti bg">
-    @{ var kurv = Session["Handlekurv"] as Handlekurv;
-        if (kurv != null && kurv.Billetter != null && kurv.Billetter.Count > 0)
-        {
-            <table class="text-color-white table tabellbakgrunn table-bordered" id="MuligeReiser">
-                <tr>
-                    <th>Fra</th>
-                    <th>Til</th>
-                    <th>Tidspunkt</th>
-                    <th>Kategori</th>
-                    <th>Antall</th>
-                </tr>
-                @foreach (var billett in kurv.Billetter)
+    <div class="container">
+        @{ var kurv = Session["Handlekurv"] as Handlekurv;
+            if (kurv != null && kurv.Billetter != null && kurv.Billetter.Count > 0)
+            {
+                double total = 0;
+                foreach (var bill in kurv.Billetter)
                 {
-
-                    <tr>
-                        <td> @billett.ReiseFra </td>
-                        <td> @billett.ReiseTil </td>
-                        <td> Nei</td>
-                        <td> @billett.Type </td>
-                        <td> @billett.Antall </td>
-
-                    </tr>
+                    total += (bill.Pris * bill.Antall);
                 }
-            </table>
-            <input type="button" class="btn btn-primary" value="Betal" onclick="betal()">
+                <div class="my-custom-scrollbar table-wrapper-scroll-y">
+                    <table class="text-color-white table tabellbakgrunn table-bordered" id="MuligeReiser">
+                        <thead>
+                            <tr>
+                                <th>Reise</th>
+                                <th>Avreise</th>
+                                <th>Kat.</th>
+                                <th>#</th>
+                                <th>Pris</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var billett in kurv.Billetter)
+                            {
+                                double prisen = (billett.Pris * billett.Antall);
+                                <tr>
+                                    <td> @billett.StartStasjon - @billett.StoppStasjon</td>
+                                    <td> @billett.Avreise.ToString("dd.mm.yy hh:mm")</td>
+                                    <td> @billett.Passasjertype.typenavn </td>
+                                    <td> @billett.Antall </td>
+                                    <td> @prisen kr </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <input type="button" class="btn btn-primary" value="Betal" onclick="betal()">
+            }
+            else
+            {
+                <div class="container">
+                    <p>Kurven er tom.</p>
+                </div>
+            }
         }
-        else
-        {
-            <div class="container">
-                <p>Kurven er tom.</p>
-            </div>
-        }
-    }
+
+    </div>
 </div>
+
