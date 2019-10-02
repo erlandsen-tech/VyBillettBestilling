@@ -8,12 +8,14 @@
     <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
     <link href="~/Content/font-awesome.css" rel="stylesheet" />
     <link href="~/Content/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/Content/css/jquery-ui.min.css">
     <link rel="icon" type="image/png" href="@Url.Content("~/Resources/Images/vy_logo.png")" />
     <script src="~/Scripts/modernizr-2.8.3.js"></script>
     <script src="~/Scripts/jquery-3.4.1.min.js"></script>
     <script src="~/Scripts/jquery-ui-1.12.1.min.js"></script>
     <script src="~/Scripts/select2.min.js"></script>
     <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/Pages/Global.js"></script>
     @RenderSection("Styles", required: false)
 </head>
 <body>
@@ -67,3 +69,6 @@
     </div>
 </body>
 </html>
+<script>
+    getAntallenheterIHandlekurv();
+</script>  

@@ -19,6 +19,8 @@ namespace VyBillettBestilling.Methods
             ruteView.DateTime = rute.DateTime;
             ruteView.Id = rute.Id;
             ruteView.StartNavn = dbt.HentStasjonsnavnMedId(rute.Start_id);
+            ruteView.StartId = rute.Start_id;
+            ruteView.StoppId = rute.Stopp_id;
             ruteView.StoppNavn = dbt.HentStasjonsnavnMedId(rute.Stopp_id);
             ruteView.AntallBarn = innBestilling.AntallBarn;
             ruteView.AntallHonnor = innBestilling.AntallHonnor;
