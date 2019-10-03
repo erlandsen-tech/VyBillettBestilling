@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace VyBillettBestilling.Models
 {
     public class Billett
     {
+        public int Id { get; set; }
         public Passasjer Passasjertype { get; set; }
         public int Antall { get; set; }
         public string StartStasjon { get; set; }

@@ -29,7 +29,8 @@
                         {
                             <tr>
                                 <td>@Model[i].StartNavn - @Model[i].StoppNavn</td>
-                                <td>@Model[i].DateTime.ToString("dd.mm.yy hh:mm")</td>
+                                <td>@Model[i].DateTime.ToShortDateString()<br />
+                                    @Model[i].DateTime.ToShortTimeString()</td>
                                 <td>
                                     <a onclick="LeggIHandleKurv(@Model[i].StoppId, @Model[i].StartId, @Model[i].AntallVoksne, @Model[i].AntallBarn, @Model[i].AntallStudent, @Model[i].AntallHonnor , @Model[i].DateTime.Ticks)"
                                        value="Legg i kurven" class="btn btn-primary" id="bestillingsknapp">Kjøp</a>
@@ -47,9 +48,11 @@
 
     </div>
 
-        <div id="dialog-confirm" title="Empty the recycle bin?">
-            <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>These items will be permanently deleted and cannot be recovered. Are you sure?</p>
-        </div>
+    <div id="dialog-confirm" title="Info">
+        <p><span  style="float:left; margin:12px 12px 20px 0;"></span>
+        Hvordan vil du fortsette?
+        </p>
+    </div>
 </body>
 
 

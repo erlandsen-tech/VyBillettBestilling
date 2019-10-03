@@ -6,6 +6,7 @@ using FileHelpers;
 
 namespace VyBillettBestilling.Models
 {
+    //Hjelpemodell for import av stasjonsliste fra CSV ved bygging av database
     [DelimitedRecord(";")]
     public class CSVstasjon
     {

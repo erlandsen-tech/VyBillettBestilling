@@ -7,53 +7,72 @@
     <link href="@Url.Content("~/Content/Handlekurv.css")" rel="stylesheet" type="text/css" />
 }
 <script type="text/javascript" src='@Url.Content("~/Scripts/Pages/Handlekurv.js")'></script>
-<h2>Innholdet i kurven</h2>
-<div class="femti bg">
-    <div class="container">
-        @{ var kurv = Session["Handlekurv"] as Handlekurv;
-            if (kurv != null && kurv.Billetter != null && kurv.Billetter.Count > 0)
-            {
-                double total = 0;
-                foreach (var bill in kurv.Billetter)
-                {
-                    total += (bill.Pris * bill.Antall);
+@{ double total = 0;
+    var kurv = Session["Handlekurv"] as Handlekurv;
+    Boolean ikkeTom = (kurv != null && kurv.Billetter != null && kurv.Billetter.Count > 0);
+    <div class="femti bg">
+        <div class="container">
+
+            <div class="container">
+                <h2>Innholdet i kurven</h2>
+                @{
+                    if (ikkeTom)
+                    {
+                        total = 0;
+                        foreach (var bill in kurv.Billetter)
+                        {
+                            total += (bill.Pris * bill.Antall);
+                        }
+                        <div class="my-custom-scrollbar table-wrapper-scroll-y">
+                            <table class="text-color-white table tabellbakgrunn table-bordered" id="MuligeReiser">
+                                <thead>
+                                    <tr>
+                                        <th>Reise</th>
+                                        <th>Avreise</th>
+                                        <th>Kat.</th>
+                                        <th>#</th>
+                                        <th>Pris</th>
+                                        <th>Slett</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var billett in kurv.Billetter)
+                                    {
+                                        double prisen = (billett.Pris * billett.Antall);
+                                        <tr>
+                                            <td> @billett.StartStasjon <br /> - @billett.StoppStasjon</td>
+                                            <td>
+                                                @billett.Avreise.ToShortDateString() <br />
+                                                @billett.Avreise.ToShortTimeString()
+                                            </td>
+                                            <td> @billett.Passasjertype.typenavn </td>
+                                            <td> @billett.Antall </td>
+                                            <td> @prisen kr </td>
+                                            <td><input type="button" class="btn btn-primary" value="X" onclick="slett(@billett.Id)" /></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+
+
+                        </div>
+
+                        if (ikkeTom)
+                        {
+                            <input type="button" class="btn btn-primary" value="Betal" onclick="betal()">
+                            <input type="text" readonly="readonly" value="Totalpris @total kr" />
+                        }
+
+                    }
+                    else
+                    {
+                        <div class="container">
+                            <p><h3>Kurven er tom.</h3></p>
+                        </div>
+                    }
                 }
-                <div class="my-custom-scrollbar table-wrapper-scroll-y">
-                    <table class="text-color-white table tabellbakgrunn table-bordered" id="MuligeReiser">
-                        <thead>
-                            <tr>
-                                <th>Reise</th>
-                                <th>Avreise</th>
-                                <th>Kat.</th>
-                                <th>#</th>
-                                <th>Pris</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var billett in kurv.Billetter)
-                            {
-                                double prisen = (billett.Pris * billett.Antall);
-                                <tr>
-                                    <td> @billett.StartStasjon - @billett.StoppStasjon</td>
-                                    <td> @billett.Avreise.ToString("dd.mm.yy hh:mm")</td>
-                                    <td> @billett.Passasjertype.typenavn </td>
-                                    <td> @billett.Antall </td>
-                                    <td> @prisen kr </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-                <input type="button" class="btn btn-primary" value="Betal" onclick="betal()">
-            }
-            else
-            {
-                <div class="container">
-                    <p>Kurven er tom.</p>
-                </div>
-            }
-        }
 
+            </div>
+        </div>
     </div>
-</div>
-
+}

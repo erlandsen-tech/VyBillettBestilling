@@ -14,7 +14,6 @@ namespace VyBillettBestilling.Models
         public int Id { get; set; }
         public int Start_id { get; set; }
         public int Stopp_id { get; set; }
-        public List<Stasjon> sti { get; set; }
         public DateTime DateTime{ get; set; }
     }
 }
