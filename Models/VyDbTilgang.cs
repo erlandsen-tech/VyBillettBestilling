@@ -8,14 +8,6 @@ namespace VyBillettBestilling.Models
 {
     public class VyDbTilgang
     {
-        public Stasjon HentStasjon(int stasjId)
-        {
-            using (var db = new VyDbContext())
-            {
-                var funnet = db.Stasjoner.Find(stasjId);
-                return (funnet == null) ? null : konverterStasjon(funnet);
-            }
-        }
         public Passasjer Passasjertype(int typeId)
         {
             using (var db = new VyDbContext())
@@ -28,22 +20,6 @@ namespace VyBillettBestilling.Models
                 };
                 return pass;
             }
-        }
-        public List<Stasjon> HentAlleStasjoner()
-        {
-            using (var db = new VyDbContext())
-            {
-                return db.Stasjoner.Select(dbst => konverterStasjon(dbst)).ToList();
-            }
-            // Demonstrasjon pa hvordan gjore det pa en annen mate:
-            // Vet ikke om denne Distinct-en gjor susen. SJEKK! Da kan slutt-Distinct-en droppes:
-            //return db.Hovedstrekninger.SelectMany(hs => hs.Stasjoner//.Distinct()
-            //,
-            //    (dbhs, dbst) => new Stasjon
-            //    {
-            //        stasjon_navn = dbst.StasjNavn
-            //    }
-            //).Distinct().OrderBy(n => n.stasjon_navn+n.stasjon_sted);
         }
         public List<Rute> HentRute(int start, int stopp, DateTime starttid)
         {
@@ -61,12 +37,38 @@ namespace VyBillettBestilling.Models
             }
         }
 
+        // Generelle hentemetoder for (konverterte) poster i basen
+        // (Blir utvidet med metoder for de fleste resterende tabellene)
+        public Stasjon HentStasjon(int stasjId)
+        {
+            using (var db = new VyDbContext())
+            {
+                var funnet = db.Stasjoner.Find(stasjId);
+                return (funnet == null) ? null : konverterStasjon(funnet);
+            }
+        }
+        public List<Stasjon> HentAlleStasjoner()
+        {
+            using (var db = new VyDbContext())
+            {
+                return db.Stasjoner.ToList().Select(dbst => konverterStasjon(dbst)).ToList();
+            }
+            // Demonstrasjon pa hvordan gjore det pa en annen mate:
+            // Vet ikke om denne Distinct-en gjor susen. SJEKK! Da kan slutt-Distinct-en droppes:
+            //return db.Hovedstrekninger.SelectMany(hs => hs.Stasjoner//.Distinct()
+            //,
+            //    (dbhs, dbst) => new Stasjon
+            //    {
+            //        stasjon_navn = dbst.StasjNavn
+            //    }
+            //).Distinct().OrderBy(n => n.stasjon_navn+n.stasjon_sted);
+        }
         public List<Stasjon> HentStasjonerPaNett(int nettId)
         {
             using (var db = new VyDbContext())
             {
                 var funnet = db.Nett.Find(nettId);
-                return (funnet == null) ? null : funnet.Stasjoner.Select(dbst => konverterStasjon(dbst)).ToList();
+                return (funnet == null) ? null : funnet.Stasjoner.ToList().Select(dbst => konverterStasjon(dbst)).ToList();
 
                 //Demonstrasjon pa hvordan gjore det pa en annen mate:
                 //return db.Stasjoner.Where(dbst => dbst.NettId == nettId).Select(dbst => konverterStasjon(dbst));
@@ -77,14 +79,14 @@ namespace VyBillettBestilling.Models
             using (var db = new VyDbContext())
             {
                 var funnet = db.Hovedstrekninger.Find(hovstrId);
-                return (funnet == null) ? null : funnet.Stasjoner.Select(dbst => konverterStasjon(dbst)).ToList();
+                return (funnet == null) ? null : funnet.Stasjoner.ToList().Select(dbst => konverterStasjon(dbst)).ToList();
             }
         }
         public List<Stasjon> HentStasjoner(String stasjNavn, String optSted = "")
         {
             using (var db = new VyDbContext())
             {
-                return db.Stasjoner.Where(st => st.StasjNavn.Equals(stasjNavn) && (optSted.Length == 0 || st.StasjSted.Equals(optSted)))
+                return db.Stasjoner.ToList().Where(st => st.StasjNavn.Equals(stasjNavn) && (optSted.Length == 0 || st.StasjSted.Equals(optSted)))
                     .Select(st => konverterStasjon(st)).ToList();
             }
         }
@@ -92,10 +94,107 @@ namespace VyBillettBestilling.Models
         {
             using (var db = new VyDbContext())
             {
-                return db.Stasjoner.Where(st => st.StasjNavn.StartsWith(begNavn)).Select(st => konverterStasjon(st)).ToList();
+                return db.Stasjoner.ToList().Where(st => st.StasjNavn.StartsWith(begNavn)).Select(st => konverterStasjon(st)).ToList();
             }
         }
+        private Stasjon konverterStasjon(DbStasjon dbst)
+        {
+            return new Stasjon
+            {
+                id = dbst.StasjonId,
+                stasjon_navn = dbst.StasjNavn,
+                stasjon_sted = dbst.StasjSted,
+                breddegrad = dbst.Breddegrad,
+                lengdegrad = dbst.Lengdegrad,
+                // Droppe denne?:
+                hovedstrekninger = dbst.Hovedstrekninger.ToList().Select(hs => hs.HovstrId).ToList(),
+                nett_id = dbst.NettId,
+                nett_navn = dbst.Nett.Nettnavn
+            };
+        }
 
+        public Hovedstrekning HentHovedstrekning(int hovstrId)
+        {
+            using (var db = new VyDbContext())
+            {
+                var funnet = db.Hovedstrekninger.Find(hovstrId);
+                return (funnet == null) ? null : konverterHovedstrekning(funnet);
+            }
+        }
+        public List<Hovedstrekning> HentAlleHovedstrekninger()
+        {
+            using (var db = new VyDbContext())
+            {
+                return db.Hovedstrekninger.ToList().Select(dbho => konverterHovedstrekning(dbho)).ToList();
+            }
+        }
+        public List<Hovedstrekning> HentHovedstrekningerPaNett(int nettId)
+        {
+            using (var db = new VyDbContext())
+            {
+                var funnet = db.Nett.Find(nettId);
+                return (funnet == null) ? null : funnet.Hovedstrekninger.ToList().Select(dbho => konverterHovedstrekning(dbho)).ToList();
+            }
+        }
+        public List<Hovedstrekning> HentHovedstrekningerTilStasjon(int stasjId)
+        {
+            using (var db = new VyDbContext())
+            {
+                var funnet = db.Stasjoner.Find(stasjId);
+                return (funnet == null) ? null : funnet.Hovedstrekninger.ToList().Select(dbho => konverterHovedstrekning(dbho)).ToList();
+            }
+        }
+        private Hovedstrekning konverterHovedstrekning(DbHovedstrekning dbho)
+        {
+            return new Hovedstrekning
+            {
+                id = dbho.HovstrId,
+                // Droppe denne?:
+                stasjoner = dbho.Stasjoner.ToList().Select(st => st.StasjonId).ToList(),
+                nett_id = dbho.NettId,
+                nett_navn = dbho.Nett.Nettnavn,
+            };
+        }
+        
+        public Nett HentNett(int nettId)
+        {
+            using (var db = new VyDbContext())
+            {
+                var funnet = db.Nett.Find(nettId);
+                return (funnet == null) ? null : konverterNett(funnet);
+            }
+        }
+        public List<Nett> HentAlleNett()
+        {
+            using (var db = new VyDbContext())
+            {
+                return db.Nett.ToList().Select(dbne => konverterNett(dbne)).ToList();
+            }
+        }
+        private Nett konverterNett(DbNett dbne)
+        {
+            return new Nett
+            {
+                id = dbne.NettId,
+                nett_navn = dbne.Nettnavn,
+                // Droppe disse?:
+                hovedstrekninger = dbne.Hovedstrekninger.ToList().Select(hs => hs.HovstrId).ToList(),
+                stasjoner = dbne.Stasjoner.ToList().Select(st => st.StasjonId).ToList(),
+            };
+        }
+        // Slutt generelle hentemetoder for poster i basen
+
+        // Spesialiserte hentemetoder for (lister av) verdier.
+        // Bare for hyppige eller spesielt tidsviktige foresporsler, bruk ellers de generelle
+
+        public List<String> HentAlleStasjonNavn()
+        {
+            using (var db = new VyDbContext())
+            {
+                return db.Stasjoner.ToList().Select(dbst => dbst.StasjNavn).ToList();
+            }
+        }
+        
         public List<List<Stasjon>> stierMellomStasjoner(int ida, int idb)
         {
             List<List<Stasjon>> retur = new List<List<Stasjon>>();
@@ -610,75 +709,11 @@ namespace VyBillettBestilling.Models
 
         }
 
+        // Slutt spesialiserte hentemetoder
 
-        public Hovedstrekning HentHovedstrekning(int hovstrId)
-        {
-            using (var db = new VyDbContext())
-            {
-                var funnet = db.Hovedstrekninger.Find(hovstrId);
-                return (funnet == null) ? null : konverterHovedstrekning(funnet);
-            }
-        }
-        public List<Hovedstrekning> HentAlleHovedstrekninger()
-        {
-            using (var db = new VyDbContext())
-            {
-                return db.Hovedstrekninger.Select(dbho => konverterHovedstrekning(dbho)).ToList();
-            }
-        }
-        public List<Hovedstrekning> HentHovedstrekningerPaNett(int nettId)
-        {
-            using (var db = new VyDbContext())
-            {
-                var funnet = db.Nett.Find(nettId);
-                return (funnet == null) ? null : funnet.Hovedstrekninger.Select(dbho => konverterHovedstrekning(dbho)).ToList();
-            }
-        }
-        public List<Hovedstrekning> HentHovedstrekningerTilStasjon(int stasjId)
-        {
-            using (var db = new VyDbContext())
-            {
-                var funnet = db.Stasjoner.Find(stasjId);
-                return (funnet == null) ? null : funnet.Hovedstrekninger.Select(dbho => konverterHovedstrekning(dbho)).ToList();
-            }
-        }
-
-
-        public Nett HentNett(int nettId)
-        {
-            using (var db = new VyDbContext())
-            {
-                var funnet = db.Nett.Find(nettId);
-                return (funnet == null) ? null : konverterNett(funnet);
-            }
-        }
-        public List<Nett> HentAlleNett()
-        {
-            using (var db = new VyDbContext())
-            {
-                return db.Nett.Select(dbne => konverterNett(dbne)).ToList();
-            }
-        }
-
-/** 
- * Under har vi metoder for å manipulere databasen og legge til eksempeldata
- * **/
-
-        private Stasjon konverterStasjon(DbStasjon dbst)
-        {
-            return new Stasjon
-            {
-                id = dbst.StasjonId,
-                stasjon_navn = dbst.StasjNavn,
-                stasjon_sted = dbst.StasjSted,
-                breddegrad = dbst.Breddegrad,
-                lengdegrad = dbst.Lengdegrad,
-                // Droppe denne?:
-                hovedstrekninger = dbst.Hovedstrekninger.Select(hs => hs.HovstrId).ToList(),
-                nett_id = dbst.NettId,
-                nett_navn = dbst.Nett.Nettnavn
-            };
-        }
+        /** 
+         * Under har vi metoder for å manipulere databasen og legge til eksempeldata
+         * **/
 
         Rute konverterRute(DbRute dbrt)
         {
@@ -820,28 +855,6 @@ namespace VyBillettBestilling.Models
             }
 
         }
-        private Hovedstrekning konverterHovedstrekning(DbHovedstrekning dbho)
-        {
-            return new Hovedstrekning
-            {
-                id = dbho.HovstrId,
-                // Droppe denne?:
-                stasjoner = dbho.Stasjoner.Select(st => st.StasjonId).ToList(),
-                nett_id = dbho.NettId,
-                nett_navn = dbho.Nett.Nettnavn,
-            };
-        }
-        private Nett konverterNett(DbNett dbne)
-        {
-            return new Nett
-            {
-                id = dbne.NettId,
-                nett_navn = dbne.Nettnavn,
-                // Droppe disse?:
-                hovedstrekninger = dbne.Hovedstrekninger.Select(hs => hs.HovstrId).ToList(),
-                stasjoner = dbne.Stasjoner.Select(st => st.StasjonId).ToList(),
-            };
-        }
-
+        
     }
 }

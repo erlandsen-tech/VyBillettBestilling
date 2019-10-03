@@ -20,8 +20,8 @@ namespace VyBillettBestilling.Controllers
         {
             var dbt = new VyDbTilgang();
             DateTime Avreise = new DateTime(avreise);
-            var StartNavn = dbt.HentStasjonsnavnMedId(StartId);
-            var StoppNavn = dbt.HentStasjonsnavnMedId(StoppId);
+            var StartNavn = dbt.HentStasjon(StartId).stasjon_navn;
+            var StoppNavn = dbt.HentStasjon(StoppId).stasjon_navn;
 
             var CurrentKorg = (Session["Handlekurv"] as Handlekurv ?? new Handlekurv());
             if (CurrentKorg.Billetter == null)
