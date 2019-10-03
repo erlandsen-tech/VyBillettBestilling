@@ -22,7 +22,7 @@ namespace VyBillettBestilling.Models
             }
         }
 
-   
+
         public List<Stasjon> HentAlleStasjoner()
         {
             using (var db = new VyDbContext())
@@ -30,7 +30,15 @@ namespace VyBillettBestilling.Models
                 return db.Stasjoner.ToList().Select(dbst => konverterStasjon(dbst)).ToList();
             }
         }
-  
+
+        public Stasjon HentStasjon(int stasjId)
+        {
+            using (var db = new VyDbContext())
+            {
+                var funnet = db.Stasjoner.Find(stasjId);
+                return (funnet == null) ? null : konverterStasjon(funnet);
+            }
+        }
 
 
         public List<String> HentAlleStasjonNavn()
@@ -40,7 +48,7 @@ namespace VyBillettBestilling.Models
                 return db.Stasjoner.ToList().Select(dbst => dbst.StasjNavn).ToList();
             }
         }
-        
+
 
 
         /** 
@@ -90,6 +98,18 @@ namespace VyBillettBestilling.Models
                 }
                 db.SaveChanges();
             }
+        }
+
+        private Stasjon konverterStasjon(DbStasjon dbst)
+        {
+            return new Stasjon
+            {
+                id = dbst.StasjonId,
+                stasjon_navn = dbst.StasjNavn,
+                stasjon_sted = dbst.StasjSted,
+                breddegrad = dbst.Breddegrad,
+                lengdegrad = dbst.Lengdegrad,
+            };
         }
 
     }
