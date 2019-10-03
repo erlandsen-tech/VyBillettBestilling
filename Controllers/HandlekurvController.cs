@@ -19,8 +19,10 @@ namespace VyBillettBestilling.Controllers
         public ActionResult LeggOppi(
             int StartId, int StoppId, int Voksen, int Barn, int Student, int Honnor, long avreise)
         {
+
             var hkm = new HandlekurvMethods();
             Session["Handlekurv"] = hkm.OppdaterHandlekurv(StartId,StoppId,Voksen,Barn,Student,Honnor,avreise); 
+
             return View("Handlekurv");
         }
 

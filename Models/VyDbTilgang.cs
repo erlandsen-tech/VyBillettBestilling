@@ -8,14 +8,6 @@ namespace VyBillettBestilling.Models
 {
     public class VyDbTilgang
     {
-        public Stasjon HentStasjon(int stasjId)
-        {
-            using (var db = new VyDbContext())
-            {
-                var funnet = db.Stasjoner.Find(stasjId);
-                return (funnet == null) ? null : konverterStasjon(funnet);
-            }
-        }
         public Passasjer Passasjertype(int typeId)
         {
             using (var db = new VyDbContext())
@@ -29,29 +21,32 @@ namespace VyBillettBestilling.Models
                 return pass;
             }
         }
-        public IEnumerable<Stasjon> HentAlleStasjoner()
+
+   
+        public List<Stasjon> HentAlleStasjoner()
         {
-            var db = new VyDbContext();
-            var alle = db.Stasjoner.ToList().Select(dbst => konverterStasjon(dbst)).ToList();
-            db.Dispose();
-            return alle;
+            using (var db = new VyDbContext())
+            {
+                return db.Stasjoner.ToList().Select(dbst => konverterStasjon(dbst)).ToList();
+            }
         }
+  
+
+
+        public List<String> HentAlleStasjonNavn()
+        {
+            using (var db = new VyDbContext())
+            {
+                return db.Stasjoner.ToList().Select(dbst => dbst.StasjNavn).ToList();
+            }
+        }
+        
+
 
         /** 
          * Under har vi metoder for å manipulere databasen og legge til eksempeldata
          * **/
 
-        private Stasjon konverterStasjon(DbStasjon dbst)
-        {
-            return new Stasjon
-            {
-                id = dbst.StasjonId,
-                stasjon_navn = dbst.StasjNavn,
-                stasjon_sted = dbst.StasjSted,
-                breddegrad = dbst.Breddegrad,
-                lengdegrad = dbst.Lengdegrad,
-            };
-        }
 
         public void AddStasjoner()
         {
@@ -96,5 +91,6 @@ namespace VyBillettBestilling.Models
                 db.SaveChanges();
             }
         }
+
     }
 }
