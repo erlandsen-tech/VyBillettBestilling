@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web;
+using System.Web.Mvc;
 using VyBillettBestilling.Models;
 
 namespace VyBillettBestilling.Methods
@@ -32,26 +33,32 @@ namespace VyBillettBestilling.Methods
         }
         public static List<Rute> RuteTabell(Bestilling bestilling)
         {
-            VyDbTilgang vyDb = new VyDbTilgang();
-            var ruter = vyDb.HentRute(bestilling.ReiseFra, bestilling.ReiseTil, bestilling.StartTid);
+            var tid = bestilling.StartTid;
+            var ruter = new List<Rute>();
+            for (int i = 0; i < 10; i++)
+            {
+                tid = tid.AddHours(1);
+                var rute = new Rute
+                {
+                    Start_id = bestilling.ReiseFra,
+                    Stopp_id = bestilling.ReiseTil,
+                    DateTime = tid
+                };
+                ruter.Add(rute);
+            }
             return ruter;
         }
-        //Tanken bak metoden under er å lage en reise
-        //start, stopp, mellomstasjoner, priser
-        //TODO
-        //Implementere det ovenstående. Nå lager den bare en halv rute
-        public static Reise ReiseRute(List<Rute> ruter)
+        public IEnumerable<SelectListItem> StasjonsNavn()
         {
-            VyDbTilgang vyDb = new VyDbTilgang();
-            var reiser = new Reise();
-            var startstasjon = vyDb.HentStasjon(ruter[0].Start_id);
-            var stoppstasjon = vyDb.HentStasjon(ruter[1].Stopp_id);
-            foreach (Rute rute in ruter)
+            VyDbTilgang dbTilgang = new VyDbTilgang();
             {
-
+                IEnumerable<SelectListItem> items = dbTilgang.HentAlleStasjoner().Select(c => new SelectListItem
+                {
+                    Value = c.id.ToString(),
+                    Text = c.stasjon_navn
+                });
+                return items;
             }
-            return reiser;
         }
-
     }
 }

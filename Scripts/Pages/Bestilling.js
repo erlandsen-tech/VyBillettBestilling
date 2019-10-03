@@ -1,18 +1,4 @@
-﻿function HentStasjoner(stasjonA, stasjonB) {
-    $.ajax({
-        url: '/home/reiserute',
-        type: 'GET',
-        data: { "stasjA": stasjonA, "stasjB": stasjonB },
-        dataType: 'json',
-        success: function (stasjon) {
-            VisDropDown(stasjon);
-        },
-        error: function (x, y, z) {
-            alert(x + '\n' + y + '\n' + z);
-        }
-    });
-}
-//Avreise må sendes i millisekunder siden 010170 for å unngå konverteringsfeil
+﻿//Avreise må sendes i millisekunder siden 010170 for å unngå konverteringsfeil
 function LeggIHandleKurv(StartId, StoppId, voksen, barn, student, honnor, avreise) {
     dialog();
     $.ajax({
@@ -42,7 +28,7 @@ function HentStasjonsNavn(id, i) {
     });
 }
 
-
+/**
 function VisDropDown(stasjon) {
     var utStreng = "";
     $("#MuligeReiser").append("<tr>")
@@ -54,6 +40,7 @@ function VisDropDown(stasjon) {
     }
     $("#MuligeReiser").append("</tr>")
 }
+**/
 function oppdaterantall() {
     getAntallenheterIHandlekurv();
 }

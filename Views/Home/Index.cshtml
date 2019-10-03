@@ -21,19 +21,11 @@
             </div>
 
             <div class="form-group has-search" align="left">
-                <div class="input-icons">
-                    <i class="fa fa-search icon"></i>
-
-                    <select class="reiseFra input-field form-control" onchange="skifte()" placeholder="Reise Fra" data-icon="fa fa-search" id="ReiseFra" name="ReiseFra">
-                        <option></option>
-                    </select>
-                    <br />
-                    <i class="fa fa-search icon"></i>
-
-                    <select class="reiseTil input-field form-control" placeholder="Reise Fra" id="ReiseTil" name="ReiseTil">
-                        <option></option>
-                    </select>
-                </div>
+                @Html.DropDownList("ReiseFra", (IEnumerable<SelectListItem>)ViewBag.Stasjoner, "", new { @class = "reiseFra input-field form-control", @name = "ReiseFra", @onchange = "skifte()" })
+                <br />
+                <select class="reiseTil input-field form-control" placeholder="Reise Til" id="ReiseTil" name="ReiseTil">
+                    <option></option>
+                </select>
             </div>
 
             <div class="d-flex flex-row form-group" style="max-width:150px;" align="left" id="seleksjonsBoks">
@@ -52,7 +44,9 @@
                 <br />
 
                 <p class="font-weight-bold text-color-white">Tidspunkt:</p>
-                <input type="text" id="date" name="DateTime" />
+                <div class="trigger">
+                    <input readonly="readonly" type="text" id="date" name="StartTid" />
+                </div>
                 <br />
                 <div class="form-group">
                     <div class="font-weight-bold text-color-white">
@@ -65,7 +59,7 @@
 
     </form>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-touchspin/4.2.5/jquery.bootstrap-touchspin.min.js"></script>
+    <script src="~/Scripts/touchspin.js"></script>
     <script src="~/Scripts/Plugins/datetimepicker/jquery.datetimepicker.full.min.js"></script>
     <script type="text/javascript" src='@Url.Content("~/Scripts/Pages/Index.js")'></script>
 </body>

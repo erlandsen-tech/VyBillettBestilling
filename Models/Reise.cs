@@ -16,6 +16,5 @@ namespace VyBillettBestilling.Models
         public string ReiseTil { get; set; }
         public DateTime StartTid { get; set; }
         public DateTime StoppTid { get; set; }
-        public List<Stasjon> ReiseRute { get; set; }
     }
 }

@@ -1,28 +1,10 @@
-﻿
-$(document).ready(function () {
-    HentStasjoner();
-
-    $('.reiseFra').select2({
-        placeholder: "Reise Fra",
-        allowClear: true
-    });
-    $('.reiseTil').select2({
-        placeholder: "Reise Til",
-        allowClear: true
-
-    });
+﻿$(function () {
     $(".reiseTil").prop("disabled", true);
     $("#seleksjonsBoks").hide();
 });
 
-$(".reiseFra").change(function () {
-    if ($(".reiseFra").val() == "") {
-
-        $(".reiseTil").prop("disabled", true);
-    }
-    else {
-        $(".reiseTil").prop("disabled", false);
-    }
+$("#ReiseFra").change(function () {
+    $(".reiseTil").prop("disabled", false);
 });
 
 $(".reiseTil").change(function () {
@@ -57,14 +39,19 @@ $("#honnor").TouchSpin({
     max: 100,
     step: 1
 });
-$('#date').datetimepicker(
-    {
-        step: 5,
-        minDate: 0,
-        minTime: '00:00',
-        locale: 'no'
-    });
+$(function () {
 
+    $('#date').datetimepicker(
+        {
+            step: 5,
+            minDate: 0,
+            minTime: '00:00',
+            locale: 'no',
+        });
+
+    $(".trigger").click(function () { $("#date").datetimepicker("show"); });
+
+});
 
 function VisDropDown(stasjon) {
     var utStreng = "";
@@ -82,14 +69,11 @@ function VisDropDown(stasjon) {
         $("#ReiseTil").append(utStreng);
     }
 }
-
 function skifte() {
     //Sørger for å tømme listen i ReiseTil ved skifte av frastasjon
     $("#ReiseTil").empty();
     HentStasjoner();
 }
-
-
 function HentStasjoner() {
     $.ajax({
         url: '/home/stasjonsliste',
