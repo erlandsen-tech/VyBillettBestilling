@@ -57,6 +57,7 @@ namespace VyBillettBestilling.Methods
                     Value = c.id.ToString(),
                     Text = c.stasjon_navn
                 });
+                items = items.OrderBy(n => n.Text);
                 return items;
             }
         }

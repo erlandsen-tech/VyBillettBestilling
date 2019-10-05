@@ -1,16 +1,26 @@
-﻿//Avreise må sendes i millisekunder siden 010170 for å unngå konverteringsfeil
+﻿
+//Avreise må sendes i millisekunder siden 010170 for å unngå konverteringsfeil
 function LeggIHandleKurv(StartId, StoppId, voksen, barn, student, honnor, avreise) {
-    dialog();
-    $.ajax({
-        url: '/handlekurv/leggoppi',
-        type: 'POST',
-        data: {
-            "StoppId": StoppId, "StartId": StartId, "Voksen": voksen,
-            "Barn": barn, "Student": student, "Honnor": honnor,
-            "avreise": avreise
-        },
-        traditional: true
-    });
+    var d = new Date();
+    if (avreise > d.getTime()) {
+        dialog();
+        $.ajax({
+            url: '/handlekurv/leggoppi',
+            type: 'POST',
+            data: {
+                "StoppId": StoppId, "StartId": StartId, "Voksen": voksen,
+                "Barn": barn, "Student": student, "Honnor": honnor,
+                "avreise": avreise
+            },
+            traditional: true,
+            error: function (x, y, z) {
+                alert(x + '\n' + y + '\n' + z);
+            }
+        });
+    }
+    else {
+        errordialog();
+    }
 }
 
 function HentStasjonsNavn(id, i) {
@@ -66,6 +76,20 @@ function dialog() {
                 oppdaterantall();
                 $(this).dialog("close");
                 window.location.href = '/Home'
+            }
+        }
+    });
+}
+function errordialog() {
+    $("#dialog-error").dialog({
+        autoopen: false,
+        resizable: false,
+        height: "auto",
+        width: 400,
+        modal: true,
+        buttons: {
+            "OK": function () {
+                $(this).dialog("close");
             }
         }
     });

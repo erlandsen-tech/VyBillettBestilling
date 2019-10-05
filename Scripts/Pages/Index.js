@@ -43,7 +43,7 @@ $(function () {
 
     $('#date').datetimepicker(
         {
-            step: 5,
+            step: 60,
             minDate: 0,
             minTime: '00:00',
             locale: 'no',

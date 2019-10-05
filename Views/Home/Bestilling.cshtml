@@ -29,28 +29,37 @@
                         {
                             <tr>
                                 <td>@Model[i].StartNavn - @Model[i].StoppNavn</td>
-                                <td>@Model[i].DateTime.ToShortDateString()<br />
-                                    @Model[i].DateTime.ToShortTimeString()</td>
                                 <td>
-                                    <a onclick="LeggIHandleKurv(@Model[i].StoppId, @Model[i].StartId, @Model[i].AntallVoksne, @Model[i].AntallBarn, @Model[i].AntallStudent, @Model[i].AntallHonnor , @Model[i].DateTime.Ticks)"
-                                       value="Legg i kurven" class="btn btn-primary" id="bestillingsknapp">Kjøp</a>
+                                    @Model[i].DateTime.ToShortDateString()<br />
+                                @Model[i].DateTime.ToShortTimeString()
+                            </td>
+                            <td>
+                                <a onclick="LeggIHandleKurv(@Model[i].StoppId, @Model[i].StartId, @Model[i].AntallVoksne, @Model[i].AntallBarn, @Model[i].AntallStudent, @Model[i].AntallHonnor , @Model[i].DateTime.Ticks)"
+                                   value="Legg i kurven" class="btn btn-primary" id="bestillingsknapp">Kjøp</a>
 
-                                    <!--
-                                    <input type="button" class="btn btn-primary" value="Detaljer">
-                                        -->
-                                </td>
-                            </tr>
-                        }
+                                <!--
+                                <input type="button" class="btn btn-primary" value="Detaljer">
+                                    -->
+                            </td>
+                        </tr>
+                    }
                     }
                 </tbody>
             </table>
         </div>
 
     </div>
+    <div id="dialog-error" title="Feil">
+        <p>
+            <span style="float:left; margin:12px 12px 20px 0;"></span>
+            Du må velge et tidspunkt senere enn nåværende
+        </p>
+    </div>
 
     <div id="dialog-confirm" title="Info">
-        <p><span  style="float:left; margin:12px 12px 20px 0;"></span>
-        Hvordan vil du fortsette?
+        <p>
+            <span style="float:left; margin:12px 12px 20px 0;"></span>
+            Hvordan vil du fortsette?
         </p>
     </div>
 </body>

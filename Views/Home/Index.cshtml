@@ -20,7 +20,7 @@
                 <h2 class="">Hvor vil du reise?</h2>
             </div>
 
-            <div class="form-group has-search" align="left">
+            <div class="form-group" align="left">
                 @Html.DropDownList("ReiseFra", (IEnumerable<SelectListItem>)ViewBag.Stasjoner, "", new { @class = "reiseFra input-field form-control", @name = "ReiseFra", @onchange = "skifte()" })
                 <br />
                 <select class="reiseTil input-field form-control" placeholder="Reise Til" id="ReiseTil" name="ReiseTil">

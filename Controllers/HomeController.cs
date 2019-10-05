@@ -51,7 +51,7 @@ namespace VyBillettBestilling.Controllers
         public JsonResult Stasjonsliste()
         {
             VyDbTilgang Context = new VyDbTilgang();
-            return Json(Context.HentAlleStasjoner(), JsonRequestBehavior.AllowGet);
+            return Json(Context.HentAlleStasjoner().OrderBy(n => n.stasjon_navn), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
