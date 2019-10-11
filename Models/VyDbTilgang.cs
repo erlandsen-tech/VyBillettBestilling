@@ -54,26 +54,53 @@ namespace VyBillettBestilling.Models
         /** 
          * Under har vi metoder for å manipulere databasen og legge til eksempeldata
          * **/
-
-
-        public void AddStasjoner()
+         public void ByggBanedata()
         {
             using (var db = new VyDbContext())
             {
-                VyDbTilgang dbt = new VyDbTilgang();
-                List<CSVstasjon> liste = CSVstasjon.convertEngine();
-                foreach (CSVstasjon stasjon in liste)
+                using (var dbtransaction = db.Database.BeginTransaction()) // Har to SaveChanges, bruker derfor transaction
                 {
-                    DbStasjon st = new DbStasjon
+                    try
                     {
-                        StasjSted = stasjon.name,
-                        StasjNavn = stasjon.name,
-                        Lengdegrad = stasjon.longitude,
-                        Breddegrad = stasjon.latitude
-                    };
-                    db.Stasjoner.Add(st);
+                        Dictionary<string, DbStasjon> stasjDict = new Dictionary<string, DbStasjon>();
+                        List<CSVstasjon> stasjliste = CSVstasjon.convertEngine();
+                        IEnumerable<string> nettnavner = stasjliste.Select(st => st.nettnavn).Distinct();
+                        List<DbNett> netter = new List<DbNett>(nettnavner.Count());
+                        foreach (string n in nettnavner)
+                            netter.Add(new DbNett(n));
+                        foreach (DbNett n in netter)
+                            db.Nett.Add(n);
+                        db.SaveChanges(); // Ma ha denne for at DbNett-ene skal fa tildelt Id som brukes ved konstruksjon av DbHovedstrekning-er og DbStasjon-er
+                        var grupper = stasjliste.GroupBy(st => st.ns2banekortnavn);
+                        foreach (var grp in grupper)
+                        {
+                            DbNett grpNett = netter.Single(nt => nt.Nettnavn.Equals(grp.First().nettnavn));
+                            DbHovedstrekning hovst = new DbHovedstrekning(grp.First().ns2banenavn, grpNett, grp.First().ns2banekortnavn);
+                            grpNett.Hovedstrekninger.Add(hovst);
+                            List<CSVstasjon> csvstasjList = grp.OrderBy(csv => csv.ns2sporkilometer).ToList();
+                            foreach (CSVstasjon st in csvstasjList)
+                            {
+                                if (!stasjDict.TryGetValue(st.ns1id2, out DbStasjon stasj))
+                                {
+                                    stasj = new DbStasjon(st.ns2stasjonsnavn, grpNett);
+                                    grpNett.Stasjoner.Add(stasj);
+                                    stasj.Breddegrad = st.breddegrad;
+                                    stasj.Lengdegrad = st.lengdegrad;
+                                    stasjDict.Add(st.ns1id2, stasj);
+                                }
+                                stasj.Hovedstrekninger.Add(hovst);
+                                hovst.Stasjoner.Add(stasj);
+                            }
+                        }
+                        db.SaveChanges();
+                        dbtransaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        dbtransaction.Rollback();
+                        throw ex; // Ma nesten kaste den videre.
+                    }
                 }
-                db.SaveChanges();
             }
         }
 
@@ -104,7 +131,7 @@ namespace VyBillettBestilling.Models
         {
             return new Stasjon
             {
-                id = dbst.StasjonId,
+                id = dbst.Id,
                 stasjon_navn = dbst.StasjNavn,
                 stasjon_sted = dbst.StasjSted,
                 breddegrad = dbst.Breddegrad,

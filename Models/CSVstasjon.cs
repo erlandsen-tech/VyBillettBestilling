@@ -6,84 +6,32 @@ using FileHelpers;
 
 namespace VyBillettBestilling.Models
 {
-    //Hjelpemodell for import av stasjonsliste fra CSV ved bygging av database
+    //Hjelpemodell for import av stasjonsliste fra CSV (semikolondelt) ved bygging av database
+    [IgnoreFirst(1)]
     [DelimitedRecord(";")]
     public class CSVstasjon
     {
-        public int id;
-        public string name;
-        public string slug;
-        public string uic;
-        public string uic8_sncf;
-        public double latitude;
-        public double longitude;
-        public string parent_station_id;
-        public string country;
-        public string time_zone;
-        public string is_city;
-        public string is_main_station;
-        public string is_airport;
-        public string is_suggestable;
-        public string country_hint;
-        public string main_station_hint;
-        public string sncf_id;
-        public string sncf_tvs_id;
-        public string sncf_is_enabled;
-        public string idtgv_id;
-        public string idtgv_is_enabled;
-        public string db_id;
-        public string db_is_enabled;
-        public string busbud_id;
-        public string busbud_is_enabled;
-        public string distribusion_id;
-        public string distribusion_is_enabled;
-        public string flixbus_id;
-        public string flixbus_is_enabled;
-        public string cff_id;
-        public string cff_is_enabled;
-        public string leoexpress_id;
-        public string leoexpress_is_enabled;
-        public string obb_id;
-        public string obb_is_enabled;
-        public string ouigo_id;
-        public string ouigo_is_enabled;
-        public string trenitalia_id;
-        public string trenitalia_is_enabled;
-        public string trenitalia_rtvt_id;
-        public string ntv_rtiv_id;
-        public string ntv_id;
-        public string ntv_is_enabled;
-        public string hkx_id;
-        public string hkx_is_enabled;
-        public string renfe_id;
-        public string renfe_is_enabled;
-        public string atoc_id;
-        public string atoc_is_enabled;
-        public string benerail_id;
-        public string benerail_is_enabled;
-        public string westbahn_id;
-        public string westbahn_is_enabled;
-        public string sncf_self_service_machine;
-        public string same_as;
-        public string info_de;
-        public string info_en;
-        public string info_es;
-        public string info_fr;
-        public string info_it;
-        public string info_nb;
-        public string info_nl;
-        public string info_cs;
-        public string info_da;
-        public string info_hu;
-        public string info_ja;
-        public string info_ko;
-        public string info_pl;
-        public string info_pt;
-        public string info_ru;
-        public string info_sv;
-        public string info_tr;
-        public string info_zh;
-        public string normalised_code;
+        public string srsName;
+        public int srsDimension;
+        public string ns1id2;
+        public string ns2gyldigFra;
+        public string ns2gyldigTil;
+        public string ns2lokalId;
+        public string ns2navnerom;
+        public string ns2versjonId; // spesifisert som string, selv om den ser ut som int
+        public string ns1id3;
+        public string nettnavn;
+        public string ns1pos;
+        public double breddegrad;
+        public double lengdegrad;
+        public string ns2banekortnavn;
+        public string ns2banenavn;
+        public string ns2baneformål;
+        public string ns2banestatus;
+        public double ns2sporkilometer;
+        public string ns2stasjonstype;
+        public string ns2stasjonsnavn;
+
         public static List<CSVstasjon> convertEngine()
         {
             var engine = new FileHelperEngine<CSVstasjon>();
