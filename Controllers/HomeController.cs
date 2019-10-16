@@ -5,6 +5,8 @@ using System.Web;
 using System.Web.Mvc;
 using VyBillettBestilling.Models;
 using VyBillettBestilling.Methods;
+using System.Diagnostics;
+
 namespace VyBillettBestilling.Controllers
 {
     public class HomeController : Controller
@@ -20,12 +22,17 @@ namespace VyBillettBestilling.Controllers
                 Session["Handlekurv"] = new Handlekurv();
             }
             //Eksempeldata 
-            /**
+            
             VyDbTilgang dbt = new VyDbTilgang();
+            /*
             dbt.addPassasjertyper();
-            dbt.AddStasjoner();
+            dbt.ByggBanedata();
             // ferdig
-            **/
+            */
+            //Debug.WriteLine(dbt.leggTilNett("tullenett"));
+            //Debug.WriteLine("HERERJEG!!!");
+            //dbt.fjernNett(2);
+
             HomeMethods hmt = new HomeMethods();
             ViewBag.Stasjoner = hmt.StasjonsNavn();
             return View();
