@@ -165,6 +165,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Data\BrukerBase.mdf" />
+    <Content Include="App_Data\BrukerBase_log.ldf">
+      <DependentUpon>BrukerBase.mdf</DependentUpon>
+    </Content>
     <Content Include="Content\css\images\ui-icons_444444_256x240.png" />
     <Content Include="Content\css\images\ui-icons_555555_256x240.png" />
     <Content Include="Content\css\images\ui-icons_777620_256x240.png" />
@@ -376,6 +380,9 @@
     <Content Include="Views\Manage\ChangePassword.cshtml" />
     <Content Include="Views\Manage\Index.cshtml" />
     <Content Include="Views\Manage\Administrasjon.cshtml" />
+    <Content Include="Views\Manage\Edit.cshtml" />
+    <Content Include="Views\Manage\StrekningsListe.cshtml" />
+    <Content Include="Views\Manage\Details.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -390,7 +397,6 @@
     <TypeScriptCompile Include="Scripts\index.d.ts" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App_Data\" />
     <Folder Include="aspx\" />
   </ItemGroup>
   <PropertyGroup>

@@ -64,7 +64,7 @@ namespace VyBillettBestilling.Models
             [Required]
             public String HovstrKortNavn { get; set; }
             //[Required] // Kan ikke vaere required, uansett hvordan man gjor det med virtual og forskjellige navn osv.. Lager da kaskederende delete m.v.
-            public DbNett Nett { get; set; } // DbHovedstrekning-er pa samme Nett er forbundet med hverandre med et antall DbHovedstrekninger
+            public virtual DbNett Nett { get; set; } // DbHovedstrekning-er pa samme Nett er forbundet med hverandre med et antall DbHovedstrekninger
             //public virtual List<DbDelstrekning> Delstrekninger { get; set; }
             public virtual List<DbStasjon> Stasjoner { get; set; }
 
@@ -108,7 +108,7 @@ namespace VyBillettBestilling.Models
             // Ved like StasjNavn pa et nett ma det tilfoyes StasjSted pa alle (eventuelt unntatt ett)
             public String StasjSted { get; set; }
             // [Required] // Kan ikke vaere required, uansett hvordan man gjor det met virtual og forskjellige navn osv.. Lager da kaskederende delete m.v.
-            public DbNett Nett { get; set; } // Trengs ikke nar det brukes List<DbHovedstrekning> Hovedstrekninger,
+            public virtual DbNett Nett { get; set; } // Trengs ikke nar det brukes List<DbHovedstrekning> Hovedstrekninger,
             // da er nettet umiddelbart tilgjengelig fra alle elementene i lista.
             
             [Range(-90, 90, ErrorMessage = "Ugyldig koordinat; -90 <= Breddegrad <= 90")]

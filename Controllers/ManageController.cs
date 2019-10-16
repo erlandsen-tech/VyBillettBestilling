@@ -93,6 +93,56 @@ namespace VyBillettBestilling.Controllers
             };
             return View(model);
         }
+        [Authorize(Roles = "Administrator")]
+        [HttpGet]
+        public ActionResult StrekningsListe()
+        {
+            var dbt = new VyDbTilgang();
+            var strekninger = dbt.HentAlleHovedstrekninger();
+            return View(strekninger);
+
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpGet]
+        public ActionResult Edit(int Id)
+        {
+            var dbt = new VyDbTilgang();
+            var strekning = dbt.HentHovedstrekning(Id);
+            return View(strekning);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpGet]
+        public ActionResult Details(int Id)
+        {
+            var dbt = new VyDbTilgang();
+            var strekning = dbt.HentHovedstrekning(Id);
+            return View(strekning);
+        }
+        [Authorize(Roles = "Administrator")]
+        [HttpGet]
+        public ActionResult Delete(int Id)
+        {
+            var dbt = new VyDbTilgang();
+            dbt.fjernHovedstrekning(Id);
+            return RedirectToAction("StrekningsListe", "Manage");
+        }
+
+
+        [Authorize(Roles = "Administrator")]
+        [HttpGet]
+        public ActionResult RedigerStasjon()
+        {
+            return View();
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpGet]
+        public ActionResult RedigerNett()
+        {
+            return View();
+        }
         //
         // POST: /Manage/RemoveLogin
         [HttpPost]
