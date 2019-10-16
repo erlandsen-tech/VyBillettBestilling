@@ -1,0 +1,43 @@
+﻿@model VyBillettBestilling.Models.IndexViewModel
+@{
+    ViewBag.Title = "Manage";
+}
+
+<h2>@ViewBag.Title.</h2>
+
+<p class="text-success">@ViewBag.StatusMessage</p>
+<div>
+    <h4>Redigere kontoinstillinger</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>Passord:</dt>
+        <dd>
+            [
+            @if (Model.HasPassword)
+            {
+                @Html.ActionLink("Skift Passord", "ChangePassword")
+            }
+            else
+            {
+                <p>Noe er galt, og vi kan ikke finne passordet ditt i databasen.</p>
+            }
+            ]
+        </dd>
+        <dt>Fornavn</dt>
+        <dd>
+            @Model.Fornavn
+        </dd>
+        <dt>Etternavn</dt>
+        <dd>
+            @Model.Etternavn
+        </dd>
+        <dt>Fødselsdato</dt>
+        <dd>
+            @Model.Fodselsdato
+        </dd>
+        <dt>Mobilnummer</dt>
+        <dd>
+            @Model.Mobilnummer
+        </dd>
+    </dl>
+</div>
