@@ -10,13 +10,11 @@ namespace VyBillettBestilling.Models
 {
     public class VyDbContext : DbContext
     {
-
         public VyDbContext() : base("name=BillettBase")
         {
             Database.CreateIfNotExists();
         }
-        public DbSet<DbPassasjertype> Passasjertyper { get; set; } // Ordinaer, student, honnor osv. med tilhorende rabatter
-        
+
         // Tabeller for linjenettet:
         public DbSet<DbStasjon> Stasjoner { get; set; }
         // Opplisting av stasjoner, ev. med data om plattformer, geografisk plassering og annet (betjent?, toalett? osv.)
@@ -57,7 +55,6 @@ namespace VyBillettBestilling.Models
             }
             public DbNett() { } // Ma ogsa ha en parameterlos konstruktor. Vet ikke hvorfor, men sann er det.
         }
-
         public class DbHovedstrekning
         {
             [Key]
@@ -66,7 +63,7 @@ namespace VyBillettBestilling.Models
             public String HovstrNavn { get; set; }
             [Required]
             public String HovstrKortNavn { get; set; }
-            public int nid { get; set; } // Denne kan ikke hete nettid (med store eller sma bokstaver)
+            //[Required] // Kan ikke vaere required, uansett hvordan man gjor det med virtual og forskjellige navn osv.. Lager da kaskederende delete m.v.
             public DbNett Nett { get; set; } // DbHovedstrekning-er pa samme Nett er forbundet med hverandre med et antall DbHovedstrekninger
             //public virtual List<DbDelstrekning> Delstrekninger { get; set; }
             public virtual List<DbStasjon> Stasjoner { get; set; }
@@ -76,45 +73,41 @@ namespace VyBillettBestilling.Models
                 HovstrNavn = navn;
                 HovstrKortNavn = kortnavn;
                 Nett = nett;
-                nid = nett.Id;
                 Stasjoner = new List<DbStasjon>();
             }
             public DbHovedstrekning() { } // Ma ogsa ha en parameterlos konstruktor. Vet ikke hvorfor, men sann er det.
         }
-
         //public class DbDelstrekning
         //{
         //    [Key]
         //    public int Id { get; set; }
-        //    [Required]
+        //    //[Required]
         //    public int HovstrId { get; set; }
-        //    [Required]
-        //    public virtual DbHovedstrekning Hovedstrekning { get; set; }
+        //    //[Required]
+        //    public DbHovedstrekning Hovedstrekning { get; set; }
 
         //    [Required]
-        //    public virtual DbStasjon Start { get; set; }
+        //    public DbStasjon Start { get; set; }
         //    [Required]
         //    public int StartStasjonId { get; set; }
         //    [Required]
-        //    public virtual DbStasjon Stopp { get; set; }
+        //    public DbStasjon Stopp { get; set; }
         //    [Required]
         //    public int StoppStasjonId { get; set; }
 
         //    [Required]
         //    public double Distanse { get; set; }
         //}
-
         public class DbStasjon
         {
             [Key]
             public int Id { get; set; }
-
             [Required]
             public String StasjNavn { get; set; }
             // Kombinasjonen av stasjonnavn og stasjonsted forutsettes unik pa hvert nett.
             // Ved like StasjNavn pa et nett ma det tilfoyes StasjSted pa alle (eventuelt unntatt ett)
             public String StasjSted { get; set; }
-            public int nid { get; set; } // Denne kan ikke hete nettid (med store eller sma bokstaver)
+            // [Required] // Kan ikke vaere required, uansett hvordan man gjor det met virtual og forskjellige navn osv.. Lager da kaskederende delete m.v.
             public DbNett Nett { get; set; } // Trengs ikke nar det brukes List<DbHovedstrekning> Hovedstrekninger,
             // da er nettet umiddelbart tilgjengelig fra alle elementene i lista.
             
@@ -122,7 +115,6 @@ namespace VyBillettBestilling.Models
             public double Breddegrad { get; set; }
             [Range(-180, 180, ErrorMessage = "Ugyldig koordinat; -180 <= Lengdegrad <= 180")]
             public double Lengdegrad { get; set; }
-
 
             // Ha denne virtual eller ikke? I stedet vise til Hovedstrekningen med en fremmednokkel?
             // Nei, det kan vaere flere, matte da ha sammenknytningstabell. Kjekt a slippe det.
@@ -137,7 +129,6 @@ namespace VyBillettBestilling.Models
                 StasjNavn = navn;
                 StasjSted = optStedNavn;
                 Nett = nett;
-                nid = nett.Id;
                 Hovedstrekninger = new List<DbHovedstrekning>();
             }
             public DbStasjon() { } // Ma ogsa ha en parameterlos konstruktor. Vet ikke hvorfor, men sann er det.
@@ -156,11 +147,19 @@ namespace VyBillettBestilling.Models
             //public Apningstid Aapen { get; set; } // Apningstider ma lagres i en egen klasse.
         }
 
+        // Tabeller for kunder og kjop:
+        public DbSet<DbBillett> Billetter { get; set; } // Kunde, start- og stopp-stasjon, passasjertype, pris (med rabattsats)
+        // stasjonsliste(?), distanse(?)
+        // Merk: Ma lagre pris (og ev. rabatt og passasjertype?) i Billett-en, siden de kan endre seg etter kjopet.
+        public DbSet<DbBillettKjop> Billettkjop { get; set; }
+        public DbSet<DbKunde> Kunder { get; set; } // Navn, adresse, tlf o.l.
+        public DbSet<DbPassasjertype> Passasjertyper { get; set; } // Ordinaer, student, honnor osv. med tilhorende rabatter
 
+        // Klasser for kunder og kjop:
         public class DbPassasjertype
         {
             [Key]
-            public int PasstypId { get; set; }
+            public int ptypId { get; set; }
 
             [Required]
             public String TypeNavn { get; set; } // Ordinaer, student, barn, honnor, verneplikt, avtale(navn) m/prosent, osv.
@@ -169,18 +168,16 @@ namespace VyBillettBestilling.Models
             public int OvreAldersgrense { get; set; }
             public int NedreAldersgrense { get; set; }
         }
-
-
         public class DbKunde
         {
             [Key]
-            public int KundeId { get; set; }
+            public int kId { get; set; }
             public virtual List<DbBillettKjop> Kjop { get; set; }
 
             [Required] // [EmailAddress] // ?
             public String Epost { get; set; } // Brukernavn, pakrevet (for a sende billett, og senere for palogging)
             public DateTime Foedt { get; set; } // For a sjekke aldersgrense, kanskje
-                                                // [Required] // ?
+            // [Required] // ?
             public String Fornavn { get; set; }
             // [Required]
             public String Etternavn { get; set; }
@@ -190,28 +187,24 @@ namespace VyBillettBestilling.Models
             // [CreditCard] // ?
             public String Bet_kort { get; set; } // Skal lagres som sifferstreng uten mellomrom(?)
         }
-
         public class DbBillettKjop
         {
             [Key]
-            public int BillKjopId { get; set; }
-            [Required]
-            public int KundeId { get; set; }
-            public virtual DbKunde Kunde { get; set; }
+            public int bkId { get; set; }
+            public int kndId { get; set; }
+            public DbKunde Kunde { get; set; }
             public virtual List<DbBillett> Billetter { get; set; }
 
             // [CreditCard] // ?
             public String Bet_kort { get; set; } // Skal lagres som sifferstreng uten mellomrom(?). Kort til hvert kjop ma lagres, siden kundens kort kan forandre seg
             public DateTime Kjopsdato { get; set; }
         }
-
         public class DbBillett
         {
             [Key]
-            public int BillId { get; set; }
-            [Required]
-            public int BillKjopId { get; set; }
-            public virtual DbBillettKjop Kjop { get; set; }
+            public int bId { get; set; }
+            public int kjopId { get; set; }
+            public DbBillettKjop Kjop { get; set; }
 
             // Mest hensiksmessig a lagre tekstverdiene som skal sta pa billetten i DbBillett-en
             public String StartStasjon { get; set; }
@@ -223,25 +216,6 @@ namespace VyBillettBestilling.Models
             public String Passasjertype { get; set; }
             public double Rabattsats { get; set; }
         }
-        //public class DbBillett
-        //{
-        //    [Key]
-        //    public int BillId { get; set; }
-        //    [Required]
-        //    public int KundeId { get; set; }
-        //    public virtual DbKunde Kunde { get; set; }
-
-        //    // Mest hensiksmessig a lagre tekstverdiene som skal sta pa billetten i DbBillett-en
-        //    public String StartStasjon { get; set; }
-        //    public String StoppStasjon { get; set; }
-        //    // Pris, passasjertype og rabattsats ma fikseres i billetten, siden de kan endre seg etter kjopet.
-        //    public double Pris { get; set; }
-        //    public String Passasjertype { get; set; }
-        //    public double Rabattsats { get; set; }
-        //    public DateTime Kjopsdato { get; set; }
-
-        //}
-
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

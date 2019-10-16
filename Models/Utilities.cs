@@ -7,9 +7,7 @@ using static VyBillettBestilling.Models.VyDbContext;
 
 namespace VyBillettBestilling.Models
 {
-    public class Utilities
-    {
-    }
+    public class Utilities { }
 
     public static class Klodeavstander
     {
@@ -35,4 +33,78 @@ namespace VyBillettBestilling.Models
             return 111.195 * ((d >= 1) ? 0 : (d <= -1) ? 180 : Acos(d)); // Sikring mot avrundingsfeil som gir ugyldige verdier til Acos
         }
     }
+
+    public class AvstandComparer : Comparer<DbHovedstrekning>
+    {
+        private readonly double sinbr, cosbr, sinlen, coslen;
+        private DbStasjon fellesStasjon;
+        public AvstandComparer(double bredde, double lengde, DbStasjon fellesStasjon)
+        {
+            sinbr = Sin(bredde); cosbr = Cos(bredde);
+            sinlen = Sin(lengde); coslen = Cos(lengde);
+            this.fellesStasjon = fellesStasjon;
+        }
+
+        public override int Compare(DbHovedstrekning x, DbHovedstrekning y)
+        {
+            DbStasjon xRettSt, yRettSt;
+            if ((xRettSt = x.Stasjoner.First()) == fellesStasjon)
+                xRettSt = x.Stasjoner.Last();
+            else if (x.Stasjoner.Last() != fellesStasjon)
+                throw new InvalidOperationException("AvstandComparer er uriktig initialisert. Er fellesStasjon satt riktig?");
+            if ((yRettSt = y.Stasjoner.First()) == fellesStasjon)
+                yRettSt = y.Stasjoner.Last();
+            else if (y.Stasjoner.Last() != fellesStasjon)
+                throw new InvalidOperationException("AvstandComparer er uriktig initialisert. Er fellesStasjon satt riktig?");
+            double a = (Sin(xRettSt.Breddegrad) * sinbr) + (Cos(xRettSt.Breddegrad) * cosbr * ((Sin(xRettSt.Lengdegrad) * sinlen) + (Cos(xRettSt.Lengdegrad) * coslen)));
+            double b = (Sin(yRettSt.Breddegrad) * sinbr) + (Cos(yRettSt.Breddegrad) * cosbr * ((Sin(yRettSt.Lengdegrad) * sinlen) + (Cos(yRettSt.Lengdegrad) * coslen)));
+            return (a > b) ? -1 : (a < b) ? 1 : 0; // Storre a tilsvarer lavere x, siden acos (som er synkende) egentlig
+                                                   // skulle vaert utfort for vinkelberegning. Men det trengs ikke her.
+        }
+
+        public Comparer<DbHovedstrekning> oppdatertComparer(DbStasjon fellesStasjon)
+        {
+            this.fellesStasjon = fellesStasjon;
+            return this;
+        }
+
+        public DbHovedstrekning[] SorterEtterEndedistanse(IEnumerable<DbHovedstrekning> strekninger)
+        {
+            DbHovedstrekning[] strekk = strekninger.ToArray();
+            if (strekk.Length > 1)
+            {
+                DbStasjon a = strekk[0].Stasjoner.First();
+                DbStasjon b = strekk[0].Stasjoner.Last();
+                IEnumerable<DbStasjon> tmp;
+                int i;
+                for (i = 1; i < strekk.Length; ++i)
+                {
+                    tmp = strekk[i].Stasjoner;
+                    if (tmp.First() != a && tmp.Last() != a)
+                        a = null;
+                    if (tmp.First() != b && tmp.Last() != b)
+                        b = null;
+                }
+                if (a == null && b == null)
+                    throw new ArgumentException("DbHovedstrekning-ene har ikke en felles endestasjon"); // Kan ikke sortere disse
+
+                if (a == null || b == null) // Ellers har alle de samme (parvise) endepunktene, sa de trenger ikke sortering
+                {
+                    if (b != null)
+                        a = b; // setter a til a vaere den ene fellesstasjonen hvis den ikke er det fra for. b kan gjenbrukes fra her
+                    double[] nokler = new double[strekk.Length];
+                    for (i = 0; i < strekk.Length; ++i)
+                    {
+                        tmp = strekk[i].Stasjoner;
+                        if ((b = tmp.First()) == a)
+                            b = tmp.Last(); // Setter - pa nokkelverdiene her, sa sorteringen blir riktig (stigende) med det samme.
+                        nokler[i] = -(Sin(b.Breddegrad) * sinbr) - (Cos(b.Breddegrad) * cosbr * ((Sin(b.Lengdegrad) * sinlen) + (Cos(b.Lengdegrad) * coslen)));
+                    }
+                    Array.Sort(nokler, strekk);
+                }
+            }
+            return strekk;
+        }
+    }
+
 }
