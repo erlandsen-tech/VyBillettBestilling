@@ -165,10 +165,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Data\BrukerBase.mdf" />
-    <Content Include="App_Data\BrukerBase_log.ldf">
-      <DependentUpon>BrukerBase.mdf</DependentUpon>
-    </Content>
     <Content Include="Content\css\images\ui-icons_444444_256x240.png" />
     <Content Include="Content\css\images\ui-icons_555555_256x240.png" />
     <Content Include="Content\css\images\ui-icons_777620_256x240.png" />
@@ -369,9 +365,6 @@
     <Content Include="Scripts\popper-utils.js.map" />
     <Content Include="SeedData\NorskeStasjoner.csv" />
     <Content Include="Views\Handlekurv\Handlekurv.cshtml" />
-    <Content Include="Views\Registrering\Registrer.cshtml" />
-    <Content Include="Views\Registrering\Login.cshtml" />
-    <Content Include="Views\Registrering\test.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
@@ -380,9 +373,13 @@
     <Content Include="Views\Manage\ChangePassword.cshtml" />
     <Content Include="Views\Manage\Index.cshtml" />
     <Content Include="Views\Manage\Administrasjon.cshtml" />
-    <Content Include="Views\Manage\Edit.cshtml" />
+    <Content Include="Views\Manage\StrekningEdit.cshtml" />
     <Content Include="Views\Manage\StrekningsListe.cshtml" />
-    <Content Include="Views\Manage\Details.cshtml" />
+    <Content Include="Views\Manage\StrekningDetails.cshtml" />
+    <Content Include="Views\Manage\StrekningCreate.cshtml" />
+    <Content Include="Views\Manage\NettListe.cshtml" />
+    <Content Include="Views\Manage\StasjonsListe.cshtml" />
+    <Content Include="Views\Manage\StasjonDetails.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
