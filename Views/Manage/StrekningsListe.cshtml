@@ -1,0 +1,49 @@
+﻿@model IEnumerable<VyBillettBestilling.Models.Hovedstrekning>
+
+@{
+    ViewBag.Title = "Streknings Liste";
+}
+<div class="generell-bg">
+    <h2>StrekningsListe</h2>
+
+    <p>
+        @Html.ActionLink("Lag ny", "Create")
+    </p>
+                <div class="my-custom-scrollbar table-wrapper-scroll-y">
+                    <table class=" table tabellbakgrunn table-bordered">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.hovstr_navn)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.hovstr_kortnavn)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.nett_id)
+            </th>
+            <th></th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.hovstr_navn)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.hovstr_kortnavn)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.nett_id)
+                </td>
+                <td>
+                    @Html.ActionLink("Rediger", "Edit", new { id = item.id }) |
+                    @Html.ActionLink("Detaljer", "Details", new { id = item.id }) |
+                    @Html.ActionLink("Slett", "Delete", new { id = item.id })
+                </td>
+            </tr>
+        }
+
+    </table>
+</div>
+    </div>

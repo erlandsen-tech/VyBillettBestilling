@@ -161,3 +161,18 @@ footer {
     width: 400px;
     /*whatever width you want*/
 }
+
+.generell-bg {
+    background-color: lightgray;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    margin: 0;
+    width: 100vw;
+    position: relative;
+    min-height: 40%;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+}

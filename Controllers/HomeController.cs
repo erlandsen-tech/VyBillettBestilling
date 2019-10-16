@@ -22,13 +22,10 @@ namespace VyBillettBestilling.Controllers
                 Session["Handlekurv"] = new Handlekurv();
             }
             //Eksempeldata 
-            
-            VyDbTilgang dbt = new VyDbTilgang();
-            /*
-            dbt.addPassasjertyper();
-            dbt.ByggBanedata();
-            // ferdig
-            */
+
+            //            VyDbTilgang dbt = new VyDbTilgang();
+            //            dbt.addPassasjertyper();
+            //            dbt.ByggBanedata();
             //Debug.WriteLine(dbt.leggTilNett("tullenett"));
             //Debug.WriteLine("HERERJEG!!!");
             //dbt.fjernNett(2);
