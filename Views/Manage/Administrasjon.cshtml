@@ -1,0 +1,31 @@
+﻿@model VyBillettBestilling.Models.IndexViewModel
+@{
+    ViewBag.Title = "Administrasjon";
+}
+
+<link href="~/Content/Admin.css" rel="stylesheet">
+<div class="bg femti ">
+    <h2>Administrasjon</h2>
+
+    <h4>Redigere kontoinstillinger for administrator</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>Passord:</dt>
+        <dd>
+            [
+            @if (Model.HasPassword)
+            {
+                @Html.ActionLink("Skift Passord", "ChangePassword")
+            }
+            else
+            {
+                <p>Noe er galt, og vi kan ikke finne passordet ditt i databasen.</p>
+            }
+            ]
+        </dd>
+    </dl>
+    <h4>Administrere ruter</h4>
+    <hr />
+    <h4>Legge til strekning</h4>
+    <hr />
+</div>
