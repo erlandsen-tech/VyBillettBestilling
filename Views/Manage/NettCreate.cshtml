@@ -1,0 +1,36 @@
+﻿@model VyBillettBestilling.Models.Nett
+
+@{
+    ViewBag.Title = "NettCreate";
+}
+<link href="~/Content/Admin.css" rel="stylesheet">
+<div class="generell-bg femti">
+    <h2>NettCreate</h2>
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-horizontal">
+            <h4>Nett</h4>
+            <hr />
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div class="form-group">
+                @Html.LabelFor(model => model.nett_navn, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.nett_navn, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.nett_navn, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Create" class="btn btn-default" />
+                </div>
+            </div>
+        </div>
+    }
+
+    <div>
+        @Html.ActionLink("Tilbake til liste", "NettListe")
+    </div>
+</div>

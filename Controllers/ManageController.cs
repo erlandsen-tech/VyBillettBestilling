@@ -89,7 +89,7 @@ namespace VyBillettBestilling.Controllers
             };
             return View(model);
         }
-        [Authorize(Roles="Administrator")]
+        [Authorize(Roles = "Administrator")]
         [HttpGet]
         public ActionResult PriserOgPassasjerer()
         {
@@ -130,6 +130,7 @@ namespace VyBillettBestilling.Controllers
             else
                 return View(hvst);
         }
+
         [Authorize(Roles = "Administrator")]
         [HttpGet]
         public ActionResult StrekningEdit(int Id)
@@ -140,14 +141,11 @@ namespace VyBillettBestilling.Controllers
         }
         [Authorize(Roles = "Administrator")]
         [HttpPost]
-        public ActionResult StrekningEdit(Hovedstrekning str, int Id)
+        public ActionResult StrekningEdit(Hovedstrekning str)
         {
             if (ModelState.IsValid)
             {
                 var dbt = new VyDbTilgang();
-                dbt.fjernHovedstrekning(Id);
-                str.id = Id;
-                dbt.leggTilHovedstrekning(str);
                 return RedirectToAction("StrekningsListe", "Manage");
             }
             else
@@ -163,13 +161,84 @@ namespace VyBillettBestilling.Controllers
             return View(strekning);
         }
         [Authorize(Roles = "Administrator")]
-        [HttpGet]
+        [HttpDelete]
         public ActionResult StrekningDelete(int Id)
         {
             var dbt = new VyDbTilgang();
             dbt.fjernHovedstrekning(Id);
             return RedirectToAction("StrekningsListe", "Manage");
         }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpGet]
+        public ActionResult StasjonsListe()
+        {
+            var dbt = new VyDbTilgang();
+            var alleStasjoner = dbt.HentAlleStasjoner();
+            return View(alleStasjoner);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpGet]
+        public ActionResult StasjonDetails(int Id)
+        {
+            var dbt = new VyDbTilgang();
+            return View(dbt.HentStasjon(Id));
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpGet]
+        public ActionResult StasjonCreate()
+        {
+            return View();
+        }
+
+        //[Authorize(Roles = "Administrator")]
+        //[HttpPost]
+        //public ActionResult StasjonCreate(Stasjon stasjon)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+
+        //        var dbt = new VyDbTilgang();
+        //        dbt.leggTilStasjon(stasjon);
+        //        return RedirectToAction("StasjonsListe", "Manage");
+        //    }
+        //    else
+        //        return View(stasjon);
+        //}
+
+        //[Authorize(Roles = "Administrator")]
+        //[HttpDelete]
+        //public ActionResult StasjonDelete(int Id)
+        //{
+        //    var dbt = new VyDbTilgang();
+        //    dbt.fjernStasjon();
+        //    return RedirectToAction("StasjonsListe", "Manage");
+        //}
+        [Authorize(Roles = "Administrator")]
+        [HttpGet]
+        public ActionResult StasjonEdit(int Id)
+        {
+            var dbt = new VyDbTilgang();
+            var stasjon = dbt.HentStasjon(Id);
+            return View(stasjon);
+        }
+        //[Authorize(Roles = "Administrator")]
+        //[HttpPost]
+        //public ActionResult StasjonEdit(Stasjon stasjon, int Id)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        var dbt = new VyDbTilgang();
+        //        dbt.fjernStasjon(Id);
+        //        stasjon.id = Id;
+        //        dbt.leggTilStasjon(Id);
+        //        return RedirectToAction("StasjonsListe", "Manage");
+        //    }
+        //    else
+        //        return View(stasjon);
+        //}
 
         [Authorize(Roles = "Administrator")]
         [HttpGet]
@@ -181,10 +250,40 @@ namespace VyBillettBestilling.Controllers
         }
         [Authorize(Roles = "Administrator")]
         [HttpGet]
-        public ActionResult NettEdit()
+        public ActionResult NettEdit(int Id)
         {
-            return View();
+            var dbt = new VyDbTilgang();
+            return View(dbt.HentNett(Id));
         }
+        [HttpPost]
+        public ActionResult NettEdit(Nett nett, int Id)
+        {
+            var dbt = new VyDbTilgang();
+            if (ModelState.IsValid)
+            {
+                dbt.fjernNett(Id);
+                nett.id = Id;
+                dbt.leggTilNett(nett);
+                return RedirectToAction("NettListe", "Manage");
+            }
+            else
+                return View(nett);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpPost]
+        public ActionResult NettCreate(Nett nett)
+        {
+            var dbt = new VyDbTilgang();
+            if (ModelState.IsValid)
+            {
+                dbt.leggTilNett(nett);
+                return RedirectToAction("NettListe", "Manage");
+            }
+            else
+                return View(nett);
+        }
+
         [Authorize(Roles = "Administrator")]
         [HttpGet]
         public ActionResult NettCreate()
@@ -193,35 +292,65 @@ namespace VyBillettBestilling.Controllers
         }
 
         [Authorize(Roles = "Administrator")]
+        [HttpDelete]
+        public ActionResult NettDelete(int Id)
+        {
+            var dbt = new VyDbTilgang();
+            dbt.fjernNett(Id);
+            return View();
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpGet]
+        public ActionResult NettDetails(int id)
+        {
+            var dbt = new VyDbTilgang();
+            return View(dbt.HentNett(id));
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpGet]
+        public ActionResult PrisEdit()
+        {
+            var dbt = new VyDbTilgang();
+            return View(dbt.HentPris());
+        }
+
+        [Authorize(Roles = "Administrator")]
         [HttpPost]
-        public ActionResult NettCreate(Nett nett)
-        {
-            return View();
-        }
-
-        [Authorize(Roles = "Administrator")]
-        [HttpGet]
-        public ActionResult NettDelete()
-        {
-            return View();
-        }
-
-        [Authorize(Roles = "Administrator")]
-        [HttpGet]
-        public ActionResult StasjonsListe()
+        public ActionResult PrisEdit(Pris pris)
         {
             var dbt = new VyDbTilgang();
-            var alleStasjoner = dbt.HentAlleStasjoner();
-            return View(alleStasjoner);
-        }
-        [Authorize(Roles = "Administrator")]
-        [HttpGet]
-        public ActionResult StasjonDetails(int Id)
-        {
-            var dbt = new VyDbTilgang();
-            return View(dbt.HentStasjon(Id));
+            if (ModelState.IsValid)
+            {
+                dbt.SettPris(pris.prisPrKm);
+                return RedirectToAction("PriserOgPassasjerer", "Manage");
+            }
+            else
+                return View(pris);
         }
 
+        [Authorize(Roles = "Administrator")]
+        [HttpGet]
+        public ActionResult PassasjertyperEdit(int Id)
+        {
+            var dbt = new VyDbTilgang();
+            return View(dbt.HentPassasjer(Id));
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpPost]
+        public ActionResult PassasjertyperEdit(Passasjer passasjer)
+        {
+            if (ModelState.IsValid)
+            {
+                var dbt = new VyDbTilgang();
+                dbt.OppdaterPassasjer(passasjer);
+                return RedirectToAction("PriserOgPassasjerer", "Manage");
+            }
+            else
+                return View(passasjer);
+        }
         //
         // GET: /Manage/ChangePassword
         public ActionResult ChangePassword()

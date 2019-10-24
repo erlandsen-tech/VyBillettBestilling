@@ -9,6 +9,7 @@ namespace VyBillettBestilling.Models
         public int id { get; set; }
 
         // [Required(ErrorMessage = "")]
+        [Required(ErrorMessage = "Stasjonen må ha et navn")]
         [Display(Name = "Stasjonnavn")]
         public String stasjon_navn { get; set; }
         // Kombinasjonen av stasjonnavn og stasjonsted forutsettes unik pa hvert nett.
@@ -23,6 +24,7 @@ namespace VyBillettBestilling.Models
         [Range(-180, 180, ErrorMessage = "Ugyldig koordinat; -180 <= Lengdegrad <= 180")]
         public double lengdegrad { get; set; }
 
+        [Required(ErrorMessage = "Stasjonen må være i et nett")]
         [Display(Name = "Nett ID")]
         public int nett_id { get; set; }
         public IList<int> hovedstrekning_Ider { get; set; } // De fleste stasjoner har en i denne lista.
@@ -50,10 +52,9 @@ namespace VyBillettBestilling.Models
     public class Nett
     {
         public int id { get; set; }
-        // [Required(ErrorMessage = "")]
+        [Required(ErrorMessage = "Nettet må ha et navn")]
         [Display(Name = "Nettnavn")]
         public String nett_navn { get; set; }
-
         public IList<int> hovedstrekning_Ider { get; set; }
         public IList<int> stasjon_Ider { get; set; }
     }

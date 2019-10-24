@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
 using System.Web;
@@ -21,16 +22,57 @@ namespace VyBillettBestilling.Models
                 var dbpassasjer = db.Passasjertyper.ToList();
                 foreach(DbPassasjertype pass in dbpassasjer)
                 {
-                    var passasjer = new Passasjer();
-                    passasjer.ptypId = pass.ptypId;
-                    passasjer.rabatt = pass.Rabatt;
-                    passasjer.typenavn = pass.TypeNavn;
-                    passasjer.ovreAlder = pass.OvreAldersgrense;
-                    passasjer.nedreAlder = pass.NedreAldersgrense;
+                    var passasjer = KonverterPassasjer(pass);
                     passasjerer.Add(passasjer);
                 }
             }
             return passasjerer;
+        }
+        public Passasjer HentPassasjer(int id)
+        {
+            using(var db = new VyDbContext())
+            {
+                var dbpassasjer = db.Passasjertyper.Find(id);
+                var passasjer = KonverterPassasjer(dbpassasjer);
+                return passasjer;
+            }
+        }
+        public void OppdaterPassasjer(Passasjer passasjer)
+        {
+            using (var db = new VyDbContext())
+            {
+                var dbPassasjer = db.Passasjertyper.Find(passasjer.ptypId);
+                dbPassasjer.Rabatt = passasjer.rabatt;
+                dbPassasjer.TypeNavn = passasjer.typenavn;
+                dbPassasjer.OvreAldersgrense = passasjer.ovreAlder;
+                dbPassasjer.NedreAldersgrense = passasjer.nedreAlder;
+                db.Entry(dbPassasjer).State = EntityState.Modified;
+                db.SaveChanges();
+            }
+        }
+        private static Passasjer KonverterPassasjer(DbPassasjertype pass)
+        {
+            var passasjer = new Passasjer
+            {
+                ptypId = pass.ptypId,
+                rabatt = pass.Rabatt,
+                typenavn = pass.TypeNavn,
+                ovreAlder = pass.OvreAldersgrense,
+                nedreAlder = pass.NedreAldersgrense
+            };
+            return passasjer;
+        }
+        private static DbPassasjertype KonverterTilDbPassasjer(Passasjer pass)
+        {
+            var dbpassasjer = new DbPassasjertype
+            {
+                ptypId = pass.ptypId,
+                Rabatt = pass.rabatt,
+                TypeNavn = pass.typenavn,
+                OvreAldersgrense = pass.ovreAlder,
+                NedreAldersgrense = pass.nedreAlder
+            };
+            return dbpassasjer;
         }
         public Stasjon HentStasjon(int stasjId)
         {
@@ -44,9 +86,10 @@ namespace VyBillettBestilling.Models
         {
             using (var db = new VyDbContext())
             {
+                var dbPris = db.Pris.FirstOrDefault();
                 var pris = new Pris
                 {
-                    prisPrKm = db.Pris.Find(1).prisPrKm
+                    prisPrKm = dbPris.prisPrKm
                 };
                 return pris;
             }
@@ -55,13 +98,15 @@ namespace VyBillettBestilling.Models
         {
             using (var db = new VyDbContext())
             {
-                db.Pris.Remove(db.Pris.Find(1));
+                var dbPris = db.Pris.FirstOrDefault();
+                db.Pris.Remove(dbPris);
                 DbPris pris = new DbPris()
                 {
                     Id = 1,
                     prisPrKm = nyPris
                 };
                 db.Pris.Add(pris);
+                db.SaveChanges();
             }
         }
         public List<Stasjon> HentAlleStasjoner()
@@ -536,27 +581,6 @@ namespace VyBillettBestilling.Models
                     db.Hovedstrekninger.Remove(funnet);
                     db.SaveChanges();
 
-            // Bare testutskrift nedenfor her (bortsett fra return-statements, da):
-                    ;
-                    var stst = db.Stasjoner.ToList();
-                    ;
-                    foreach (DbStasjon s in stst)
-                    {
-                        var hli = s.Hovedstrekninger.ToList();
-                        foreach (DbHovedstrekning h in hli)
-                            Debug.WriteLine("Stasjon: " + s.StasjNavn + "  hovstr: " + h.Id + "  " + h.HovstrNavn);
-                    }
-                    ;
-                    var hshs = db.Hovedstrekninger.ToList();
-                    ;
-                    foreach (DbHovedstrekning h in hshs)
-                    {
-                        var sli = h.Stasjoner.ToList();
-                        Debug.WriteLine(sli.First().StasjNavn + "  " + sli.Last().StasjNavn);
-                        for (int i = 0; i<sli.Count; ++i)
-                            Debug.WriteLine("Hovstr: " + h.HovstrNavn + "  stasjon: " + sli[i].Id + "  " + sli[i].StasjNavn);
-                    }
-                    ;
                     return true;
                 }
             }

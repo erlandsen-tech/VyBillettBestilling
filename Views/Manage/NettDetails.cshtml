@@ -1,0 +1,34 @@
+﻿@model VyBillettBestilling.Models.Nett
+@{
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link href="~/Content/Admin.css" rel="stylesheet">
+    <title>NettDetaljer</title>
+</head>
+<body>
+    <div class="bg femti ">
+        <div>
+            <h4>Nett</h4>
+            <hr />
+            <dl class="dl-horizontal">
+                <dt>
+                    @Html.DisplayNameFor(model => model.nett_navn)
+                </dt>
+
+                <dd>
+                    @Html.DisplayFor(model => model.nett_navn)
+                </dd>
+            </dl>
+        </div>
+        <p>
+            @Html.ActionLink("Rediger", "NettEdit", new { id = Model.id }) |
+            @Html.ActionLink("Tilbake til liste", "NettListe")
+        </p>
+    </div>
+</body>
+</html>
