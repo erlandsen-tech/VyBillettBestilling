@@ -358,7 +358,7 @@ namespace VyBillettBestilling.Models
             using (var db = new VyDbContext())
             {
                 DbNett funnet = db.Nett.Find(nettId);
-                if (funnet != null && !db.Nett.Any(n => nyttNavn.Equals(n.Nettnavn)))
+                if (funnet != null && nyttNavn != null && !db.Nett.Any(n => nyttNavn.Equals(n.Nettnavn)))
                 {
                     // Tror det skal funke sa enkelt som dette:
                     funnet.Nettnavn = nyttNavn;
@@ -601,6 +601,30 @@ namespace VyBillettBestilling.Models
             }
             return false;
         }
+        public bool settNyeHovedstrekningNavn(int hovstrId, string nyttNavn, string nyttKortnavn)
+        {   // Null-verdier pa navnene betyr a beholde gammelt navn
+            using (var db = new VyDbContext())
+            {
+                DbHovedstrekning funnet = db.Hovedstrekninger.Find(hovstrId);
+                if (funnet != null && (nyttNavn != null || nyttKortnavn != null))
+                    if (!db.Hovedstrekninger.Any(h => h.HovstrNavn.Equals(nyttNavn) || h.HovstrKortNavn.Equals(nyttKortnavn)))
+                    {
+                        // Tror det skal funke sa enkelt som dette:
+                        if (nyttNavn != null)
+                            funnet.HovstrNavn = nyttNavn;
+                        if (nyttKortnavn != null)
+                            funnet.HovstrKortNavn = nyttKortnavn;
+                        // Men ellers kan nok dette brukes:
+                        //if (nyttNavn != null)
+                        //    db.Entry(funnet).Property(p => p.HovstrNavn).CurrentValue = nyttNavn;
+                        //if (nyttKortnavn != null)
+                        //    db.Entry(funnet).Property(p => p.HovstrKortNavn).CurrentValue = nyttKortnavn;
+                        db.SaveChanges();
+                        return true;
+                    }
+            }
+            return false;
+        }
 
         // Merk: disse metodene legger ikke stasjonen inn i en hovedstrekning, men bare registrerer dem i basen.
         // Ev. angitte hovedstrekninger ignoreres.
@@ -610,12 +634,12 @@ namespace VyBillettBestilling.Models
             using (var db = new VyDbContext())
             {
                 if (db.Stasjoner.FirstOrDefault(st => navn.Equals(st.StasjNavn)
-                    && optSted.Equals(st.StasjSted)) == null)
+                    && st.StasjSted.Equals((optSted == null) ? "" : optSted)) == null)
                 {
                     // Koordinatene ma vaere riktige:
                     if (optBreddegrad < -90 | optBreddegrad > 90 | optLengdegrad < -180 | optLengdegrad > 180)
                         throw new ArgumentException("stasjon-objektet har ugyldige data; koordinatene er feil");
-                    DbStasjon dennye = new DbStasjon(navn, null, optSted);
+                    DbStasjon dennye = new DbStasjon(navn, null, (optSted == null) ? "" : optSted);
                     dennye.Breddegrad = optBreddegrad;
                     dennye.Lengdegrad = optLengdegrad;
                     db.Stasjoner.Add(dennye);
@@ -644,7 +668,7 @@ namespace VyBillettBestilling.Models
                     if (feil)
                         throw new ArgumentException("stasjon-objektet har ugyldige data; ikke-eksisterende nett angitt");
                     
-                    DbStasjon dennye = new DbStasjon(stas.stasjon_navn, tmpNet, stas.stasjon_sted);
+                    DbStasjon dennye = new DbStasjon(stas.stasjon_navn, tmpNet, (stas.stasjon_sted == null) ? "" : stas.stasjon_sted);
                     dennye.Breddegrad = stas.breddegrad;
                     dennye.Lengdegrad = stas.lengdegrad;
                     db.Stasjoner.Add(dennye);
@@ -653,6 +677,51 @@ namespace VyBillettBestilling.Models
                 }
             }
             return -1; // Navn-, sted- og nettkombinasjonen er brukt fra for
+        }
+        
+        public bool settNyeStasjonNavnOgSted(int stasjId, string nyttNavn, string nyttSted)
+        {// Null-verdier pa navnene betyr a beholde gammelt navn
+            using (var db = new VyDbContext())
+            {
+                DbStasjon funnet = db.Stasjoner.Find(stasjId);
+                if (funnet != null && (nyttNavn != null || nyttSted != null))
+                    if (!db.Stasjoner.Any(h => ((nyttNavn == null) || h.StasjNavn.Equals(nyttNavn)) 
+                            && ((nyttSted == null) || h.StasjSted.Equals(nyttSted))))
+                    {
+                        // Tror det skal funke sa enkelt som dette:
+                        if (nyttNavn != null)
+                            funnet.StasjNavn = nyttNavn;
+                        if (nyttSted != null)
+                            funnet.StasjSted = nyttSted;
+                        // Men ellers kan nok dette brukes:
+                        //if (nyttNavn != null)
+                            //db.Entry(funnet).Property(p => p.StasjNavn).CurrentValue = nyttNavn;
+                        //if (nyttKortnavn != null)
+                            //db.Entry(funnet).Property(p => p.StasjSted).CurrentValue = nyttSted;
+                        db.SaveChanges();
+                        return true;
+                    }
+            }
+            return false;
+        }
+        public bool settNyeStasjonKoordinater(int stasjId, double breddegrad, double lengdegrad)
+        {
+            using (var db = new VyDbContext())
+            {
+                DbStasjon funnet = db.Stasjoner.Find(stasjId);
+                if (funnet != null & breddegrad >= -90 & breddegrad <= 90 & lengdegrad >= -180 | lengdegrad <= 180)
+                {
+                    // Tror det skal funke sa enkelt som dette:
+                    funnet.Breddegrad = breddegrad;
+                    funnet.Lengdegrad = lengdegrad;
+                    // Men ellers kan nok dette brukes:
+                    //db.Entry(funnet).Property(p => p.Breddegrad).CurrentValue = breddegrad;
+                    //db.Entry(funnet).Property(p => p.Lengdegrad).CurrentValue = lengdegrad;
+                    db.SaveChanges();
+                    return true;
+                }
+            }
+            return false;
         }
 
         /**
