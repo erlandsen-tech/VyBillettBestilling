@@ -1,15 +1,17 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using TrackerEnabledDbContext.Identity;
 
 namespace VyBillettBestilling.Models
 {
+    [TrackChanges]
     public class ApplicationUser : IdentityUser
     {
-
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
         {
             // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType
@@ -52,10 +54,10 @@ namespace VyBillettBestilling.Models
         public string Betalingskort { get; set; }
     }
 
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    public class ApplicationDbContext : TrackerIdentityContext<ApplicationUser>
     {
         public ApplicationDbContext()
-            : base("BrukerBase", throwIfV1Schema: false)
+            : base("BrukerBase")
         {
         }
 

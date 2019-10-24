@@ -3,8 +3,8 @@
 @{
     ViewBag.Title = "Ny strekning";
 }
-
 <link href="~/Content/Admin.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="~/Content/css/multi.min.css">
 <div class="bg femti ">
     <h2>Ny strekning</h2>
 
@@ -39,7 +39,17 @@
                     @Html.ValidationMessageFor(model => model.nett_id, "", new { @class = "text-danger" })
                 </div>
             </div>
-
+            <div class="form-group">
+                <div class="container">
+                    <select multiple="multiple" name="" id="example">
+                        @foreach(VyBillettBestilling.Models.Stasjon stasjon in ViewBag.Stasjoner)
+                        {
+                            Console.WriteLine(stasjon.stasjon_navn);
+                            <value>@stasjon.id</value><option>@stasjon.stasjon_navn</option>
+                        }
+                    </select>
+                </div>
+            </div>
             <div class="form-group">
                 <div class="col-md-offset-2 col-md-10">
                     <input type="submit" value="Lag" class="btn btn-default" />
@@ -52,3 +62,10 @@
         @Html.ActionLink("Tilbake til liste", "StrekningsListe")
     </div>
 </div>
+<script src="~/Scripts/multi.min.js"></script>
+<script>
+    $('#example').multi({
+        non_selected_header: 'Stasjoner',
+        selected_header: 'Valgte Stasjoner'
+    });
+</script>

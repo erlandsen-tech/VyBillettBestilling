@@ -25,8 +25,6 @@ namespace VyBillettBestilling.Controllers
 
             return View("Handlekurv");
         }
-
-
         public int EnheterIKurv()
         {
             int antallIKurv = 0;
@@ -39,7 +37,6 @@ namespace VyBillettBestilling.Controllers
             }
             return antallIKurv;
         }
-
         [HttpDelete]
         public void Slett(int id)
         {

@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
+using VyBillettBestilling.Methods;
 using VyBillettBestilling.Models;
 
 namespace VyBillettBestilling.Controllers
@@ -113,6 +114,8 @@ namespace VyBillettBestilling.Controllers
         [HttpGet]
         public ActionResult StrekningCreate()
         {
+            var dbt = new VyDbTilgang();
+            ViewBag.Stasjoner = dbt.HentAlleStasjoner();
             return View();
         }
 
@@ -177,7 +180,6 @@ namespace VyBillettBestilling.Controllers
             var alleStasjoner = dbt.HentAlleStasjoner();
             return View(alleStasjoner);
         }
-
         [Authorize(Roles = "Administrator")]
         [HttpGet]
         public ActionResult StasjonDetails(int Id)
@@ -193,20 +195,20 @@ namespace VyBillettBestilling.Controllers
             return View();
         }
 
-        //[Authorize(Roles = "Administrator")]
-        //[HttpPost]
-        //public ActionResult StasjonCreate(Stasjon stasjon)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
+        [Authorize(Roles = "Administrator")]
+        [HttpPost]
+        public ActionResult StasjonCreate(Stasjon stasjon)
+        {
+            if (ModelState.IsValid)
+            {
 
-        //        var dbt = new VyDbTilgang();
-        //        dbt.leggTilStasjon(stasjon);
-        //        return RedirectToAction("StasjonsListe", "Manage");
-        //    }
-        //    else
-        //        return View(stasjon);
-        //}
+                var dbt = new VyDbTilgang();
+                dbt.leggTilStasjon(stasjon);
+                return RedirectToAction("StasjonsListe", "Manage");
+            }
+            else
+                return View(stasjon);
+        }
 
         //[Authorize(Roles = "Administrator")]
         //[HttpDelete]
