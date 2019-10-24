@@ -340,12 +340,13 @@ namespace VyBillettBestilling.Models
                 var funnet = db.Nett.Find(nettId);
                 if (funnet != null)
                 {
-                    foreach (var str in funnet.Hovedstrekninger)
-                        str.Nett = null; // Ma fjerne referansene til DbNett-et som skal fjernes (Eller ordner EF det? Sjekk)
-                    funnet.Hovedstrekninger.Clear();
-                    foreach (var sta in funnet.Stasjoner)
-                        sta.Nett = null; // Ma fjerne referansene til DbNett-et som skal fjernes (Eller ordner EF det? Sjekk)
-                    funnet.Stasjoner.Clear();
+                    // Tror det funker bra uten dette bortkommenterte. Hvis det virker uten (dvs. referansene blir borte); fjern det:
+                    //foreach (var str in funnet.Hovedstrekninger)
+                    //    str.Nett = null; // Ma fjerne referansene til DbNett-et som skal fjernes (Eller ordner EF det? Sjekk)
+                    //funnet.Hovedstrekninger.Clear();
+                    //foreach (var sta in funnet.Stasjoner)
+                    //    sta.Nett = null; // Ma fjerne referansene til DbNett-et som skal fjernes (Eller ordner EF det? Sjekk)
+                    //funnet.Stasjoner.Clear();
                     db.Nett.Remove(funnet);
                     db.SaveChanges();
                     return true;
@@ -353,7 +354,7 @@ namespace VyBillettBestilling.Models
             }
             return false;
         }
-        public bool settNyttNettnavn(int nettId, string nyttNavn) //
+        public bool settNyttNettnavn(int nettId, string nyttNavn)
         {
             using (var db = new VyDbContext())
             {
@@ -678,7 +679,22 @@ namespace VyBillettBestilling.Models
             }
             return -1; // Navn-, sted- og nettkombinasjonen er brukt fra for
         }
-        
+        public bool fjernStasjon(int stasjId)
+        {
+            using (var db = new VyDbContext())
+            {
+                var funnet = db.Stasjoner.Find(stasjId);
+                if (funnet != null)
+                {
+                    // NBNBNB!!! Kan ha blitt splittet til flere nett. Ma gjore noe med det. Bruk stiermellomstasjoner for a sjekke(?)
+                    db.Stasjoner.Remove(funnet);
+                    db.SaveChanges();
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public bool settNyeStasjonNavnOgSted(int stasjId, string nyttNavn, string nyttSted)
         {// Null-verdier pa navnene betyr a beholde gammelt navn
             using (var db = new VyDbContext())
