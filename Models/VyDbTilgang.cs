@@ -12,12 +12,55 @@ namespace VyBillettBestilling.Models
          *  Generelle hentemetoder for (konverterte) poster i basen
          *  (Blir utvidet med metoder for de fleste resterende tabellene)
          */
+        public List<Passasjer> HentPassasjerTyper()
+        {
+            var passasjerer = new List<Passasjer>();
+            using (var db = new VyDbContext())
+            {
+                var dbpassasjer = db.Passasjertyper.ToList();
+                foreach(DbPassasjertype pass in dbpassasjer)
+                {
+                    var passasjer = new Passasjer();
+                    passasjer.ptypId = pass.ptypId;
+                    passasjer.rabatt = pass.Rabatt;
+                    passasjer.typenavn = pass.TypeNavn;
+                    passasjer.ovreAlder = pass.OvreAldersgrense;
+                    passasjer.nedreAlder = pass.NedreAldersgrense;
+                    passasjerer.Add(passasjer);
+                }
+            }
+            return passasjerer;
+        }
         public Stasjon HentStasjon(int stasjId)
         {
             using (var db = new VyDbContext())
             {
                 var funnet = db.Stasjoner.Find(stasjId);
                 return (funnet == null) ? null : konverterStasjon(funnet);
+            }
+        }
+        public Pris HentPris()
+        {
+            using (var db = new VyDbContext())
+            {
+                var pris = new Pris
+                {
+                    prisPrKm = db.Pris.Find(1).prisPrKm
+                };
+                return pris;
+            }
+        }
+        public void SettPris(double nyPris)
+        {
+            using (var db = new VyDbContext())
+            {
+                db.Pris.Remove(db.Pris.Find(1));
+                DbPris pris = new DbPris()
+                {
+                    Id = 1,
+                    prisPrKm = nyPris
+                };
+                db.Pris.Add(pris);
             }
         }
         public List<Stasjon> HentAlleStasjoner()
@@ -81,7 +124,7 @@ namespace VyBillettBestilling.Models
                 lengdegrad = dbst.Lengdegrad,
                 // Droppe denne?:
                 hovedstrekning_Ider = dbst.Hovedstrekninger.ToList().Select(hs => hs.Id).ToList(),
-                nett_id = (dbst.Nett != null)? dbst.Nett.Id : -1
+                nett_id = (dbst.Nett != null) ? dbst.Nett.Id : -1
             };
         }
 
@@ -267,7 +310,7 @@ namespace VyBillettBestilling.Models
         {
             using (var db = new VyDbContext())
             {
-                if (db.Hovedstrekninger.FirstOrDefault(ho => navn.Equals(ho.HovstrNavn) 
+                if (db.Hovedstrekninger.FirstOrDefault(ho => navn.Equals(ho.HovstrNavn)
                     || kortnavn.Equals(ho.HovstrKortNavn)) == null)
                 {
                     DbHovedstrekning dennye = new DbHovedstrekning(navn, null, kortnavn);
@@ -282,7 +325,7 @@ namespace VyBillettBestilling.Models
         {
             using (var db = new VyDbContext())
             {
-                if (db.Hovedstrekninger.FirstOrDefault(ho => hovst.hovstr_navn.Equals(ho.HovstrNavn) 
+                if (db.Hovedstrekninger.FirstOrDefault(ho => hovst.hovstr_navn.Equals(ho.HovstrNavn)
                         || hovst.hovstr_kortnavn.Equals(ho.HovstrKortNavn)) == null)
                 {
                     // Ma sjekke at den tillagte hovedstrekningen ikke viser til nett 
@@ -303,8 +346,8 @@ namespace VyBillettBestilling.Models
                         int c = hovst.stasjon_Ider.Count();
                         // Sjekker duplikater, og at hovedstrekningen har minst to stasjoner (hvis den har noen):
                         if (c > 0) // Godtar forste og siste stasjon lik (ringbane), derfor to distinct-sjekker:
-                            feil = c < 2 || hovst.stasjon_Ider.Skip(1).Distinct().Count() != c - 1 
-                                || hovst.stasjon_Ider.Take(c-1).Distinct().Count() != c - 1;
+                            feil = c < 2 || hovst.stasjon_Ider.Skip(1).Distinct().Count() != c - 1
+                                || hovst.stasjon_Ider.Take(c - 1).Distinct().Count() != c - 1;
                         if (feil)
                             throw new ArgumentException("hovedstrekning-objektet har ugyldige data; ulovlige duplikatstasjoner eller ulovlig lengde (1) på ny hovedstrekning");
                         if (!feil && c > 0)
@@ -313,7 +356,7 @@ namespace VyBillettBestilling.Models
                             // Merk: A knytte en ny ringbane til en endestajon eller motepunkt blir tillatt. Sann skal det vaere.
                             // Ogsa feil hvis stasjoner er pa annet nett enn angitt for denne hovedstrekningen (hvis det er angitt, da),
                             // eller stasjonslista inneholder stasjoner fra forskjellige nett
-                            feil = (tmpSta = db.Stasjoner.Find(hovst.stasjon_Ider.First())) == null 
+                            feil = (tmpSta = db.Stasjoner.Find(hovst.stasjon_Ider.First())) == null
                                 || (tmpSta.Hovedstrekninger.Count() == 1 && hovst.stasjon_Ider.First() != hovst.stasjon_Ider.Last())
                                 || (tmpSta.Nett != null && ((tmpNet != null) ? tmpNet : tmpNet = tmpSta.Nett) != tmpSta.Nett);
                             feil |= (tmpSta = db.Stasjoner.Find(hovst.stasjon_Ider.Last())) == null
@@ -1053,6 +1096,20 @@ namespace VyBillettBestilling.Models
                     };
                     db.Passasjertyper.Add(dbp);
                 }
+                db.SaveChanges();
+            }
+        }
+        
+        public void addPris()
+        {
+            using (var db = new VyDbContext())
+            {
+                DbPris dbp = new DbPris
+                {
+                    Id = 1,
+                    prisPrKm = 3
+                };
+                db.Pris.Add(dbp);
                 db.SaveChanges();
             }
         }

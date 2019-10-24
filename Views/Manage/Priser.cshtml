@@ -1,0 +1,20 @@
+﻿@model VyBillettBestilling.Models.Pris
+
+    <table class="table tabellbakgrunn table-bordered">
+        <tr>
+            <th>
+                Pris per kilometer
+            </th>
+        </tr>
+
+        <tr>
+            <td>
+                Pris: @Model.prisPrKm kr
+            </td>
+            <td>
+
+                @Html.ActionLink("Rediger", "RedigerPris", new { id = 1 }, new { @class = "btn btn-primary" })
+            </td>
+        </tr>
+
+    </table>

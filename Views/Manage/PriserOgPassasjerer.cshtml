@@ -1,0 +1,22 @@
+﻿@model VyBillettBestilling.Models.View.PrisOgBillett
+
+@{
+    ViewBag.Title = "Priser og rabatter";
+}
+
+<!DOCTYPE html>
+
+<link href="~/Content/Admin.css" rel="stylesheet">
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>PriserOgPassasjerer</title>
+</head>
+<body>
+
+    <div class="bg femti ">
+            @Html.Partial("Priser", Model.Pris);
+            @Html.Partial("PassasjerTyper", Model.Passasjerer);
+    </div>
+</body>
+</html>

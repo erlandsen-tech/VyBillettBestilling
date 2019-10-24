@@ -1,0 +1,45 @@
+﻿@model VyBillettBestilling.Models.Hovedstrekning
+
+@{
+    ViewBag.Title = "Detaljer";
+}
+
+<link href="~/Content/Admin.css" rel="stylesheet">
+<div class="bg femti ">
+    <h2>Detaljer</h2>
+
+    <div>
+        <h4>Hovedstrekning</h4>
+        <hr />
+        <dl class="dl-horizontal">
+            <dt>
+                @Html.DisplayNameFor(model => model.hovstr_navn)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.hovstr_navn)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.hovstr_kortnavn)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.hovstr_kortnavn)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.nett_id)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.nett_id)
+            </dd>
+
+        </dl>
+    </div>
+    <p>
+        @Html.ActionLink("Rediger", "StrekningEdit", new { id = Model.id }, new { @class = "btn btn-primary" }) |
+        @Html.ActionLink("Tilbake til liste", "StrekningsListe", null, new { @class = "btn btn-primary" })
+    </p>
+</div>
