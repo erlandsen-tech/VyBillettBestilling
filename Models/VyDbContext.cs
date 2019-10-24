@@ -19,6 +19,7 @@ namespace VyBillettBestilling.Models
 
         // Tabeller for linjenettet:
         public DbSet<DbStasjon> Stasjoner { get; set; }
+        public DbSet<DbPris> Pris { get; set; }
         // Opplisting av stasjoner, ev. med data om plattformer, geografisk plassering og annet (betjent?, toalett? osv.)
         // Ogsa data om Hovedstrekning(-er) den tilhorer. (Geo.pos. gir opplosning pa <= 1,1 m med 5 desimaler, det er nok.)
         public DbSet<DbHovedstrekningStasjon> HovstrStasj { get; set; }
@@ -272,8 +273,8 @@ namespace VyBillettBestilling.Models
             public String StasjSted { get; set; }
             // [Required] // Kan ikke vaere required, uansett hvordan man gjor det met virtual og forskjellige navn osv.. Lager da kaskederende delete m.v.
             public virtual DbNett Nett { get; set; } // Trengs ikke nar det brukes List<DbHovedstrekning> Hovedstrekninger,
-            // da er nettet umiddelbart tilgjengelig fra alle elementene i lista.
-            
+                                                     // da er nettet umiddelbart tilgjengelig fra alle elementene i lista.
+
             [Range(-90, 90, ErrorMessage = "Ugyldig koordinat; -90 <= Breddegrad <= 90")]
             public double Breddegrad { get; set; }
             [Range(-180, 180, ErrorMessage = "Ugyldig koordinat; -180 <= Lengdegrad <= 180")]
@@ -378,6 +379,12 @@ namespace VyBillettBestilling.Models
             public double Pris { get; set; }
             public String Passasjertype { get; set; }
             public double Rabattsats { get; set; }
+        }
+        public class DbPris
+        {
+            [Key]
+            public int Id { get; set; }
+            public double prisPrKm { get; set; }
         }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)

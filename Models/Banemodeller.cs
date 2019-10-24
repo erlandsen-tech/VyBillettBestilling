@@ -23,6 +23,7 @@ namespace VyBillettBestilling.Models
         [Range(-180, 180, ErrorMessage = "Ugyldig koordinat; -180 <= Lengdegrad <= 180")]
         public double lengdegrad { get; set; }
 
+        [Display(Name = "Nett ID")]
         public int nett_id { get; set; }
         public IList<int> hovedstrekning_Ider { get; set; } // De fleste stasjoner har en i denne lista.
         // De som har >= 2 utgjor sammenknytninger mellom DbHovedstrekninger,
@@ -32,11 +33,15 @@ namespace VyBillettBestilling.Models
     public class Hovedstrekning
     {
         public int id { get; set; }
-        // [Required(ErrorMessage = "")]
+        [Required(ErrorMessage = "Hovedstrekningen må ha et navn")]
+        [Display(Name = "Navn")]
         public String hovstr_navn { get; set; }
-        // [Required(ErrorMessage = "")]
+        [Required(ErrorMessage = "Hovedstrekningen trenger et kort identifikator navn")]
+        [Display(Name = "Kortnavn")]
         public String hovstr_kortnavn { get; set; }
-
+        [Required(ErrorMessage = "Hovedstrekningen må knyttes til et nett")]
+        [Display(Name = "Nett ID")]
+        [Range(1, 2, ErrorMessage = "Det er bare nett 1 og 2 som er gyldige på nåværende tidspunkt")]
         public int nett_id { get; set; }
         //public IList<int> delstrekning_Ider { get; set; } // Dropper denne; delstrekninger er en intern db-konstruksjon
         public IList<int> stasjon_Ider { get; set; }

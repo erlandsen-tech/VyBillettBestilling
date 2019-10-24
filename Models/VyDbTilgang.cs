@@ -13,12 +13,55 @@ namespace VyBillettBestilling.Models
          *  Generelle hentemetoder for (konverterte) poster i basen
          *  (Blir utvidet med metoder for de fleste resterende tabellene)
          */
+        public List<Passasjer> HentPassasjerTyper()
+        {
+            var passasjerer = new List<Passasjer>();
+            using (var db = new VyDbContext())
+            {
+                var dbpassasjer = db.Passasjertyper.ToList();
+                foreach(DbPassasjertype pass in dbpassasjer)
+                {
+                    var passasjer = new Passasjer();
+                    passasjer.ptypId = pass.ptypId;
+                    passasjer.rabatt = pass.Rabatt;
+                    passasjer.typenavn = pass.TypeNavn;
+                    passasjer.ovreAlder = pass.OvreAldersgrense;
+                    passasjer.nedreAlder = pass.NedreAldersgrense;
+                    passasjerer.Add(passasjer);
+                }
+            }
+            return passasjerer;
+        }
         public Stasjon HentStasjon(int stasjId)
         {
             using (var db = new VyDbContext())
             {
                 var funnet = db.Stasjoner.Find(stasjId);
                 return (funnet == null) ? null : konverterStasjon(funnet);
+            }
+        }
+        public Pris HentPris()
+        {
+            using (var db = new VyDbContext())
+            {
+                var pris = new Pris
+                {
+                    prisPrKm = db.Pris.Find(1).prisPrKm
+                };
+                return pris;
+            }
+        }
+        public void SettPris(double nyPris)
+        {
+            using (var db = new VyDbContext())
+            {
+                db.Pris.Remove(db.Pris.Find(1));
+                DbPris pris = new DbPris()
+                {
+                    Id = 1,
+                    prisPrKm = nyPris
+                };
+                db.Pris.Add(pris);
             }
         }
         public List<Stasjon> HentAlleStasjoner()
@@ -81,8 +124,10 @@ namespace VyBillettBestilling.Models
                 breddegrad = dbst.Breddegrad,
                 lengdegrad = dbst.Lengdegrad,
                 // Droppe denne?:
+
                 hovedstrekning_Ider = dbst.Hovedstrekninger.Select(hs => hs.Id).ToList(),
                 nett_id = (dbst.Nett != null)? dbst.Nett.Id : -1
+
             };
         }
 
@@ -331,6 +376,7 @@ namespace VyBillettBestilling.Models
                             // Merk: A knytte en ny ringbane til en endestajon eller motepunkt blir tillatt. Sann skal det vaere.
                             // Ogsa feil hvis stasjoner er pa annet nett enn angitt for denne hovedstrekningen (hvis det er angitt, da),
                             // eller stasjonslista inneholder stasjoner fra forskjellige nett
+
                             feil = (tmpSta = db.Stasjoner.Find(hovst.stasjon_Ider.First())) == null // Angitt stasjon skal eksistere
                                 // Angitt nett skal ikke vaere ulikt annet angitt nett:
                                 || (tmpSta.Nett != null && !tmpSta.Nett.Equals((tmpNet != null) ? tmpNet : tmpNet = tmpSta.Nett))
@@ -339,6 +385,7 @@ namespace VyBillettBestilling.Models
                                         && !tmpSta.Equals(tmpSta.Hovedstrekninger.First().Stasjoner.Last()))
                                 // Ikke tillatt a skjote ender, unntatt a sette pa en ringbane:
                                 || (tmpSta.Hovedstrekninger.Count() == 1 && !hovst.stasjon_Ider.First().Equals(hovst.stasjon_Ider.Last()));
+
                             feil |= (tmpSta = db.Stasjoner.Find(hovst.stasjon_Ider.Last())) == null
                                 || (tmpSta.Nett != null && !tmpSta.Nett.Equals((tmpNet != null) ? tmpNet : tmpNet = tmpSta.Nett))
                                 || (tmpSta.Hovedstrekninger.Count() == 1
@@ -1221,6 +1268,20 @@ namespace VyBillettBestilling.Models
                     };
                     db.Passasjertyper.Add(dbp);
                 }
+                db.SaveChanges();
+            }
+        }
+        
+        public void addPris()
+        {
+            using (var db = new VyDbContext())
+            {
+                DbPris dbp = new DbPris
+                {
+                    Id = 1,
+                    prisPrKm = 3
+                };
+                db.Pris.Add(dbp);
                 db.SaveChanges();
             }
         }

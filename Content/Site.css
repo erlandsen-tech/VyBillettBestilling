@@ -133,12 +133,12 @@ footer {
     position: relative;
     height: 500px;
     overflow: auto;
-    width: 95vw;
+    width: 70vw;
 }
 
 .table-wrapper-scroll-y {
     display: block;
-    width: 95vw;
+    width: 70vw;
 }
 
 .outer {
@@ -175,4 +175,14 @@ footer {
     right: 50%;
     margin-left: -50vw;
     margin-right: -50vw;
+}
+.test {
+    background-color: lightgray;
+}
+.mt-5 {
+  margin-top: 5px !important;
+}
+
+.ml-5 {
+  margin-left: 5px !important;
 }

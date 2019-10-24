@@ -1,0 +1,40 @@
+﻿@model IEnumerable<VyBillettBestilling.Models.Nett>
+
+@{
+    ViewBag.Title = "Nettliste";
+}
+
+<link href="~/Content/Admin.css" rel="stylesheet">
+<div class="bg femti ">
+    <h2>Nettliste</h2>
+<div class="mt-5">
+    <p>
+        @Html.ActionLink("Lag ny", "NettCreate", null, new { @class = "btn btn-primary" })
+    </p>
+</div>
+    <div class="ml-5 my-custom-scrollbar table-wrapper-scroll-y">
+        <table class=" table tabellbakgrunn table-bordered">
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.nett_navn)
+                </th>
+                <th></th>
+            </tr>
+
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.nett_navn)
+                    </td>
+                    <td>
+                        @Html.ActionLink("Rediger", "NettEdit", new { id = item.id }, new { @class = "btn btn-primary" }) |
+                        @Html.ActionLink("Detaljer", "NettDetails", new { id = item.id }, new { @class = "btn btn-primary" }) |
+                        @Html.ActionLink("Slett", "NettDelete", new { id = item.id }, new { @class = "btn btn-primary" })
+                    </td>
+                </tr>
+            }
+
+        </table>
+    </div>
+</div>
