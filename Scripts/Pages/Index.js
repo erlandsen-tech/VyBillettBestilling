@@ -53,11 +53,12 @@ $(function () {
 
 });
 
-function VisDropDown(stasjon) {
+function VisDropDown(stasjon, nettId) {
     var utStreng = "";
     for (var i in stasjon) {
         //Legger kun til stasjon i reiseTil listen dersom denne ikke er valg i reisefra
-        if (stasjon[i].id != $("#ReiseFra option:selected").val()) {
+        if (stasjon[i].id != $("#ReiseFra option:selected").val() &&
+            nettId == stasjon[i].nett_id) {
             utStreng += "<option value='" + stasjon[i].id + "'>" + stasjon[i].stasjon_navn + "</option>";
         }
     }
@@ -72,15 +73,30 @@ function VisDropDown(stasjon) {
 function skifte() {
     //Sørger for å tømme listen i ReiseTil ved skifte av frastasjon
     $("#ReiseTil").empty();
-    HentStasjoner();
+    VisReiseTil($("#ReiseFra option:selected").val());
 }
-function HentStasjoner() {
+function HentStasjoner(nettId) {
     $.ajax({
         url: '/home/stasjonsliste',
         type: 'GET',
         dataType: 'json',
         success: function (stasjon) {
-            VisDropDown(stasjon);
+            VisDropDown(stasjon, nettId);
+        },
+        error: function (x, y, z) {
+            alert(x + '\n' + y + '\n' + z);
+        }
+    });
+}
+
+function VisReiseTil(stasjon_id) {
+    $.ajax({
+        url: '/home/hentnettforstasjon',
+        type: 'GET',
+        dataType: 'json',
+        data: {"id": stasjon_id},
+        success: function (nettId) {
+            HentStasjoner(nettId);
         },
         error: function (x, y, z) {
             alert(x + '\n' + y + '\n' + z);

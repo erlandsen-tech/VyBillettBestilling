@@ -17,6 +17,7 @@ namespace VyBillettBestilling.Models
 
         // Tabeller for linjenettet:
         public DbSet<DbStasjon> Stasjoner { get; set; }
+        public DbSet<DbPris> Pris { get; set; }
         // Opplisting av stasjoner, ev. med data om plattformer, geografisk plassering og annet (betjent?, toalett? osv.)
         // Ogsa data om Hovedstrekning(-er) den tilhorer. (Geo.pos. gir opplosning pa <= 1,1 m med 5 desimaler, det er nok.)
         //public DbSet<DbDelstrekning> Delstrekninger { get; set; } // Avstand (og pris?) mellom to nabostasjoner. Forelopig ikke i bruk.
@@ -109,8 +110,8 @@ namespace VyBillettBestilling.Models
             public String StasjSted { get; set; }
             // [Required] // Kan ikke vaere required, uansett hvordan man gjor det met virtual og forskjellige navn osv.. Lager da kaskederende delete m.v.
             public virtual DbNett Nett { get; set; } // Trengs ikke nar det brukes List<DbHovedstrekning> Hovedstrekninger,
-            // da er nettet umiddelbart tilgjengelig fra alle elementene i lista.
-            
+                                                     // da er nettet umiddelbart tilgjengelig fra alle elementene i lista.
+
             [Range(-90, 90, ErrorMessage = "Ugyldig koordinat; -90 <= Breddegrad <= 90")]
             public double Breddegrad { get; set; }
             [Range(-180, 180, ErrorMessage = "Ugyldig koordinat; -180 <= Lengdegrad <= 180")]
@@ -124,7 +125,7 @@ namespace VyBillettBestilling.Models
             // NBNBNBNB!!! : Ringbaner bor fa satt begge endene i denne lista for at stisokingen skal fungere riktig,
             // altsa; samme stasjon (tilknytningsstasjonen) skal settes i lista to ganger. Mulig det lager basekroll, ma i sa
             // fall ordne det pa annen mate
-            public DbStasjon(string navn, DbNett nett, string optStedNavn="")
+            public DbStasjon(string navn, DbNett nett, string optStedNavn = "")
             {
                 StasjNavn = navn;
                 StasjSted = optStedNavn;
@@ -215,6 +216,12 @@ namespace VyBillettBestilling.Models
             public double Pris { get; set; }
             public String Passasjertype { get; set; }
             public double Rabattsats { get; set; }
+        }
+        public class DbPris
+        {
+            [Key]
+            public int Id { get; set; }
+            public double prisPrKm { get; set; }
         }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)

@@ -335,9 +335,11 @@
     <Compile Include="Models\Kunde.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\Passasjer.cs" />
+    <Compile Include="Models\Pris.cs" />
     <Compile Include="Models\Rute.cs" />
     <Compile Include="Models\Utilities.cs" />
     <Compile Include="Models\Reise.cs" />
+    <Compile Include="Models\View\PrisOgBillett.cs" />
     <Compile Include="Models\View\RuteView.cs" />
     <Compile Include="Models\VyDbContext.cs" />
     <Compile Include="Models\VyDbTilgang.cs" />
@@ -380,6 +382,9 @@
     <Content Include="Views\Manage\NettListe.cshtml" />
     <Content Include="Views\Manage\StasjonsListe.cshtml" />
     <Content Include="Views\Manage\StasjonDetails.cshtml" />
+    <Content Include="Views\Manage\PassasjerTyper.cshtml" />
+    <Content Include="Views\Manage\Priser.cshtml" />
+    <Content Include="Views\Manage\PriserOgPassasjerer.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
