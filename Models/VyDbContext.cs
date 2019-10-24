@@ -7,10 +7,11 @@ using System.Data.Entity.ModelConfiguration.Conventions;
 using System.Diagnostics;
 using System.Linq;
 using System.Web;
+using TrackerEnabledDbContext;
 
 namespace VyBillettBestilling.Models
 {
-    public class VyDbContext : DbContext
+    public class VyDbContext : TrackerContext
     {
         public VyDbContext() : base("name=BillettBase")
         {
@@ -43,7 +44,8 @@ namespace VyBillettBestilling.Models
         // Hvert Nett er en samling av DbHovedstrekning-er som er forbundet med hverandre.
 
         // Klasser for linjenettet:
-        
+       
+        [TrackChanges]
         public class DbNett
         {
             [Key]
@@ -60,6 +62,8 @@ namespace VyBillettBestilling.Models
             }
             public DbNett() { } // Ma ogsa ha en parameterlos konstruktor. Vet ikke hvorfor, men sann er det.
         }
+
+        [TrackChanges]
         public class DbHovedstrekning
         {
             [Key]
@@ -245,6 +249,7 @@ namespace VyBillettBestilling.Models
         //}
 
 
+        [TrackChanges]
         public class DbHovedstrekningStasjon
         {
             [Key]
@@ -262,6 +267,8 @@ namespace VyBillettBestilling.Models
             }
             public DbHovedstrekningStasjon() { }
         }
+
+        [TrackChanges]
         public class DbStasjon
         {
             [Key]
@@ -312,6 +319,7 @@ namespace VyBillettBestilling.Models
         }
 
         // Tabeller for kunder og kjop:
+
         public DbSet<DbBillett> Billetter { get; set; } // Kunde, start- og stopp-stasjon, passasjertype, pris (med rabattsats)
         // stasjonsliste(?), distanse(?)
         // Merk: Ma lagre pris (og ev. rabatt og passasjertype?) i Billett-en, siden de kan endre seg etter kjopet.
@@ -319,6 +327,7 @@ namespace VyBillettBestilling.Models
         public DbSet<DbKunde> Kunder { get; set; } // Navn, adresse, tlf o.l.
         public DbSet<DbPassasjertype> Passasjertyper { get; set; } // Ordinaer, student, honnor osv. med tilhorende rabatter
 
+        [TrackChanges]
         // Klasser for kunder og kjop:
         public class DbPassasjertype
         {
@@ -332,6 +341,7 @@ namespace VyBillettBestilling.Models
             public int OvreAldersgrense { get; set; }
             public int NedreAldersgrense { get; set; }
         }
+        [TrackChanges]
         public class DbKunde
         {
             [Key]
@@ -351,6 +361,7 @@ namespace VyBillettBestilling.Models
             // [CreditCard] // ?
             public String Bet_kort { get; set; } // Skal lagres som sifferstreng uten mellomrom(?)
         }
+        [TrackChanges]
         public class DbBillettKjop
         {
             [Key]
@@ -363,6 +374,7 @@ namespace VyBillettBestilling.Models
             public String Bet_kort { get; set; } // Skal lagres som sifferstreng uten mellomrom(?). Kort til hvert kjop ma lagres, siden kundens kort kan forandre seg
             public DateTime Kjopsdato { get; set; }
         }
+        [TrackChanges]
         public class DbBillett
         {
             [Key]
@@ -380,6 +392,7 @@ namespace VyBillettBestilling.Models
             public String Passasjertype { get; set; }
             public double Rabattsats { get; set; }
         }
+        [TrackChanges]
         public class DbPris
         {
             [Key]
