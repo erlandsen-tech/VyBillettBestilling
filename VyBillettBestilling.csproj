@@ -385,6 +385,13 @@
     <Content Include="Views\Manage\PassasjerTyper.cshtml" />
     <Content Include="Views\Manage\Priser.cshtml" />
     <Content Include="Views\Manage\PriserOgPassasjerer.cshtml" />
+    <Content Include="Views\Manage\NettDetails.cshtml" />
+    <Content Include="Views\Manage\StasjonEdit.cshtml" />
+    <Content Include="Views\Manage\StasjonCreate.cshtml" />
+    <Content Include="Views\Manage\NettCreate.cshtml" />
+    <Content Include="Views\Manage\NettEdit.cshtml" />
+    <Content Include="Views\Manage\PrisEdit.cshtml" />
+    <Content Include="Views\Manage\PassasjertyperEdit.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

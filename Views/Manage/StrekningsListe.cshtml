@@ -5,7 +5,7 @@
 }
 
 <div class="generell-bg">
-    <h2>StrekningsListe</h2>
+    <h2>Streknings Liste</h2>
     <div class="mt-5">
         <p>
             @Html.ActionLink("Lag ny", "StrekningCreate", null, new { @class = "btn btn-primary" })
@@ -40,7 +40,7 @@
                         <td>
                             @Html.ActionLink("Rediger", "StrekningEdit", new { id = item.id }, new { @class = "btn btn-primary" }) |
                             @Html.ActionLink("Detaljer", "StrekningDetails", new { id = item.id }, new { @class = "btn btn-primary" }) |
-                            @Html.ActionLink("Slett", "StrekningDelete", new { id = item.id }, new { @class = "btn btn-primary" })
+                            @Ajax.ActionLink("Slett", "StrekningDelete", new { id = item.id }, new AjaxOptions { HttpMethod = "DELETE",OnSuccess="window.location.reload()"}, new { @class = "btn btn-primary" })
                         </td>
                     </tr>
                 }

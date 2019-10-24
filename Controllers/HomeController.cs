@@ -29,8 +29,6 @@ namespace VyBillettBestilling.Controllers
             //dbt.ByggBanedata();
             //dbt.addPris();
             //dbt.fjernNett(2);
-
-
             HomeMethods hmt = new HomeMethods();
             ViewBag.Stasjoner = hmt.StasjonsNavn();
             return View();

@@ -13,6 +13,7 @@
     <script src="~/Scripts/modernizr-2.8.3.js"></script>
     <script src="~/Scripts/jquery-3.4.1.min.js"></script>
     <script src="~/Scripts/jquery-ui-1.12.1.min.js"></script>
+    <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"</script>
     <script src="~/Scripts/select2.min.js"></script>
     <script src="~/Scripts/bootstrap.min.js"></script>
     <script src="~/Scripts/Pages/Global.js"></script>
@@ -56,13 +57,6 @@
                         </li>
                         @if (isSignedIn)
                         {
-                            <li>
-                                @using (Html.BeginForm("LogOff", "Account"))
-                                {
-                                    @Html.AntiForgeryToken()
-                                    <input name="LoggUt" type="submit" value="Logg ut" class="btn btn-primary" />
-                                }
-                            </li>
                             if (isAdmin)
                             {
 
@@ -77,6 +71,13 @@
                                     <a href="@Url.Action("Index", "Manage")" class="btn btn-primary">Min side -> @System.Web.HttpContext.Current.User.Identity.Name</a>
                                 </li>
                             }
+                            <li>
+                                @using (Html.BeginForm("LogOff", "Account"))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <input name="LoggUt" type="submit" value="Logg ut" class="btn btn-primary" />
+                                }
+                            </li>
                         }
                         else
                         {

@@ -57,7 +57,7 @@
                         <td>
                             @Html.ActionLink("Rediger", "StasjonEdit", new { id = item.id }, new { @class = "btn btn-primary" }) |
                             @Html.ActionLink("Detaljer", "StasjonDetails", new { id = item.id }, new { @class = "btn btn-primary" }) |
-                            @Html.ActionLink("Slett", "StasjonDelete", new { id = item.id }, new { @class = "btn btn-primary" })
+                            @Ajax.ActionLink("Slett", "StasjonDelete", new { id = item.id }, new AjaxOptions { HttpMethod = "DELETE", OnSuccess = "window.location.reload()" }, new { @class = "btn btn-primary" })
                         </td>
                     </tr>
                 }
