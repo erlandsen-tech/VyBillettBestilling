@@ -23,12 +23,9 @@ namespace VyBillettBestilling.Controllers
             }
             //Eksempeldata 
 
-            //            VyDbTilgang dbt = new VyDbTilgang();
-            //            dbt.addPassasjertyper();
-            //            dbt.ByggBanedata();
-            //Debug.WriteLine(dbt.leggTilNett("tullenett"));
-            //Debug.WriteLine("HERERJEG!!!");
-            //dbt.fjernNett(2);
+            //VyDbTilgang dbt = new VyDbTilgang();
+            //dbt.ByggBanedata();
+            //dbt.addPassasjertyper();
 
             HomeMethods hmt = new HomeMethods();
             ViewBag.Stasjoner = hmt.StasjonsNavn();
