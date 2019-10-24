@@ -308,8 +308,25 @@ namespace VyBillettBestilling.Models
             }
             return false;
         }
+        public bool settNyttNettnavn(int nettId, string nyttNavn) //
+        {
+            using (var db = new VyDbContext())
+            {
+                DbNett funnet = db.Nett.Find(nettId);
+                if (funnet != null && !db.Nett.Any(n => nyttNavn.Equals(n.Nettnavn)))
+                {
+                    // Tror det skal funke sa enkelt som dette:
+                    funnet.Nettnavn = nyttNavn;
+                    // Men ellers kan nok dette brukes:
+                    //db.Entry(funnet).Property(p => p.Nettnavn).CurrentValue = nyttNavn;
+                    db.SaveChanges();
+                    return true;
+                }
+            }
+            return false;
+        }
 
-        public int leggTilHovedstrekning(string navn, string kortnavn)
+        public int leggTilHovedstrekning(string navn, string kortnavn) // returverdien er den nye strekningens id, eller -1 hvis innlegging feilet.
         {
             using (var db = new VyDbContext())
             {
@@ -324,8 +341,7 @@ namespace VyBillettBestilling.Models
             }
             return -1; // Navnet eller kortnavnet er brukt fra for, (eller baseoppdatering feilet(?))
         }
-
-        public int leggTilHovedstrekning(Hovedstrekning hovst)
+        public int leggTilHovedstrekning(Hovedstrekning hovst) // returverdien er den nye strekningens id, eller -1 hvis innlegging feilet.
         {
             using (var db = new VyDbContext())
             {
@@ -335,9 +351,9 @@ namespace VyBillettBestilling.Models
                     // Ma sjekke at den tillagte hovedstrekningen ikke viser til nett 
                     // eller stasjoner som ikke finnes, eller
                     // har ugyldige duplikater av stasjoner:
+                    bool feil = false;
                     DbNett tmpNet = null;
                     DbStasjon tmpSta;
-                    bool feil = false;
                     // Feil hvis angitt nett ikke finnes (men det er lov a angi ikke-nett med nett_id <= 0):
                     // Ev. ikke-nett overstyres av stasjonenes nett, hvis det er entydig (ikke-entydig er en feil, og gir unntak).
                     feil = (hovst.nett_id > 0 && (tmpNet = db.Nett.Find(hovst.nett_id)) == null);
@@ -379,7 +395,7 @@ namespace VyBillettBestilling.Models
                             // Ikke-endestasjoner skal vaere utilknyttede:
                             for (int i = 1; i < c - 1; ++i)
                                 feil |= (tmpSta = db.Stasjoner.Find(hovst.stasjon_Ider[i])) == null
-                                    || (tmpSta.Nett != null && ((tmpNet != null) ? tmpNet : tmpNet = tmpSta.Nett) != tmpSta.Nett)
+                                    || (tmpSta.Nett != null && !tmpSta.Nett.Equals((tmpNet != null) ? tmpNet : tmpNet = tmpSta.Nett))
                                     || tmpSta.Hovedstrekninger.Count() > 0;
                         }
                         if (feil)
@@ -407,7 +423,6 @@ namespace VyBillettBestilling.Models
             }
             return -1; // Navnet eller kortnavnet er brukt fra for
         }
-        
         public bool fjernHovedstrekning(int hovstrId)
         {
             using (var db = new VyDbContext())
@@ -561,6 +576,59 @@ namespace VyBillettBestilling.Models
                 }
             }
             return false;
+        }
+
+        // Merk: disse metodene legger ikke stasjonen inn i en hovedstrekning, men bare registrerer dem i basen.
+        // Ev. angitte hovedstrekninger ignoreres.
+        // A legge stasjonen inn i en hovedstrekning gjores med andre metoder
+        public int leggTilStasjon(string navn, string optSted = "", double optBreddegrad = 0, double optLengdegrad = 0) // returverdien er den nye stasjonens id, eller -1 hvis innlegging feilet.
+        {
+            using (var db = new VyDbContext())
+            {
+                if (db.Stasjoner.FirstOrDefault(st => navn.Equals(st.StasjNavn)
+                    && optSted.Equals(st.StasjSted)) == null)
+                {
+                    // Koordinatene ma vaere riktige:
+                    if (optBreddegrad < -90 | optBreddegrad > 90 | optLengdegrad < -180 | optLengdegrad > 180)
+                        throw new ArgumentException("stasjon-objektet har ugyldige data; koordinatene er feil");
+                    DbStasjon dennye = new DbStasjon(navn, null, optSted);
+                    dennye.Breddegrad = optBreddegrad;
+                    dennye.Lengdegrad = optLengdegrad;
+                    db.Stasjoner.Add(dennye);
+                    db.SaveChanges();
+                    return dennye.Id;
+                }
+            }
+            return -1; // Navn- og stedkombinasjonen er brukt fra for
+        }
+        public int leggTilStasjon(Stasjon stas) // returverdien er den nye stasjonens id, eller -1 hvis innlegging feilet.
+        {
+            using (var db = new VyDbContext())
+            {
+                if (db.Stasjoner.FirstOrDefault(st => stas.stasjon_navn.Equals(st.StasjNavn)
+                    && st.StasjSted.Equals(stas.stasjon_sted) && ((st.Nett == null) ? stas.nett_id <= 0 : stas.nett_id == st.Nett.Id)) == null)
+                {
+                    // Ma sjekke at den tillagte stasjonen ikke viser til nett som ikke finnes, og at koordinatene er gyldige:
+                    bool feil = false;
+                    DbNett tmpNet = null;
+                    // Koordinatene ma vaere riktige:
+                    feil = stas.breddegrad < -90 | stas.breddegrad > 90 | stas.lengdegrad < -180 | stas.lengdegrad > 180;
+                    if (feil)
+                        throw new ArgumentException("stasjon-objektet har ugyldige data; koordinatene er feil");
+                    // Feil hvis angitt nett ikke finnes (men det er lov, og kanskje lurt, a angi ikke-nett med nett_id <= 0):
+                    feil = (stas.nett_id > 0 && (tmpNet = db.Nett.Find(stas.nett_id)) == null);
+                    if (feil)
+                        throw new ArgumentException("stasjon-objektet har ugyldige data; ikke-eksisterende nett angitt");
+                    
+                    DbStasjon dennye = new DbStasjon(stas.stasjon_navn, tmpNet, stas.stasjon_sted);
+                    dennye.Breddegrad = stas.breddegrad;
+                    dennye.Lengdegrad = stas.lengdegrad;
+                    db.Stasjoner.Add(dennye);
+                    db.SaveChanges();
+                    return dennye.Id;
+                }
+            }
+            return -1; // Navn-, sted- og nettkombinasjonen er brukt fra for
         }
 
         /**
