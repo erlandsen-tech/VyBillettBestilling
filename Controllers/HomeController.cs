@@ -23,9 +23,13 @@ namespace VyBillettBestilling.Controllers
             }
             //Eksempeldata 
 
+
             //VyDbTilgang dbt = new VyDbTilgang();
-            //dbt.ByggBanedata();
             //dbt.addPassasjertyper();
+            //dbt.ByggBanedata();
+            //dbt.addPris();
+            //dbt.fjernNett(2);
+
 
             HomeMethods hmt = new HomeMethods();
             ViewBag.Stasjoner = hmt.StasjonsNavn();
@@ -60,6 +64,12 @@ namespace VyBillettBestilling.Controllers
         {
             VyDbTilgang context = new VyDbTilgang();
             return context.HentStasjon(id).stasjon_navn;
+        }
+        [HttpGet]
+        public int HentNettForStasjon(int id)
+        {
+            VyDbTilgang context = new VyDbTilgang();
+            return context.HentStasjon(id).nett_id;
         }
     }
 }

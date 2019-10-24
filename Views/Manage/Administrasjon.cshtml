@@ -7,28 +7,46 @@
 <div class="bg femti ">
     <h2>Administrasjon</h2>
 
-    <h4>Redigere kontoinstillinger for administrator</h4>
+    <h4></h4>
     <hr />
-    <dl class="dl-horizontal">
+    <dl class="dl-horizontal row">
         <dt>Passord:</dt>
         <dd>
             [
             @if (Model.HasPassword)
             {
+
                 @Html.ActionLink("Skift Passord", "ChangePassword")
             }
             else
             {
-                <p>Noe er galt, og vi kan ikke finne passordet ditt i databasen.</p>
+                <p class="text-danger">Noe er galt, og vi kan ikke finne passordet ditt i databasen.</p>
             }
             ]
         </dd>
+        <dt>Strekninger:</dt>
+        <dd>
+            [
+            @Html.ActionLink("Strekninger", "StrekningsListe")
+            ]
+        </dd>
+        <dt>Stasjoner:</dt>
+        <dd>
+            [
+            @Html.ActionLink("Stasjoner", "StasjonsListe")
+            ]
+        </dd>
+        <dt>Banenett:</dt>
+        <dd>
+            [
+            @Html.ActionLink("Banenett", "NettListe")
+            ]
+        </dd>
+        <dt>Priser og rabatter:</dt>
+        <dd>
+            [
+            @Html.ActionLink("Priser", "PriserOgPassasjerer")
+            ]
+        </dd>
     </dl>
-    <h4>Administrere Strekninger</h4>
-    @Html.ActionLink("Strekninger", "StrekningsListe")
-    <hr />
-    <h4>Administrere Stasjoner</h4>
-    <hr />
-    <h4>Administrere Strekningsnett</h4>
-    <hr />
 </div>

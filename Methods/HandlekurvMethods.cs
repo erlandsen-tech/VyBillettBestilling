@@ -8,11 +8,14 @@ namespace VyBillettBestilling.Methods
 {
     public class HandlekurvMethods
     {
-        //Lager billetter. Etter at vi implementerer kunde, legger vi også
-        // til mulighet for implementasjon av billettid mot database
-        public Billett LagBillett(int type, int antall)
+         //Henter billettpris fra database og genererer et kjop
+        public Billett LagBillett(int type, int antall, int startId, int stoppId)
         {
             var dbt = new VyDbTilgang();
+            var startStasjon = dbt.HentStasjon(startId);
+            var stoppStasjon = dbt.HentStasjon(stoppId);
+            //Henter km i luftlinje via lengde og breddegrad
+            var avstand = Klodeavstander.overflateDistanseJorda(startStasjon.breddegrad, startStasjon.lengdegrad, stoppStasjon.breddegrad, stoppStasjon.lengdegrad);
             Billett billett = new Billett(); ;
             int sisteid = 1;
             //Må lage unik ID da posisjonen kan endre seg i tabell ved sletting
@@ -25,12 +28,13 @@ namespace VyBillettBestilling.Methods
             }
             billett.Passasjertype = dbt.Passasjertype(type);
             billett.Antall = antall;
-            billett.Pris = 300;
+            billett.Pris = dbt.HentPris().prisPrKm * avstand;
             if (billett.Passasjertype.rabatt != 0)
             {
                 billett.Pris *= (billett.Passasjertype.rabatt / 100);
             }
             billett.Id = sisteid;
+            billett.Pris = Math.Round(billett.Pris, 2);
             return billett;
         }
         public Handlekurv OppdaterHandlekurv(int StartId, int StoppId, int Voksen, int Barn, int Student, int Honnor, long avreise)
@@ -53,7 +57,7 @@ namespace VyBillettBestilling.Methods
                 if (Billetter[i] > 0)
                 {
                     var hkm = new HandlekurvMethods();
-                    var bill = hkm.LagBillett(i + 1, Billetter[i]);
+                    var bill = hkm.LagBillett(i + 1, Billetter[i], StartId, StoppId);
                     bill.StartStasjon = StartNavn;
                     bill.StoppStasjon = StoppNavn;
                     bill.Avreise = Avreise;//avreise;
