@@ -36,7 +36,7 @@ namespace VyBillettBestilling.Models
         {
             var engine = new FileHelperEngine<CSVstasjon>();
             // To Read Use:
-            var result = engine.ReadFile("C:/Users/johni/OneDrive/source/repos/varleg/VyBillettBestilling/SeedData/NorskeStasjoner.csv").ToList();
+            var result = engine.ReadFile("C:/Users/ivar/source/repos/varleg/VyBillettBestilling/SeedData/NorskeStasjoner.csv").ToList();
             return result;
         }
     }

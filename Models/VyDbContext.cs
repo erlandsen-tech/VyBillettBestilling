@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Conventions;
+using System.Diagnostics;
 using System.Linq;
 using System.Web;
 
@@ -20,6 +22,7 @@ namespace VyBillettBestilling.Models
         public DbSet<DbPris> Pris { get; set; }
         // Opplisting av stasjoner, ev. med data om plattformer, geografisk plassering og annet (betjent?, toalett? osv.)
         // Ogsa data om Hovedstrekning(-er) den tilhorer. (Geo.pos. gir opplosning pa <= 1,1 m med 5 desimaler, det er nok.)
+        public DbSet<DbHovedstrekningStasjon> HovstrStasj { get; set; }
         //public DbSet<DbDelstrekning> Delstrekninger { get; set; } // Avstand (og pris?) mellom to nabostasjoner. Forelopig ikke i bruk.
         public DbSet<DbHovedstrekning> Hovedstrekninger { get; set; }
         // En DbHovedstrekning (Eks. Oslo-Bergen) har en _ordnet_ liste av STASJONER
@@ -40,6 +43,7 @@ namespace VyBillettBestilling.Models
         // Hvert Nett er en samling av DbHovedstrekning-er som er forbundet med hverandre.
 
         // Klasser for linjenettet:
+        
         public class DbNett
         {
             [Key]
@@ -66,17 +70,157 @@ namespace VyBillettBestilling.Models
             public String HovstrKortNavn { get; set; }
             //[Required] // Kan ikke vaere required, uansett hvordan man gjor det med virtual og forskjellige navn osv.. Lager da kaskederende delete m.v.
             public virtual DbNett Nett { get; set; } // DbHovedstrekning-er pa samme Nett er forbundet med hverandre med et antall DbHovedstrekninger
-            //public virtual List<DbDelstrekning> Delstrekninger { get; set; }
-            public virtual List<DbStasjon> Stasjoner { get; set; }
+                                                     //public virtual List<DbDelstrekning> Delstrekninger { get; set; }
+
+            // Denne skal ikke brukes, er her bare for a tilfredsstille EFs basekrav:
+            public virtual List<DbStasjon> StasjonerIkkeBruk { get; set; }
+
+            public virtual List<DbHovedstrekningStasjon> StasjonerNummerert { get; set; }
+
+            // Ingenting virker uten konstruktor i nullparam
+
+            //public virtual StasjonListeHjelper Stasjoner { get; set; } // Virker ikke (no key defined)
+            //internal virtual StasjonListeHjelper Stasjoner { get; set; } // Gir mange exceptions (50) (32)
+            //public  StasjonListeHjelper Stasjoner { get; set; } // Virker ikke (no key defined)
+            //internal StasjonListeHjelper Stasjoner { get; set; } // Gir mange exceptions (50) (32)
+            //public StasjonListeHjelper Stasjoner; // Gir mange exceptions (50) (32)
+            internal StasjonListeHjelper Stasjoner; // Gir mange exceptions (50) (32)
+            //public DbHovedstrekning Stasjoner => this;  // Gir ogsa mange exceptions! (50)
+
+            public class StasjonListeHjelper
+            {
+                public List<DbHovedstrekningStasjon> StasjonerNummerert => Eier.StasjonerNummerert;
+                public DbHovedstrekning Eier { get; set; }
+                public StasjonListeHjelper(DbHovedstrekning eierStrekning)
+                {
+                    Eier = eierStrekning;
+                }
+                public DbHovedstrekningStasjon faaDbElement(DbStasjon stas)
+                {
+                    return StasjonerNummerert.First(hosta => hosta.Stasjon.Equals(stas));
+                }
+                public List<DbHovedstrekningStasjon> faaDbElementer(List<DbStasjon> stasjer)
+                {
+                    List<DbHovedstrekningStasjon> ret = new List<DbHovedstrekningStasjon>(stasjer.Count());
+                    foreach (var stas in stasjer)
+                        ret.Add(StasjonerNummerert.FirstOrDefault(hosta => stas.Equals(hosta.Stasjon)));
+                    return ret;
+                }
+                public List<DbHovedstrekningStasjon> faaAlleDbElementer()
+                {
+                    return StasjonerNummerert.ToList();
+                }
+               private List<DbStasjon> Stasjjjoner()
+                {
+                    return StasjonerNummerert.OrderBy(hosta => hosta.rekkenr).Select(st => st.Stasjon).ToList();
+                }
+                public List<DbStasjon> ToList() => StasjonerNummerert.OrderBy(hosta => hosta.rekkenr).Select(st => st.Stasjon).ToList();
+                public DbStasjon[] ToArray() => StasjonerNummerert.OrderBy(hosta => hosta.rekkenr).Select(st => st.Stasjon).ToArray();
+                public int Count() => StasjonerNummerert.Count();
+                public bool Contains(DbStasjon stas) => StasjonerNummerert.Any(hosta => hosta.Stasjon.Equals(stas));
+                public DbStasjon ElementAt(int index) => StasjonerNummerert.OrderBy(hosta => hosta.rekkenr).ElementAt(index).Stasjon;
+                public DbStasjon First() => StasjonerNummerert.OrderBy(hosta => hosta.rekkenr).First().Stasjon;
+                public DbStasjon FirstOrDefault() => (StasjonerNummerert.Count() == 0) ? null
+                    : StasjonerNummerert.OrderBy(hosta => hosta.rekkenr).First().Stasjon;
+                public int IndexOf(DbStasjon stas) => StasjonerNummerert.OrderBy(hosta => hosta.rekkenr)
+                    .ToList().FindIndex(hosta => hosta.Stasjon.Equals(stas));
+                public int LastIndexOf(DbStasjon stas) => StasjonerNummerert.OrderBy(hosta => hosta.rekkenr)
+                    .ToList().FindLastIndex(hosta => hosta.Stasjon.Equals(stas));
+                public DbStasjon Last() => StasjonerNummerert.OrderByDescending(hosta => hosta.rekkenr).First().Stasjon;
+                public DbStasjon LastOrDefault() => (StasjonerNummerert.Count() == 0) ? null
+                    : StasjonerNummerert.OrderByDescending(hosta => hosta.rekkenr).First().Stasjon;
+                
+                public void Add(DbStasjon stas)
+                {
+                    double rekkenr = (StasjonerNummerert.Count() == 0) ? 0 : StasjonerNummerert.Max(d => d.rekkenr);
+                    StasjonerNummerert.Add(new DbHovedstrekningStasjon(Eier, stas, rekkenr + 100));
+                }
+                public void AddRange(List<DbStasjon> stasjer)
+                {
+                    double rekkenr = (StasjonerNummerert.Count() == 0) ? 0 : StasjonerNummerert.Max(d => d.rekkenr);
+                    foreach (DbStasjon stas in stasjer)
+                        StasjonerNummerert.Add(new DbHovedstrekningStasjon(Eier, stas, rekkenr += 100));
+                }
+                public void Insert(int index, DbStasjon stas)
+                {
+                    if (index < 0 | index > StasjonerNummerert.Count())
+                        throw new ArgumentOutOfRangeException("index < 0 || index > Stasjoner_Count()");
+                    double nr = 100;
+                    if (StasjonerNummerert.Count() == 0) ; // Da er initialverdien riktig
+                    else if (index == StasjonerNummerert.Count())
+                        nr = StasjonerNummerert.Max(d => d.rekkenr) + 100; // feiler nar count == 0
+                    else if (index == 0)
+                        nr = StasjonerNummerert.Min(d => d.rekkenr) / 2; // feiler nar count == 0
+                    else
+                    {
+                        var ordnet = StasjonerNummerert.OrderBy(hosta => hosta.rekkenr);
+                        nr = (ordnet.ElementAt(index - 1).rekkenr + ordnet.ElementAt(index).rekkenr) / 2;
+                    }
+                    StasjonerNummerert.Add(new DbHovedstrekningStasjon(Eier, stas, nr));
+                }
+                public void InsertRange(int index, List<DbStasjon> stasjer)
+                {
+                    if (index < 0 | index > StasjonerNummerert.Count())
+                        throw new ArgumentOutOfRangeException("index < 0 || index > Stasjoner_Count()");
+                    double teller = 0, inkr = 100;
+                    if (StasjonerNummerert.Count() == 0) ; // Da er initialverdiene riktige
+                    else if (index == StasjonerNummerert.Count())
+                        teller = StasjonerNummerert.Max(d => d.rekkenr); // feiler nar count == 0 // max , 100
+                    else if (index == 0)
+                        inkr = StasjonerNummerert.Min(d => d.rekkenr) / (stasjer.Count() + 1); // feiler nar count == 0  // 0 , min/(s.count + 1)
+                    else
+                    {
+                        var ordnet = StasjonerNummerert.OrderBy(hosta => hosta.rekkenr);
+                        teller = ordnet.ElementAt(index - 1).rekkenr;
+                        inkr = (ordnet.ElementAt(index).rekkenr - teller) / (stasjer.Count() + 1);
+                    }
+                    foreach (DbStasjon stas in stasjer)
+                        StasjonerNummerert.Add(new DbHovedstrekningStasjon(Eier, stas, teller += inkr));
+                }
+                public void Reverse()
+                {
+                    var ordnet = StasjonerNummerert.OrderByDescending(hosta => hosta.rekkenr);
+                    double nr = 0;
+                    foreach (var hosta in ordnet)
+                        hosta.rekkenr = nr += 100;
+                }
+            /* Clear() og Remove-metodene fungerer ikke, lager bare kroll.
+             * Kraesjer nar Stasjon og Hovedstrekning er Required i DbHovedstrekningStasjon,
+             * og setter null-verdier i tabellen nar de ikke Required, uten at postene blir borte */
+            //public void Clear() { StasjonerNummerert.Clear(); }
+            //public bool Remove(DbStasjon dbst)
+            //{
+            //    int idx = StasjonerNummerert.FindIndex(st => st.Stasjon.Equals(dbst));
+            //    if (idx < 0)
+            //        return false;
+            //    StasjonerNummerert.RemoveAt(idx);
+            //return true;
+            //}
+            //public void RemoveAt(int index)
+            //{
+            //    StasjonerNummerert.Remove(StasjonerNummerert.OrderBy(hosta => hosta.rekkenr).ElementAt(index));
+            //}
+            //public void RemoveRange(int index, int count)
+            //{
+            //    if (index < 0 | count < 0 | index + count > StasjonerNummerert.Count())
+            //        throw new ArgumentOutOfRangeException("index < 0 || count < 0 || index+count > Stasjoner_Count()");
+            //    var ordnet = StasjonerNummerert.OrderBy(hosta => hosta.rekkenr).Skip(index).Take(count);
+            //    StasjonerNummerert.RemoveAll(hosta => ordnet.Contains(hosta));
+            //}
+            }
 
             public DbHovedstrekning(string navn, DbNett nett, string kortnavn)
             {
                 HovstrNavn = navn;
                 HovstrKortNavn = kortnavn;
                 Nett = nett;
-                Stasjoner = new List<DbStasjon>();
+                StasjonerIkkeBruk = new List<DbStasjon>();
+                StasjonerNummerert = new List<DbHovedstrekningStasjon>();
+                Stasjoner = new StasjonListeHjelper(this);
             }
-            public DbHovedstrekning() { } // Ma ogsa ha en parameterlos konstruktor. Vet ikke hvorfor, men sann er det.
+            public DbHovedstrekning() {
+                Stasjoner = new StasjonListeHjelper(this);
+            } // Ma ogsa ha en parameterlos konstruktor.
         }
         //public class DbDelstrekning
         //{
@@ -99,6 +243,25 @@ namespace VyBillettBestilling.Models
         //    [Required]
         //    public double Distanse { get; set; }
         //}
+
+
+        public class DbHovedstrekningStasjon
+        {
+            [Key]
+            public int Id { get; set; }
+            [Required]
+            public virtual DbHovedstrekning Hovedstrekning { get; set; }
+            [Required]
+            public virtual DbStasjon Stasjon { get; set; }
+            [Required]
+            public double rekkenr { get; set; }
+
+            public DbHovedstrekningStasjon(DbHovedstrekning hovstr, DbStasjon stasj, double rekkenr)
+            {
+                Hovedstrekning = hovstr; Stasjon = stasj; this.rekkenr = rekkenr;
+            }
+            public DbHovedstrekningStasjon() { }
+        }
         public class DbStasjon
         {
             [Key]
