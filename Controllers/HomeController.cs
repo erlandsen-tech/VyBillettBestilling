@@ -21,18 +21,15 @@ namespace VyBillettBestilling.Controllers
             {
                 Session["Handlekurv"] = new Handlekurv();
             }
-
             //Eksempeldata 
             //VyDbTilgang dbt = new VyDbTilgang();
             //dbt.addPassasjertyper();
             //dbt.ByggBanedata();
             //dbt.addPris();
-
             HomeMethods hmt = new HomeMethods();
             ViewBag.Stasjoner = hmt.StasjonsNavn();
             return View();
         }
-
         public ActionResult Handlekurv()
         {
             return View();

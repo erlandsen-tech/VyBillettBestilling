@@ -5,41 +5,66 @@
 }
 
 <link href="~/Content/Admin.css" rel="stylesheet">
-<div class="bg femti ">
-    <h2>Detaljer</h2>
+<div class="container-fluid">
+    <div class="bg femti ">
+        <div class="container">
+            <h2>Detaljer</h2>
+            <div>
+                <h4>Hovedstrekning</h4>
+                <hr />
+                <dl class="dl-horizontal">
+                    <dt>
+                        @Html.DisplayNameFor(model => model.hovstr_navn)
+                    </dt>
 
-    <div>
-        <h4>Hovedstrekning</h4>
-        <hr />
-        <dl class="dl-horizontal">
-            <dt>
-                @Html.DisplayNameFor(model => model.hovstr_navn)
-            </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.hovstr_navn)
+                    </dd>
 
-            <dd>
-                @Html.DisplayFor(model => model.hovstr_navn)
-            </dd>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.hovstr_kortnavn)
+                    </dt>
 
-            <dt>
-                @Html.DisplayNameFor(model => model.hovstr_kortnavn)
-            </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.hovstr_kortnavn)
+                    </dd>
 
-            <dd>
-                @Html.DisplayFor(model => model.hovstr_kortnavn)
-            </dd>
-
-            <dt>
-                @Html.DisplayNameFor(model => model.nett_id)
-            </dt>
-
-            <dd>
-                @Html.DisplayFor(model => model.nett_id)
-            </dd>
-
-        </dl>
+                    <dt>
+                        Nettnavn
+                    </dt>
+                    <dd>
+                        @ViewBag.nett.nett_navn
+                    </dd>
+                    <dt>
+                        Stasjoner
+                    </dt>
+                    <dd>
+                        @if (Enumerable.Count(ViewBag.stasjoner) > 0)
+                        {
+                            <div class="scrollable">
+                                <table>
+                                    @foreach (VyBillettBestilling.Models.Stasjon stasjon in ViewBag.stasjoner)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @stasjon.stasjon_navn
+                                            </td>
+                                        </tr>
+                                    }
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="container">Ingen stasjoner på strekningen</div>
+                        }
+                    </dd>
+                </dl>
+            <p>
+                @Html.ActionLink("Rediger", "StrekningEdit", new { id = Model.id }, new { @class = "btn btn-primary" }) |
+                @Html.ActionLink("Tilbake til liste", "StrekningsListe", null, new { @class = "btn btn-primary" })
+            </p>
+            </div>
+        </div>
     </div>
-    <p>
-        @Html.ActionLink("Rediger", "StrekningEdit", new { id = Model.id }, new { @class = "btn btn-primary" }) |
-        @Html.ActionLink("Tilbake til liste", "StrekningsListe", null, new { @class = "btn btn-primary" })
-    </p>
 </div>

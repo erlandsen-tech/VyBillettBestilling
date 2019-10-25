@@ -8,6 +8,7 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using VyBillettBestilling.Methods;
 using VyBillettBestilling.Models;
+using VyBillettBestilling.Models.View;
 
 namespace VyBillettBestilling.Controllers
 {
@@ -95,9 +96,11 @@ namespace VyBillettBestilling.Controllers
         public ActionResult PriserOgPassasjerer()
         {
             var dbt = new VyDbTilgang();
-            var viewModel = new Models.View.PrisOgBillett();
-            viewModel.Passasjerer = dbt.HentPassasjerTyper();
-            viewModel.Pris = dbt.HentPris();
+            var viewModel = new PrisOgBillett
+            {
+                Passasjerer = dbt.HentPassasjerTyper(),
+                Pris = dbt.HentPris()
+            };
             return View(viewModel);
         }
         [Authorize(Roles = "Administrator")]
@@ -114,24 +117,27 @@ namespace VyBillettBestilling.Controllers
         [HttpGet]
         public ActionResult StrekningCreate()
         {
+            var mgmt = new ManageMethods();
             var dbt = new VyDbTilgang();
-            ViewBag.Stasjoner = dbt.HentAlleStasjoner();
+            ViewBag.Stasjoner = mgmt.FinnStasjonerUtenHovedStrekning();
+            ViewBag.Nett = dbt.HentAlleNett();
             return View();
         }
 
         [Authorize(Roles = "Administrator")]
         [HttpPost]
-        public ActionResult StrekningCreate(Hovedstrekning hvst)
+        public ActionResult StrekningCreate(HovedstrekningCreateView hvstcv)
         {
             if (ModelState.IsValid)
             {
-
                 var dbt = new VyDbTilgang();
+                var mgmt = new ManageMethods();
+                var hvst = mgmt.LagHovedstrekning(hvstcv);
                 dbt.leggTilHovedstrekning(hvst);
                 return RedirectToAction("StrekningsListe", "Manage");
             }
             else
-                return View(hvst);
+                return View(hvstcv);
         }
 
         [Authorize(Roles = "Administrator")]
@@ -140,6 +146,14 @@ namespace VyBillettBestilling.Controllers
         {
             var dbt = new VyDbTilgang();
             var strekning = dbt.HentHovedstrekning(Id);
+            var mgmt = new ManageMethods();
+            //Her må man hente inn strekningene knyttet til hovedstrekningen
+            //Legge disse til i "valgte stasjoner" boksen
+            //og gi mulighet for å legge til "ikke valgte stasjoner" som
+            //ikke har hovdestrekning 
+            ViewBag.stasjonerPaHovedstrekning = dbt.HentStasjonerPaHovedstrekning(Id);
+            ViewBag.Stasjoner = mgmt.FinnStasjonerUtenHovedStrekning();
+            ViewBag.Nett = dbt.HentAlleNett();
             return View(strekning);
         }
         [Authorize(Roles = "Administrator")]
@@ -149,18 +163,21 @@ namespace VyBillettBestilling.Controllers
             if (ModelState.IsValid)
             {
                 var dbt = new VyDbTilgang();
+                dbt.fjernHovedstrekning(str.id);
+                dbt.leggTilHovedstrekning(str);
                 return RedirectToAction("StrekningsListe", "Manage");
             }
             else
                 return View(str);
         }
-
         [Authorize(Roles = "Administrator")]
         [HttpGet]
         public ActionResult StrekningDetails(int Id)
         {
             var dbt = new VyDbTilgang();
             var strekning = dbt.HentHovedstrekning(Id);
+            ViewBag.stasjoner = dbt.HentStasjonerPaHovedstrekning(Id);
+            ViewBag.nett = dbt.HentNett(strekning.nett_id);
             return View(strekning);
         }
         [Authorize(Roles = "Administrator")]
@@ -209,38 +226,36 @@ namespace VyBillettBestilling.Controllers
             else
                 return View(stasjon);
         }
-
-        //[Authorize(Roles = "Administrator")]
-        //[HttpDelete]
-        //public ActionResult StasjonDelete(int Id)
-        //{
-        //    var dbt = new VyDbTilgang();
-        //    dbt.fjernStasjon();
-        //    return RedirectToAction("StasjonsListe", "Manage");
-        //}
+        [Authorize(Roles = "Administrator")]
+        [HttpDelete]
+        public ActionResult StasjonDelete(int Id)
+        {
+            var dbt = new VyDbTilgang();
+            dbt.fjernStasjon(Id);
+            return RedirectToAction("StasjonsListe", "Manage");
+        }
         [Authorize(Roles = "Administrator")]
         [HttpGet]
         public ActionResult StasjonEdit(int Id)
         {
             var dbt = new VyDbTilgang();
             var stasjon = dbt.HentStasjon(Id);
+            ViewBag.nett = dbt.HentAlleNett();
             return View(stasjon);
         }
-        //[Authorize(Roles = "Administrator")]
-        //[HttpPost]
-        //public ActionResult StasjonEdit(Stasjon stasjon, int Id)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        var dbt = new VyDbTilgang();
-        //        dbt.fjernStasjon(Id);
-        //        stasjon.id = Id;
-        //        dbt.leggTilStasjon(Id);
-        //        return RedirectToAction("StasjonsListe", "Manage");
-        //    }
-        //    else
-        //        return View(stasjon);
-        //}
+        [Authorize(Roles = "Administrator")]
+        [HttpPost]
+        public ActionResult StasjonEdit(Stasjon stasjon)
+        {
+            if (ModelState.IsValid)
+            {
+                var dbt = new VyDbTilgang();
+                dbt.OppdaterStasjon(stasjon);
+                return RedirectToAction("StasjonsListe", "Manage");
+            }
+            else
+                return View(stasjon);
+        }
 
         [Authorize(Roles = "Administrator")]
         [HttpGet]
@@ -258,14 +273,12 @@ namespace VyBillettBestilling.Controllers
             return View(dbt.HentNett(Id));
         }
         [HttpPost]
-        public ActionResult NettEdit(Nett nett, int Id)
+        public ActionResult NettEdit(Nett nett)
         {
             var dbt = new VyDbTilgang();
             if (ModelState.IsValid)
             {
-                dbt.fjernNett(Id);
-                nett.id = Id;
-                dbt.leggTilNett(nett);
+                dbt.settNyttNettnavn(nett.id, nett.nett_navn);
                 return RedirectToAction("NettListe", "Manage");
             }
             else
@@ -307,6 +320,7 @@ namespace VyBillettBestilling.Controllers
         public ActionResult NettDetails(int id)
         {
             var dbt = new VyDbTilgang();
+            ViewBag.stasjonerpanett = dbt.HentStasjonerPaNett(id);
             return View(dbt.HentNett(id));
         }
 

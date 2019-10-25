@@ -10,31 +10,29 @@ namespace VyBillettBestilling.Models
 {
     public class VyDbTilgang
     {
-        /**
-         *  Generelle hentemetoder for (konverterte) poster i basen
-         *  (Blir utvidet med metoder for de fleste resterende tabellene)
+        /** Oppdatering av databasenheter
+         * 
          */
-        public List<Passasjer> HentPassasjerTyper()
+        public void OppdaterStasjon(Stasjon stasjon)
         {
-            var passasjerer = new List<Passasjer>();
             using (var db = new VyDbContext())
             {
-                var dbpassasjer = db.Passasjertyper.ToList();
-                foreach(DbPassasjertype pass in dbpassasjer)
+                var hvstList = new List<DbHovedstrekning>();
+                if (stasjon.hovedstrekning_Ider != null)
                 {
-                    var passasjer = KonverterPassasjer(pass);
-                    passasjerer.Add(passasjer);
+                    foreach (int i in stasjon.hovedstrekning_Ider)
+                    {
+                        hvstList.Add(db.Hovedstrekninger.Find(i));
+                    }
                 }
-            }
-            return passasjerer;
-        }
-        public Passasjer HentPassasjer(int id)
-        {
-            using(var db = new VyDbContext())
-            {
-                var dbpassasjer = db.Passasjertyper.Find(id);
-                var passasjer = KonverterPassasjer(dbpassasjer);
-                return passasjer;
+                var dbStasjon = db.Stasjoner.Find(stasjon.id);
+                dbStasjon.Hovedstrekninger = hvstList;
+                dbStasjon.Lengdegrad = stasjon.lengdegrad;
+                dbStasjon.Breddegrad = stasjon.breddegrad;
+                dbStasjon.Nett = db.Nett.Find(stasjon.nett_id);
+                dbStasjon.StasjNavn = stasjon.stasjon_navn;
+                dbStasjon.StasjSted = stasjon.stasjon_sted;
+                db.SaveChanges();
             }
         }
         public void OppdaterPassasjer(Passasjer passasjer)
@@ -46,8 +44,50 @@ namespace VyBillettBestilling.Models
                 dbPassasjer.TypeNavn = passasjer.typenavn;
                 dbPassasjer.OvreAldersgrense = passasjer.ovreAlder;
                 dbPassasjer.NedreAldersgrense = passasjer.nedreAlder;
-                db.Entry(dbPassasjer).State = EntityState.Modified;
                 db.SaveChanges();
+            }
+        }
+        public void OppdaterStrekning(Hovedstrekning hvst)
+        {
+            var dbt = new VyDbTilgang();
+            using (var db = new VyDbContext())
+            {
+                var dbStrekning = db.Hovedstrekninger.Find(hvst.id);
+                var dbStasjonListe = new List<DbHovedstrekningStasjon>();
+                foreach (int i in hvst.stasjon_Ider)
+                {
+                    var stasjon = db.Stasjoner.Find(i);
+                }
+                dbStrekning.HovstrKortNavn = hvst.hovstr_kortnavn;
+                dbStrekning.HovstrNavn = hvst.hovstr_navn;
+                dbStrekning.Nett = db.Nett.Find(hvst.nett_id);
+            }
+        }
+        /**
+         *  Generelle hentemetoder for (konverterte) poster i basen
+         *  (Blir utvidet med metoder for de fleste resterende tabellene)
+         */
+        public List<Passasjer> HentPassasjerTyper()
+        {
+            var passasjerer = new List<Passasjer>();
+            using (var db = new VyDbContext())
+            {
+                var dbpassasjer = db.Passasjertyper.ToList();
+                foreach (DbPassasjertype pass in dbpassasjer)
+                {
+                    var passasjer = KonverterPassasjer(pass);
+                    passasjerer.Add(passasjer);
+                }
+            }
+            return passasjerer;
+        }
+        public Passasjer HentPassasjer(int id)
+        {
+            using (var db = new VyDbContext())
+            {
+                var dbpassasjer = db.Passasjertyper.Find(id);
+                var passasjer = KonverterPassasjer(dbpassasjer);
+                return passasjer;
             }
         }
         private static Passasjer KonverterPassasjer(DbPassasjertype pass)
@@ -172,7 +212,7 @@ namespace VyBillettBestilling.Models
                 // Droppe denne?:
 
                 hovedstrekning_Ider = dbst.Hovedstrekninger.Select(hs => hs.Id).ToList(),
-                nett_id = (dbst.Nett != null)? dbst.Nett.Id : -1
+                nett_id = (dbst.Nett != null) ? dbst.Nett.Id : -1
 
             };
         }
@@ -248,6 +288,14 @@ namespace VyBillettBestilling.Models
             using (var db = new VyDbContext())
             {
                 return db.Nett.ToList().Select(dbne => konverterNett(dbne)).ToList();
+            }
+        }
+        public static List<Nett> statiskNettHent()
+        {
+            var dbt = new VyDbTilgang();
+            using (var db = new VyDbContext())
+            {
+                return db.Nett.ToList().Select(dbne => dbt.konverterNett(dbne)).ToList();
             }
         }
         public List<Nett> HentNettEtterBegNavn(string begNavn)
@@ -428,7 +476,7 @@ namespace VyBillettBestilling.Models
                             // eller stasjonslista inneholder stasjoner fra forskjellige nett
 
                             feil = (tmpSta = db.Stasjoner.Find(hovst.stasjon_Ider.First())) == null // Angitt stasjon skal eksistere
-                                // Angitt nett skal ikke vaere ulikt annet angitt nett:
+                                                                                                    // Angitt nett skal ikke vaere ulikt annet angitt nett:
                                 || (tmpSta.Nett != null && !tmpSta.Nett.Equals((tmpNet != null) ? tmpNet : tmpNet = tmpSta.Nett))
                                 || (tmpSta.Hovedstrekninger.Count() == 1 // Feil a tilknytte annet enn ende av andre hovedstrekninger
                                         && !tmpSta.Equals(tmpSta.Hovedstrekninger.First().Stasjoner.First())
@@ -498,7 +546,7 @@ namespace VyBillettBestilling.Models
                     }
 
                     // Ma sjekke om fjerning av strekning har etterlatt "motepunkt" med to hovedstrekninger. Da ma hovedstrekningene slas sammen
-                    
+
                     // Sjekker forst den ene enden:
                     var skjotes = funnetsStasjoner.First().Hovedstrekninger;
                     if (skjotes.Count() == 2 && skjotes.First() != skjotes.Last()) // skjotes.First() == skjotes.Last() innebaerer en losrevet ringbane
@@ -702,7 +750,9 @@ namespace VyBillettBestilling.Models
                     // Feil hvis angitt nett ikke finnes (men det er lov, og kanskje lurt, a angi ikke-nett med nett_id <= 0):
                     if (stas.nett_id > 0 && (tmpNet = db.Nett.Find(stas.nett_id)) == null)
                         throw new ArgumentException("stasjon-objektet har ugyldige data; ikke-eksisterende nett angitt");
+
                     DbStasjon dennye = new DbStasjon(stas.stasjon_navn, tmpNet, ikkenull);
+
                     dennye.Breddegrad = stas.breddegrad;
                     dennye.Lengdegrad = stas.lengdegrad;
                     db.Stasjoner.Add(dennye);
@@ -733,9 +783,11 @@ namespace VyBillettBestilling.Models
             using (var db = new VyDbContext())
             {
                 DbStasjon funnet = db.Stasjoner.Find(stasjId);
+
                 if (funnet != null & (nyttNavn != null | nyttSted != null))
                     if (!db.Stasjoner.Any(st => st.StasjNavn.Equals((nyttNavn == null) ? st.StasjNavn : nyttNavn)
                             & st.StasjSted.Equals((nyttSted == null) ? st.StasjSted : nyttSted) & st.Nett == funnet.Nett))
+
                     {
                         // Tror det skal funke sa enkelt som dette:
                         if (nyttNavn != null)
@@ -744,9 +796,9 @@ namespace VyBillettBestilling.Models
                             funnet.StasjSted = nyttSted;
                         // Men ellers kan nok dette brukes:
                         //if (nyttNavn != null)
-                            //db.Entry(funnet).Property(p => p.StasjNavn).CurrentValue = nyttNavn;
+                        //db.Entry(funnet).Property(p => p.StasjNavn).CurrentValue = nyttNavn;
                         //if (nyttKortnavn != null)
-                            //db.Entry(funnet).Property(p => p.StasjSted).CurrentValue = nyttSted;
+                        //db.Entry(funnet).Property(p => p.StasjSted).CurrentValue = nyttSted;
                         db.SaveChanges();
                         return true;
                     }
@@ -1412,7 +1464,7 @@ namespace VyBillettBestilling.Models
                 db.SaveChanges();
             }
         }
-        
+
         public void addPris()
         {
             using (var db = new VyDbContext())

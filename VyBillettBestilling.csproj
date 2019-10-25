@@ -305,6 +305,11 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
     <Content Include="Scripts\multi.min.js" />
+    <Content Include="Scripts\multi\css\multi-select.css" />
+    <Content Include="Scripts\multi\css\multi-select.dev.css" />
+    <Content Include="Scripts\multi\css\multi-select.dist.css" />
+    <Content Include="Scripts\multi\img\switch.png" />
+    <Content Include="Scripts\multi\js\jquery.multi-select.js" />
     <Content Include="Scripts\Pages\Bestilling.js" />
     <Content Include="Scripts\Pages\Handlekurv.js" />
     <Content Include="Scripts\Pages\Index.js" />
@@ -342,6 +347,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Methods\HandlekurvMethods.cs" />
+    <Compile Include="Methods\ManageMethods.cs" />
     <Compile Include="Methods\RegistreringMethods.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Banemodeller.cs" />
@@ -359,6 +365,7 @@
     <Compile Include="Models\Rute.cs" />
     <Compile Include="Models\Utilities.cs" />
     <Compile Include="Models\Reise.cs" />
+    <Compile Include="Models\View\HovedstrekningCreateView.cs" />
     <Compile Include="Models\View\PrisOgBillett.cs" />
     <Compile Include="Models\View\RuteView.cs" />
     <Compile Include="Models\VyDbContext.cs" />
@@ -412,6 +419,8 @@
     <Content Include="Views\Manage\NettEdit.cshtml" />
     <Content Include="Views\Manage\PrisEdit.cshtml" />
     <Content Include="Views\Manage\PassasjertyperEdit.cshtml" />
+    <Content Include="Scripts\multi\css\multi-select.dev.css.map" />
+    <Content Include="Scripts\multi\scss\multi-select.scss" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
