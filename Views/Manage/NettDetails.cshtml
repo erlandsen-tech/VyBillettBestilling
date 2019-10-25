@@ -12,46 +12,48 @@
 </head>
 <body>
     <div class="bg femti ">
-        <div>
-            <h4>Nett</h4>
-            <hr />
-            <dl class="dl-horizontal">
-                <dt>
-                    @Html.DisplayNameFor(model => model.nett_navn)
-                </dt>
+        <div class="container">
+            <div>
+                <h4>Nett</h4>
+                <hr />
+                <dl class="dl-horizontal">
+                    <dt>
+                        @Html.DisplayNameFor(model => model.nett_navn)
+                    </dt>
 
-                <dd>
-                    @Html.DisplayFor(model => model.nett_navn)
-                </dd>
-                <dt>
-                    Nett Id
-                </dt>
-                <dd>
-                    @Html.DisplayFor(model => model.id)
-                </dd>
-                <dt>
-                    Stasjoner på nett
-                </dt>
-                <dd>
-                    <div class="scrollable">
-                        <table>
-                            @foreach (VyBillettBestilling.Models.Stasjon stasjon in ViewBag.stasjonerpanett)
-                            {
-                                <tr>
-                                    <td>
-                                        @stasjon.stasjon_navn
-                                    </td>
-                                </tr>
-                            }
-                        </table>
-                    </div>
-                </dd>
-            </dl>
+                    <dd>
+                        @Html.DisplayFor(model => model.nett_navn)
+                    </dd>
+                    <dt>
+                        Nett Id
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.id)
+                    </dd>
+                    <dt>
+                        Stasjoner på nett
+                    </dt>
+                    <dd>
+                        <div class="scrollable">
+                            <table>
+                                @foreach (VyBillettBestilling.Models.Stasjon stasjon in ViewBag.stasjonerpanett)
+                                {
+                                    <tr>
+                                        <td>
+                                            @stasjon.stasjon_navn
+                                        </td>
+                                    </tr>
+                                }
+                            </table>
+                        </div>
+                    </dd>
+                </dl>
+            </div>
+            <p>
+                @Html.ActionLink("Rediger", "NettEdit", new { id = Model.id }, new { @class = "btn btn-primary" }) |
+                @Html.ActionLink("Tilbake til liste", "NettListe", null, new { @class = "btn btn-primary" })
+            </p>
         </div>
-        <p>
-            @Html.ActionLink("Rediger", "NettEdit", new { id = Model.id }) |
-            @Html.ActionLink("Tilbake til liste", "NettListe")
-        </p>
     </div>
 </body>
 </html>

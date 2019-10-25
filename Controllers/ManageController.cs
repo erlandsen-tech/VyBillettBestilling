@@ -163,7 +163,6 @@ namespace VyBillettBestilling.Controllers
             if (ModelState.IsValid)
             {
                 var dbt = new VyDbTilgang();
-
                 dbt.fjernHovedstrekning(str.id);
                 dbt.leggTilHovedstrekning(str);
                 return RedirectToAction("StrekningsListe", "Manage");

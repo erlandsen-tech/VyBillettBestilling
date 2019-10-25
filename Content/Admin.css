@@ -51,7 +51,8 @@
 }
 
 .scrollable {
-    height: 100px;
+    max-height: 60vh;
+    max-width: 70vw;
     display: inline-block;
     background-color:ghostwhite;
     overflow-y: auto;

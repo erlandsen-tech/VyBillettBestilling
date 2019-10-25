@@ -8,38 +8,34 @@
 <link href="~/Content/Admin.css" rel="stylesheet">
 <div class="container">
     <div class="bg femti ">
-        <h2>Rediger Strekning</h2>
+        <div class="container">
+            <h2>Rediger Strekning</h2>
 
-        @using (Html.BeginForm())
-        {
-            <!-- Dersom denne ikke er her setter mvc ID til 0, noe som knekker databasekoden -->
-            <input type="hidden" value="@Model.id" name="id" />
-            @Html.AntiForgeryToken()
+            @using (Html.BeginForm())
+            {
+                <!-- Dersom denne ikke er her setter mvc ID til 0, noe som knekker databasekoden -->
+                <input type="hidden" value="@Model.id" name="id" />
+                @Html.AntiForgeryToken()
 
-            <div class="form-horizontal">
-                <hr />
-                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                @Html.HiddenFor(model => model.id)
+                <div class="form-horizontal">
+                    <hr />
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    @Html.HiddenFor(model => model.id)
 
-                <div class="form-group">
-                    @Html.LabelFor(model => model.hovstr_navn, htmlAttributes: new { @class = "control-label col-md-2" })
-                    <div class="col-md-10">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.hovstr_navn, htmlAttributes: new { @class = "header" })
                         @Html.EditorFor(model => model.hovstr_navn, new { htmlAttributes = new { @class = "form-control" } })
                         @Html.ValidationMessageFor(model => model.hovstr_navn, "", new { @class = "text-danger" })
                     </div>
-                </div>
 
-                <div class="form-group">
-                    @Html.LabelFor(model => model.hovstr_kortnavn, htmlAttributes: new { @class = "control-label col-md-2" })
-                    <div class="col-md-10">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.hovstr_kortnavn, htmlAttributes: new { @class = "header" })
                         @Html.EditorFor(model => model.hovstr_kortnavn, new { htmlAttributes = new { @class = "form-control" } })
                         @Html.ValidationMessageFor(model => model.hovstr_kortnavn, "", new { @class = "text-danger" })
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label class="control-label col-md-2">Nett</label>
-                    <div class="col-md-10">
+                    <div class="form-group">
+                        <label class="header">Nett</label><br />
                         <select id="nett_id" name="nett_id">
                             @{
                                 foreach (VyBillettBestilling.Models.Nett nett in ViewBag.Nett)
@@ -62,41 +58,41 @@
                             }
                         </select>
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <div class="container">
-                        <select multiple="multiple" id="stasjon_ider" name="stasjon_ider">
-                            @foreach (VyBillettBestilling.Models.Stasjon stasjon in ViewBag.Stasjoner)
-                            {
-                                <option value="@stasjon.id">@stasjon.stasjon_navn</option>
-                            }
-                            @foreach (VyBillettBestilling.Models.Stasjon stasjon in ViewBag.stasjonerPaHovedstrekning)
-                            {
-                                <option value="@stasjon.id" selected>@stasjon.stasjon_navn</option>
-                            }
-                        </select>
+                    <div class="form-group">
+                        <div class="container">
+                            <select multiple="multiple" id="stasjon_ider" name="stasjon_ider">
+                                @foreach (VyBillettBestilling.Models.Stasjon stasjon in ViewBag.Stasjoner)
+                                {
+                                    <option value="@stasjon.id">@stasjon.stasjon_navn</option>
+                                }
+                                @foreach (VyBillettBestilling.Models.Stasjon stasjon in ViewBag.stasjonerPaHovedstrekning)
+                                {
+                                    <option value="@stasjon.id" selected>@stasjon.stasjon_navn</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <div class="container">
+                            <input type="submit" value="Lagre" class="btn btn-primary" />
+                            <button type="button" value="test" onclick="test()"></button>
+                            @Html.ActionLink("Avbryt", "StrekningsListe", null, new { @class = "btn btn-primary" })
+                        </div>
                     </div>
                 </div>
-
-
-                <div class="form-group">
-                    <div class="col-md-offset-2 col-md-10">
-                        <input type="submit" value="Lagre" class="btn btn-primary" />
-                        <button type="button" value="test" onclick="test()"></button>
-                        @Html.ActionLink("Avbryt", "StrekningsListe", null, new { @class = "btn btn-primary" })
-                    </div>
-                </div>
-            </div>
-        }
+            }
+        </div>
     </div>
 </div>
 <script src="~/Scripts/multi/js/jquery.multi-select.js"></script>
 <script src="~/Scripts/Pages/StrekningCreate.js"></script>
 <script>
     $('#stasjon_ider').multiSelect({
-        selectableHeader: "<div class='custom-header'>Stasjoner uten strekning</div>",
-        selectionHeader: "<div class='custom-header'>Stasjoner på strekning</div>"
+        selectableHeader: "<div class='custom-header'>Uten strekning</div>",
+        selectionHeader: "<div class='custom-header'>På strekning</div>"
     });
     function test() {
         console.log($('#stasjon_ider').val())
