@@ -23,6 +23,29 @@
                 <dd>
                     @Html.DisplayFor(model => model.nett_navn)
                 </dd>
+                <dt>
+                    Nett Id
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.id)
+                </dd>
+                <dt>
+                    Stasjoner på nett
+                </dt>
+                <dd>
+                    <div class="scrollable">
+                        <table>
+                            @foreach (VyBillettBestilling.Models.Stasjon stasjon in ViewBag.stasjonerpanett)
+                            {
+                                <tr>
+                                    <td>
+                                        @stasjon.stasjon_navn
+                                    </td>
+                                </tr>
+                            }
+                        </table>
+                    </div>
+                </dd>
             </dl>
         </div>
         <p>
