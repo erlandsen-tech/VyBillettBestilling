@@ -1,19 +1,23 @@
-﻿@model VyBillettBestilling.Models.Hovedstrekning
+﻿@model VyBillettBestilling.Models.View.HovedstrekningCreateView
 
 @{
     ViewBag.Title = "Ny strekning";
 }
+
+<script type="text/javascript" src='@Url.Content("~/Scripts/Pages/StrekningCreate.js")'></script>
 <link href="~/Content/Admin.css" rel="stylesheet">
-<link rel="stylesheet" type="text/css" href="~/Content/css/multi.min.css">
+<link rel="stylesheet" type="text/css" href="~/Scripts/multi/css/multi-select.css">
 <div class="bg femti ">
     <h2>Ny strekning</h2>
 
+    <div onclick="informasjon()">
+        <i class="fa fa-question-circle fa-3x"></i>
+    </div>
     @using (Html.BeginForm())
     {
         @Html.AntiForgeryToken()
 
         <div class="form-horizontal">
-            <h4>Hovedstrekning</h4>
             <hr />
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
             <div class="form-group">
@@ -33,39 +37,55 @@
             </div>
 
             <div class="form-group">
-                @Html.LabelFor(model => model.nett_id, htmlAttributes: new { @class = "control-label col-md-2" })
+                @Html.LabelFor(model => model.nettid, htmlAttributes: new { @class = "control-label col-md-2" })
                 <div class="col-md-10">
-                    @Html.EditorFor(model => model.nett_id, new { htmlAttributes = new { @class = "form-control" } })
-                    @Html.ValidationMessageFor(model => model.nett_id, "", new { @class = "text-danger" })
+                    <select id="nettid" name="nettid">
+                        @{
+                            foreach (VyBillettBestilling.Models.Nett nett in ViewBag.Nett)
+                            {
+                                <option value="@nett.id">
+                                    @nett.nett_navn
+                                </option>
+                            }
+                        }
+                    </select>
                 </div>
             </div>
             <div class="form-group">
                 <div class="container">
-                    <select multiple="multiple" name="" id="example">
-                        @foreach(VyBillettBestilling.Models.Stasjon stasjon in ViewBag.Stasjoner)
+                    <select multiple="multiple" id="multiselect" name="multiselect">
+                        @foreach (VyBillettBestilling.Models.Stasjon stasjon in ViewBag.Stasjoner)
                         {
-                            Console.WriteLine(stasjon.stasjon_navn);
-                            <value>@stasjon.id</value><option>@stasjon.stasjon_navn</option>
+                            <option value="@stasjon.stasjon_navn">@stasjon.stasjon_navn</option>
                         }
                     </select>
                 </div>
             </div>
             <div class="form-group">
                 <div class="col-md-offset-2 col-md-10">
-                    <input type="submit" value="Lag" class="btn btn-default" />
+                    <input type="button" onclick="LagHovedstrekning()" value="Lag" class="btn btn-primary" />
                 </div>
             </div>
         </div>
     }
-
     <div>
-        @Html.ActionLink("Tilbake til liste", "StrekningsListe")
+        @Html.ActionLink("Tilbake til liste", "StrekningsListe", null, new { @class = "btn btn-primary" })
     </div>
 </div>
-<script src="~/Scripts/multi.min.js"></script>
+<div id="dialog-informasjon" title="Info" class="hidden">
+    <p>
+        <span style="float:left; margin:12px 12px 20px 0;"></span>
+        Bare stasjoner uten hovedstrekning kan legges til.
+        Dette på grunn av at stifinningen ikke gir mening dersom
+        en stasjon finnes på flere hovedstrekninger.
+        En hovedstrekning kan lages uten stasjoner, og stasjoner kan
+        da legges til siden, ved å redigere strekningen.
+    </p>
+</div>
+<script src="~/Scripts/multi/js/jquery.multi-select.js"></script>
 <script>
-    $('#example').multi({
-        non_selected_header: 'Stasjoner',
-        selected_header: 'Valgte Stasjoner'
+    $('#multiselect').multiSelect({
+        selectableHeader: "<div class='custom-header'>Stasjoner uten strekning</div>",
+        selectionHeader: "<div class='custom-header'>Stasjoner på strekning</div>"
     });
 </script>
