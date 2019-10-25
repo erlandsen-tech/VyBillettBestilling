@@ -639,7 +639,27 @@ namespace VyBillettBestilling.Models
             }
             return false;
         }
-        
+        public bool settInnStasjonerIHovedstrekning(int hovstrId, IEnumerable<int> stasjonIder, int plassering)
+        {
+            using (var db = new VyDbContext())
+            {
+                DbHovedstrekning hovstr = db.Hovedstrekninger.Find(hovstrId);
+                if (plassering < 1 | plassering >= hovstr.Stasjoner.Count())
+                    throw new ArgumentOutOfRangeException("Innsetting er ikke tillatt på endene");
+                List<DbStasjon> stasjoner = new List<DbStasjon>(stasjonIder.Count());
+                DbStasjon tmpSta;
+                foreach (int i in stasjonIder)
+                    if ((tmpSta = db.Stasjoner.Find(i)) != null)
+                        stasjoner.Add(tmpSta);
+                if (stasjoner.Count() == stasjonIder.Count() && hovstr != null)
+                {   // Setter ikke inn noen hvis ikke alle stasjonene ble funnet
+                    hovstr.Stasjoner.InsertRange(plassering, stasjoner);
+                    return true;
+                }
+            }
+            return false;
+        }
+
         // Merk: disse metodene legger ikke stasjonen inn i en hovedstrekning, men bare registrerer dem i basen.
         // Ev. angitte hovedstrekninger ignoreres, og legges ikke inn i basen
         // A legge stasjonen inn i en hovedstrekning gjores med andre metoder,
