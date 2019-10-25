@@ -76,12 +76,12 @@ namespace VyBillettBestilling.Models
             public virtual DbNett Nett { get; set; } // DbHovedstrekning-er pa samme Nett er forbundet med hverandre med et antall DbHovedstrekninger
                                                      //public virtual List<DbDelstrekning> Delstrekninger { get; set; }
 
-            // Denne skal ikke brukes, er her bare for a tilfredsstille EFs basekrav:
+            /** Denne skal ikke brukes, er her bare for a tilfredsstille EFs basekrav:*/
             public virtual List<DbStasjon> StasjonerIkkeBruk { get; set; }
 
             public virtual List<DbHovedstrekningStasjon> StasjonerNummerert { get; set; }
 
-            // Ingenting virker uten konstruktor i nullparam
+            // Ingenting virker uten konstruktor i nullparameterkonstruktoren
 
             //public virtual StasjonListeHjelper Stasjoner { get; set; } // Virker ikke (no key defined)
             //internal virtual StasjonListeHjelper Stasjoner { get; set; } // Gir mange exceptions (50) (32)
@@ -99,6 +99,7 @@ namespace VyBillettBestilling.Models
                 {
                     Eier = eierStrekning;
                 }
+                
                 public DbHovedstrekningStasjon faaDbElement(DbStasjon stas)
                 {
                     return StasjonerNummerert.First(hosta => hosta.Stasjon.Equals(stas));
@@ -114,10 +115,11 @@ namespace VyBillettBestilling.Models
                 {
                     return StasjonerNummerert.ToList();
                 }
-               private List<DbStasjon> Stasjjjoner()
+                private List<DbStasjon> Stasjjjoner()
                 {
                     return StasjonerNummerert.OrderBy(hosta => hosta.rekkenr).Select(st => st.Stasjon).ToList();
                 }
+                
                 public List<DbStasjon> ToList() => StasjonerNummerert.OrderBy(hosta => hosta.rekkenr).Select(st => st.Stasjon).ToList();
                 public DbStasjon[] ToArray() => StasjonerNummerert.OrderBy(hosta => hosta.rekkenr).Select(st => st.Stasjon).ToArray();
                 public int Count() => StasjonerNummerert.Count();
@@ -223,7 +225,7 @@ namespace VyBillettBestilling.Models
                 Stasjoner = new StasjonListeHjelper(this);
             }
             public DbHovedstrekning() {
-                Stasjoner = new StasjonListeHjelper(this);
+                Stasjoner = new StasjonListeHjelper(this); // Ma ha denne her, den regenereres ikke av seg selv
             } // Ma ogsa ha en parameterlos konstruktor.
         }
         //public class DbDelstrekning
