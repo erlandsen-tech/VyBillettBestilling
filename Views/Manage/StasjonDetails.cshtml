@@ -9,11 +9,12 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
-    <title>StasjonDetails</title>
+    <title>Stasjonsdetaljer</title>
 </head>
 <body>
     <link href="~/Content/Admin.css" rel="stylesheet">
     <div class="generell-bg femti">
+        <div class="container">
         <div>
             <h4>Stasjon</h4>
             <hr />
@@ -61,9 +62,10 @@
             </dl>
         </div>
         <p>
-            @Html.ActionLink("Rediger", "StasjonEdit", new { id = Model.id }) |
-            @Html.ActionLink("Tilbake til Liste", "StasjonsListe")
+            @Html.ActionLink("Rediger", "StasjonEdit", new { id = Model.id }, new { @class = "btn btn-primary" }) |
+            @Html.ActionLink("Tilbake til Liste", "StasjonsListe", null, new { @class = "btn btn-primary" })
         </p>
+ </div>   
     </div>
 </body>
 </html>
