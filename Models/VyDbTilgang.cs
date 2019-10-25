@@ -603,6 +603,7 @@ namespace VyBillettBestilling.Models
             }
             return false;
         }
+        
         public bool settNyeHovedstrekningNavn(int hovstrId, string nyttNavn, string nyttKortnavn)
         {   // Null-verdier pa navnene betyr a beholde gammelt navn
             using (var db = new VyDbContext())
@@ -627,7 +628,18 @@ namespace VyBillettBestilling.Models
             }
             return false;
         }
-
+        public bool fjernStasjonerFraHovedstrekning(int hovstrId, IEnumerable<int> stasjonIder)
+        {
+            using (var db = new VyDbContext())
+            {
+                var fjernes = db.HovstrStasj.Where(hosta => hosta.Hovedstrekning.Id == hovstrId && stasjonIder.Contains(hosta.Stasjon.Id));
+                db.HovstrStasj.RemoveRange(fjernes);
+                db.SaveChanges();
+                return true;
+            }
+            return false;
+        }
+        
         // Merk: disse metodene legger ikke stasjonen inn i en hovedstrekning, men bare registrerer dem i basen.
         // Ev. angitte hovedstrekninger ignoreres, og legges ikke inn i basen
         // A legge stasjonen inn i en hovedstrekning gjores med andre metoder,

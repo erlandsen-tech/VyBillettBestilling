@@ -44,7 +44,7 @@ namespace VyBillettBestilling.Models
         // Hvert Nett er en samling av DbHovedstrekning-er som er forbundet med hverandre.
 
         // Klasser for linjenettet:
-       
+        
         [TrackChanges]
         public class DbNett
         {
