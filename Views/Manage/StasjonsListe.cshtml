@@ -3,69 +3,65 @@
 @{
     ViewBag.Title = "Stasjonsliste";
 }
-
-
 <html>
-
 <head>
     <meta name="viewport" content="width=device-width" />
     <title>StasjonsListe</title>
 </head>
 <body>
-
     <link href="~/Content/Admin.css" rel="stylesheet">
     <div class="generell-bg femti">
         <div class="container">
-        <h2>Stasjonsliste</h2>
-        <div class="mt-5">
-            <p>
-                @Html.ActionLink("Lag ny stasjon", "StasjonCreate", null, new { @class = "btn btn-primary" })
-            </p>
-        </div>
-        <div class="scrollable">
-            <table class="table tabellbakgrunn table-bordered">
-                <tr>
-                    <th>
-                        @Html.DisplayNameFor(model => model.stasjon_navn)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.breddegrad)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.lengdegrad)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.nett_id)
-                    </th>
-                    <th></th>
-                </tr>
-
-                @foreach (var item in Model)
-                {
+            <h2>Stasjonsliste</h2>
+            <hr />
+            <div class="mt-5">
+                <p>
+                    @Html.ActionLink("Lag ny", "StasjonCreate", null, new { @class = "btn btn-primary" })
+                </p>
+            </div>
+            <div class="scrollable">
+                <table class="table tabellbakgrunn table-bordered">
                     <tr>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.stasjon_navn)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.breddegrad)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.lengdegrad)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.nett_id)
-                        </td>
-                        <td>
-                            @Html.ActionLink("Rediger", "StasjonEdit", new { id = item.id }, new { @class = "btn btn-primary" }) |
-                            @Html.ActionLink("Detaljer", "StasjonDetails", new { id = item.id }, new { @class = "btn btn-primary" }) |
-                            @Ajax.ActionLink("Slett", "StasjonDelete", new { id = item.id }, new AjaxOptions { HttpMethod = "DELETE", OnSuccess = "window.location.reload()" }, new { @class = "btn btn-primary" })
-                        </td>
+                        <th>
+                            @Html.DisplayNameFor(model => model.stasjon_navn)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.breddegrad)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.lengdegrad)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.nett_id)
+                        </th>
+                        <th></th>
                     </tr>
-                }
-            </table>
 
-</div>
-</div>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.stasjon_navn)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.breddegrad)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.lengdegrad)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.nett_id)
+                            </td>
+                            <td>
+                                @Html.ActionLink("Rediger", "StasjonEdit", new { id = item.id }, new { @class = "btn btn-primary" })
+                                @Html.ActionLink("Detaljer", "StasjonDetails", new { id = item.id }, new { @class = "btn btn-primary" })
+                                @Ajax.ActionLink("Slett", "StasjonDelete", new { id = item.id }, new AjaxOptions { HttpMethod = "DELETE", OnSuccess = "window.location.reload()" }, new { @class = "btn btn-danger" })
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </div>
         </div>
+    </div>
 </body>
 </html>
