@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace VyBillettBestilling.Models
+namespace VyBillettBestilling.ViewModels
 {
     public class Stasjon
     {
@@ -60,5 +60,4 @@ namespace VyBillettBestilling.Models
         public IList<int> hovedstrekning_Ider { get; set; }
         public IList<int> stasjon_Ider { get; set; }
     }
-
 }

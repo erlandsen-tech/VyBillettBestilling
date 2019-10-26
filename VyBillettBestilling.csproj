@@ -49,6 +49,9 @@
     <Reference Include="Antlr3.Runtime, Version=3.5.0.2, Culture=neutral, PublicKeyToken=eb42632606e9261f, processorArchitecture=MSIL">
       <HintPath>packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
     </Reference>
+    <Reference Include="AutoMapper, Version=9.0.0.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>packages\AutoMapper.9.0.0\lib\net461\AutoMapper.dll</HintPath>
+    </Reference>
     <Reference Include="CsvHelper, Version=12.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
       <HintPath>packages\CsvHelper.12.1.2\lib\net45\CsvHelper.dll</HintPath>
     </Reference>
@@ -346,33 +349,19 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Methods\HandlekurvMethods.cs" />
-    <Compile Include="Methods\ManageMethods.cs" />
-    <Compile Include="Methods\RegistreringMethods.cs" />
-    <Compile Include="Models\AccountViewModels.cs" />
-    <Compile Include="Models\Banemodeller.cs" />
-    <Compile Include="Methods\HomeMethods.cs" />
-    <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\Bestilling.cs" />
-    <Compile Include="Models\Billett.cs" />
-    <Compile Include="Models\CSVstasjon.cs" />
-    <Compile Include="Models\Handlekurv.cs" />
-    <Compile Include="Models\IdentityModels.cs" />
-    <Compile Include="Models\Kunde.cs" />
-    <Compile Include="Models\ManageViewModels.cs" />
-    <Compile Include="Models\Passasjer.cs" />
-    <Compile Include="Models\Pris.cs" />
-    <Compile Include="Models\Rute.cs" />
-    <Compile Include="Models\Utilities.cs" />
-    <Compile Include="Models\Reise.cs" />
-    <Compile Include="Models\View\HovedstrekningCreateView.cs" />
-    <Compile Include="Models\View\PrisOgBillett.cs" />
-    <Compile Include="Models\View\RuteView.cs" />
-    <Compile Include="Models\VyDbContext.cs" />
-    <Compile Include="Models\VyDbTilgang.cs" />
+    <Compile Include="ViewModels\AccountViewModels.cs" />
+    <Compile Include="ViewModels\Banemodeller.cs" />
+    <Compile Include="ViewModels\KonverterModel.cs" />
+    <Compile Include="ViewModels\Kunde.cs" />
+    <Compile Include="ViewModels\ManageViewModels.cs" />
+    <Compile Include="ViewModels\Passasjer.cs" />
+    <Compile Include="ViewModels\Pris.cs" />
+    <Compile Include="ViewModels\Rute.cs" />
+    <Compile Include="ViewModels\HovedstrekningCreateView.cs" />
+    <Compile Include="ViewModels\PrisOgBillett.cs" />
+    <Compile Include="ViewModels\RuteView.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
-    <Compile Include="ViewModels\HanldekurvViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\web.config" />
@@ -435,7 +424,23 @@
     <TypeScriptCompile Include="Scripts\index.d.ts" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="App_Data\" />
     <Folder Include="aspx\" />
+    <Folder Include="Models\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BLL\BLL.csproj">
+      <Project>{0c3a270f-9458-49df-8327-1462042c5e65}</Project>
+      <Name>BLL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DAL\DAL.csproj">
+      <Project>{18BC18BB-5718-4F39-B085-1A74EF637908}</Project>
+      <Name>DAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MODEL\Model.csproj">
+      <Project>{866f131d-739f-4ccc-9f31-65cd58bd4279}</Project>
+      <Name>Model</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

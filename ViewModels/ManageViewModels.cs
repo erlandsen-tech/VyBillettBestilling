@@ -4,7 +4,7 @@ using System.Security.Claims;
 using Microsoft.AspNet.Identity;
 using Microsoft.Owin.Security;
 
-namespace VyBillettBestilling.Models
+namespace VyBillettBestilling.ViewModels
 {
     public class IndexViewModel
     {

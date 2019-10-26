@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
-namespace VyBillettBestilling.Models
+namespace VyBillettBestilling.ViewModels
 {
     public class Kunde : IdentityUser
     {

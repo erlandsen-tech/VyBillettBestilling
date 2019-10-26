@@ -1,20 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using AutoMapper;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
-using VyBillettBestilling.Methods;
-using VyBillettBestilling.Models;
-using VyBillettBestilling.Models.View;
+using VyBillettBestilling.BLL;
+using VyBillettBestilling.BLL.Methods;
+using VyBillettBestilling.DAL;
+using VyBillettBestilling.ViewModels;
 
 namespace VyBillettBestilling.Controllers
 {
     [Authorize]
     public class ManageController : Controller
     {
+        private KonverterModel konverter = new KonverterModel();
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
 
@@ -96,10 +100,17 @@ namespace VyBillettBestilling.Controllers
         public ActionResult PriserOgPassasjerer()
         {
             var dbt = new VyDbTilgang();
+            var ViewPassasjerer = konverter.passasjer(dbt.HentPassasjerTyper());
+            var pris = dbt.HentPris();
+            var viewPris = new Pris
+            {
+                prisPrKm = pris.prisPrKm,
+                Id = pris.Id
+            };
             var viewModel = new PrisOgBillett
             {
-                Passasjerer = dbt.HentPassasjerTyper(),
-                Pris = dbt.HentPris()
+                Passasjerer = ViewPassasjerer,
+                Pris = viewPris
             };
             return View(viewModel);
         }
@@ -109,7 +120,8 @@ namespace VyBillettBestilling.Controllers
         {
             var dbt = new VyDbTilgang();
             var strekninger = dbt.HentAlleHovedstrekninger();
-            return View(strekninger);
+            var til = konverter.hovedstrekning(strekninger);
+            return View(til);
 
         }
 
@@ -132,7 +144,8 @@ namespace VyBillettBestilling.Controllers
             {
                 var dbt = new VyDbTilgang();
                 var mgmt = new ManageMethods();
-                var hvst = mgmt.LagHovedstrekning(hvstcv);
+                var hvst = 
+                    mgmt.LagHovedstrekning(konverter.hovedstrekningCreateView(hvstcv));
                 dbt.leggTilHovedstrekning(hvst);
                 return RedirectToAction("StrekningsListe", "Manage");
             }
@@ -154,17 +167,18 @@ namespace VyBillettBestilling.Controllers
             ViewBag.stasjonerPaHovedstrekning = dbt.HentStasjonerPaHovedstrekning(Id);
             ViewBag.Stasjoner = mgmt.FinnStasjonerUtenHovedStrekning();
             ViewBag.Nett = dbt.HentAlleNett();
-            return View(strekning);
+            var strekningView = konverter.hovedstrekning(strekning);
+            return View(strekningView);
         }
         [Authorize(Roles = "Administrator")]
         [HttpPost]
         public ActionResult StrekningEdit(Hovedstrekning str)
         {
             var mgmt = new ManageMethods();
-            var like = mgmt.likeStrekninger(str);
+            var like = mgmt.likeStrekninger(konverter.hovedstrekning(str));
             if (ModelState.IsValid && like.Contains(false))
             {
-                mgmt.endreStrekning(str, like);
+                mgmt.endreStrekning(konverter.hovedstrekning(str), like);
                 return RedirectToAction("StrekningsListe", "Manage");
             }
             else if (!like.Contains(false))
@@ -172,7 +186,9 @@ namespace VyBillettBestilling.Controllers
                 return RedirectToAction("StrekningsListe", "Manage");
             }
             else
+            {
                 return View(str);
+            }
         }
         [Authorize(Roles = "Administrator")]
         [HttpGet]
@@ -182,7 +198,8 @@ namespace VyBillettBestilling.Controllers
             var strekning = dbt.HentHovedstrekning(Id);
             ViewBag.stasjoner = dbt.HentStasjonerPaHovedstrekning(Id);
             ViewBag.nett = dbt.HentNett(strekning.nett_id);
-            return View(strekning);
+            var strVw = konverter.hovedstrekning(strekning);
+            return View(strVw);
         }
         [Authorize(Roles = "Administrator")]
         [HttpDelete]
@@ -199,14 +216,16 @@ namespace VyBillettBestilling.Controllers
         {
             var dbt = new VyDbTilgang();
             var alleStasjoner = dbt.HentAlleStasjoner();
-            return View(alleStasjoner);
+            var stsjVw = konverter.stasjon(alleStasjoner);
+            return View(stsjVw);
         }
         [Authorize(Roles = "Administrator")]
         [HttpGet]
         public ActionResult StasjonDetails(int Id)
         {
             var dbt = new VyDbTilgang();
-            return View(dbt.HentStasjon(Id));
+            var stsjVw = konverter.stasjon(dbt.HentStasjon(Id));
+            return View(stsjVw);
         }
 
         [Authorize(Roles = "Administrator")]
@@ -224,11 +243,13 @@ namespace VyBillettBestilling.Controllers
             {
 
                 var dbt = new VyDbTilgang();
-                dbt.leggTilStasjon(stasjon);
+                dbt.leggTilStasjon(konverter.stasjon(stasjon));
                 return RedirectToAction("StasjonsListe", "Manage");
             }
             else
+            {
                 return View(stasjon);
+            }
         }
         [Authorize(Roles = "Administrator")]
         [HttpDelete]
@@ -245,7 +266,8 @@ namespace VyBillettBestilling.Controllers
             var dbt = new VyDbTilgang();
             var stasjon = dbt.HentStasjon(Id);
             ViewBag.nett = dbt.HentAlleNett();
-            return View(stasjon);
+            var stsjVw = konverter.stasjon(stasjon);
+            return View(stsjVw);
         }
         [Authorize(Roles = "Administrator")]
         [HttpPost]
@@ -254,11 +276,13 @@ namespace VyBillettBestilling.Controllers
             if (ModelState.IsValid)
             {
                 var dbt = new VyDbTilgang();
-                dbt.OppdaterStasjon(stasjon);
+                dbt.OppdaterStasjon(konverter.stasjon(stasjon));
                 return RedirectToAction("StasjonsListe", "Manage");
             }
             else
+            {
                 return View(stasjon);
+            }
         }
 
         [Authorize(Roles = "Administrator")]
@@ -267,14 +291,16 @@ namespace VyBillettBestilling.Controllers
         {
             var dbt = new VyDbTilgang();
             var alleNett = dbt.HentAlleNett();
-            return View(alleNett);
+            var nettVw = konverter.nett(alleNett);
+            return View(nettVw);
         }
         [Authorize(Roles = "Administrator")]
         [HttpGet]
         public ActionResult NettEdit(int Id)
         {
             var dbt = new VyDbTilgang();
-            return View(dbt.HentNett(Id));
+            var nettVw = konverter.nett(dbt.HentNett(Id));
+            return View(nettVw);
         }
         [HttpPost]
         public ActionResult NettEdit(Nett nett)
@@ -286,7 +312,9 @@ namespace VyBillettBestilling.Controllers
                 return RedirectToAction("NettListe", "Manage");
             }
             else
+            {
                 return View(nett);
+            }
         }
 
         [Authorize(Roles = "Administrator")]
@@ -296,7 +324,8 @@ namespace VyBillettBestilling.Controllers
             var dbt = new VyDbTilgang();
             if (ModelState.IsValid)
             {
-                dbt.leggTilNett(nett);
+                var nettVw = konverter.nett(nett);
+                dbt.leggTilNett(nettVw);
                 return RedirectToAction("NettListe", "Manage");
             }
             else
@@ -325,7 +354,8 @@ namespace VyBillettBestilling.Controllers
         {
             var dbt = new VyDbTilgang();
             ViewBag.stasjonerpanett = dbt.HentStasjonerPaNett(id);
-            return View(dbt.HentNett(id));
+            var nettVw = konverter.nett(dbt.HentNett(id));
+            return View(nettVw);
         }
 
         [Authorize(Roles = "Administrator")]
@@ -333,7 +363,7 @@ namespace VyBillettBestilling.Controllers
         public ActionResult PrisEdit()
         {
             var dbt = new VyDbTilgang();
-            return View(dbt.HentPris());
+            return View(konverter.pris(dbt.HentPris()));
         }
 
         [Authorize(Roles = "Administrator")]
@@ -355,7 +385,7 @@ namespace VyBillettBestilling.Controllers
         public ActionResult PassasjertyperEdit(int Id)
         {
             var dbt = new VyDbTilgang();
-            return View(dbt.HentPassasjer(Id));
+            return View(konverter.passasjer(dbt.HentPassasjer(Id)));
         }
 
         [Authorize(Roles = "Administrator")]
@@ -365,7 +395,7 @@ namespace VyBillettBestilling.Controllers
             if (ModelState.IsValid)
             {
                 var dbt = new VyDbTilgang();
-                dbt.OppdaterPassasjer(passasjer);
+                dbt.OppdaterPassasjer(konverter.passasjer(passasjer));
                 return RedirectToAction("PriserOgPassasjerer", "Manage");
             }
             else

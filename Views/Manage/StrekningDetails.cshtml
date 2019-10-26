@@ -1,4 +1,4 @@
-﻿@model VyBillettBestilling.Models.Hovedstrekning
+﻿@model VyBillettBestilling.ViewModels.Hovedstrekning
 
 @{
     ViewBag.Title = "Detaljer";
@@ -8,9 +8,8 @@
 <div class="container-fluid">
     <div class="bg femti ">
         <div class="container">
-            <h2>Detaljer</h2>
             <div>
-                <h4>Hovedstrekning</h4>
+                <h4>Hovedstreknings detaljer</h4>
                 <hr />
                 <dl class="dl-horizontal">
                     <dt>
@@ -43,7 +42,7 @@
                         {
                             <div class="scrollable">
                                 <table>
-                                    @foreach (VyBillettBestilling.Models.Stasjon stasjon in ViewBag.stasjoner)
+                                    @foreach (VyBillettBestilling.Model.Stasjon stasjon in ViewBag.stasjoner)
                                     {
                                         <tr>
                                             <td>

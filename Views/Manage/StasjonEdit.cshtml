@@ -1,4 +1,4 @@
-﻿@model VyBillettBestilling.Models.Stasjon
+﻿@model VyBillettBestilling.ViewModels.Stasjon
 
 
 <!DOCTYPE html>
@@ -63,7 +63,7 @@
                         <div class="col-md-10">
                             <select id="nett_id" name="nett_id">
                                 @{
-                                    foreach (VyBillettBestilling.Models.Nett nett in ViewBag.Nett)
+                                    foreach (VyBillettBestilling.Model.Nett nett in ViewBag.Nett)
                                     {
                                         if (nett.id == Model.nett_id)
                                         {

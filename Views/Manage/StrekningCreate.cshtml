@@ -1,4 +1,4 @@
-﻿@model VyBillettBestilling.Models.View.HovedstrekningCreateView
+﻿@model VyBillettBestilling.ViewModels.HovedstrekningCreateView
 
 @{
     ViewBag.Title = "Ny strekning";
@@ -34,7 +34,7 @@
                         @Html.LabelFor(model => model.nettid, htmlAttributes: new { @class = "header" })
                         <select id="nettid" name="nettid">
                             @{
-                                foreach (VyBillettBestilling.Models.Nett nett in ViewBag.Nett)
+                                foreach (VyBillettBestilling.Model.Nett nett in ViewBag.Nett)
                                 {
                                     <option value="@nett.id">
                                         @nett.nett_navn
@@ -46,7 +46,7 @@
                     <div class="form-group">
                         <div class="container">
                             <select multiple="multiple" id="multiselect" name="multiselect">
-                                @foreach (VyBillettBestilling.Models.Stasjon stasjon in ViewBag.Stasjoner)
+                                @foreach (VyBillettBestilling.Model.Stasjon stasjon in ViewBag.Stasjoner)
                                 {
                                     <option value="@stasjon.stasjon_navn">@stasjon.stasjon_navn</option>
                                 }
