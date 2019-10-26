@@ -160,11 +160,15 @@ namespace VyBillettBestilling.Controllers
         [HttpPost]
         public ActionResult StrekningEdit(Hovedstrekning str)
         {
-            if (ModelState.IsValid)
+            var mgmt = new ManageMethods();
+            var like = mgmt.likeStrekninger(str);
+            if (ModelState.IsValid && like.Contains(false))
             {
-                var dbt = new VyDbTilgang();
-                dbt.fjernHovedstrekning(str.id);
-                dbt.leggTilHovedstrekning(str);
+                mgmt.endreStrekning(str, like);
+                return RedirectToAction("StrekningsListe", "Manage");
+            }
+            else if (!like.Contains(false))
+            {
                 return RedirectToAction("StrekningsListe", "Manage");
             }
             else
@@ -312,7 +316,7 @@ namespace VyBillettBestilling.Controllers
         {
             var dbt = new VyDbTilgang();
             dbt.fjernNett(Id);
-            return View();
+            return RedirectToAction("NettListe", "Manage");
         }
 
         [Authorize(Roles = "Administrator")]

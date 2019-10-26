@@ -15,6 +15,7 @@
             {
                 <!-- Dersom denne ikke er her setter mvc ID til 0, noe som knekker databasekoden -->
                 <input type="hidden" value="@Model.id" name="id" />
+                <input type="hidden" value="@Model.nett_id" name="nett_id" />
                 @Html.AntiForgeryToken()
 
                 <div class="form-horizontal">
@@ -35,31 +36,6 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="header">Nett</label><br />
-                        <select id="nett_id" name="nett_id">
-                            @{
-                                foreach (VyBillettBestilling.Models.Nett nett in ViewBag.Nett)
-                                {
-                                    if (nett.id == Model.nett_id)
-                                    {
-                                        <option value="@nett.id" selected>
-                                            @nett.nett_navn
-                                        </option>
-                                    }
-                                    else
-                                    {
-                                        <option value="@nett.id">
-                                            @nett.nett_navn
-                                        </option>
-
-                                    }
-                                }
-                            }
-                            }
-                        </select>
-                    </div>
-
-                    <div class="form-group">
                         <div class="container">
                             <select multiple="multiple" id="stasjon_ider" name="stasjon_ider">
                                 @foreach (VyBillettBestilling.Models.Stasjon stasjon in ViewBag.Stasjoner)
@@ -73,12 +49,9 @@
                             </select>
                         </div>
                     </div>
-
-
                     <div class="form-group">
                         <div class="container">
                             <input type="submit" value="Lagre" class="btn btn-primary" />
-                            <button type="button" value="test" onclick="test()"></button>
                             @Html.ActionLink("Avbryt", "StrekningsListe", null, new { @class = "btn btn-primary" })
                         </div>
                     </div>
@@ -94,7 +67,4 @@
         selectableHeader: "<div class='custom-header'>Uten strekning</div>",
         selectionHeader: "<div class='custom-header'>På strekning</div>"
     });
-    function test() {
-        console.log($('#stasjon_ider').val())
-    }
 </script>

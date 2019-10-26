@@ -4,48 +4,53 @@
     ViewBag.Title = "Streknings Liste";
 }
 
-<div class="generell-bg">
-    <h2>Streknings Liste</h2>
-    <div class="mt-5">
-        <p>
-            @Html.ActionLink("Lag ny", "StrekningCreate", null, new { @class = "btn btn-primary" })
-        </p>
-        <div class="ml-5 my-custom-scrollbar table-wrapper-scroll-y">
-            <table class=" table tabellbakgrunn table-bordered">
-                <tr>
-                    <th>
-                        @Html.DisplayNameFor(model => model.hovstr_navn)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.hovstr_kortnavn)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.nett_id)
-                    </th>
-                    <th></th>
-                </tr>
+    <link href="~/Content/Admin.css" rel="stylesheet">
+<div class="generell-bg femti">
+    <div class="container">
 
-                @foreach (var item in Model)
-                {
+        <h2>Streknings Liste</h2>
+        <hr />
+        <div class="mt-5">
+            <p>
+                @Html.ActionLink("Lag ny", "StrekningCreate", null, new { @class = "btn btn-primary" })
+            </p>
+            <div class="scrollable">
+                <table class=" table tabellbakgrunn table-bordered">
                     <tr>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.hovstr_navn)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.hovstr_kortnavn)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.nett_id)
-                        </td>
-                        <td>
-                            @Html.ActionLink("Rediger", "StrekningEdit", new { id = item.id }, new { @class = "btn btn-primary" }) |
-                            @Html.ActionLink("Detaljer", "StrekningDetails", new { id = item.id }, new { @class = "btn btn-primary" }) |
-                            @Ajax.ActionLink("Slett", "StrekningDelete", new { id = item.id }, new AjaxOptions { HttpMethod = "DELETE",OnSuccess="window.location.reload()"}, new { @class = "btn btn-primary" })
-                        </td>
+                        <th>
+                            @Html.DisplayNameFor(model => model.hovstr_navn)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.hovstr_kortnavn)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.nett_id)
+                        </th>
+                        <th></th>
                     </tr>
-                }
 
-            </table>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.hovstr_navn)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.hovstr_kortnavn)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.nett_id)
+                            </td>
+                            <td>
+                                @Html.ActionLink("Rediger", "StrekningEdit", new { id = item.id }, new { @class = "btn btn-primary" })
+                                @Html.ActionLink("Detaljer", "StrekningDetails", new { id = item.id }, new { @class = "btn btn-primary" })
+                                @Ajax.ActionLink("Slett", "StrekningDelete", new { id = item.id }, new AjaxOptions { HttpMethod = "DELETE", OnSuccess = "window.location.reload()" }, new { @class = "btn btn-danger" })
+                            </td>
+                        </tr>
+                    }
+
+                </table>
+            </div>
         </div>
     </div>
 </div>

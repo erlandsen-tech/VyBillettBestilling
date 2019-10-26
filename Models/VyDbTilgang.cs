@@ -131,13 +131,7 @@ namespace VyBillettBestilling.Models
             using (var db = new VyDbContext())
             {
                 var dbPris = db.Pris.FirstOrDefault();
-                db.Pris.Remove(dbPris);
-                DbPris pris = new DbPris()
-                {
-                    Id = 1,
-                    prisPrKm = nyPris
-                };
-                db.Pris.Add(pris);
+                dbPris.prisPrKm = nyPris;
                 db.SaveChanges();
             }
         }
