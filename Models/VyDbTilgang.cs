@@ -423,21 +423,7 @@ namespace VyBillettBestilling.Models
             return false;
         }
 
-        public int leggTilHovedstrekning(string navn, string kortnavn) // returverdien er den nye strekningens id, eller -1 hvis innlegging feilet.
-        {
-            using (var db = new VyDbContext())
-            {
-                if (!db.Hovedstrekninger.Any(ho => navn.Equals(ho.HovstrNavn)
-                    | kortnavn.Equals(ho.HovstrKortNavn)))
-                {
-                    DbHovedstrekning dennye = new DbHovedstrekning(navn, null, kortnavn);
-                    db.Hovedstrekninger.Add(dennye);
-                    db.SaveChanges();
-                    return dennye.Id;
-                }
-            }
-            return -1; // Navnet eller kortnavnet er brukt fra for, (eller baseoppdatering feilet(?))
-        }
+        
         public int leggTilHovedstrekning(Hovedstrekning hovst) // returverdien er den nye strekningens id, eller -1 hvis innlegging feilet.
         {
             using (var db = new VyDbContext())
@@ -455,51 +441,47 @@ namespace VyBillettBestilling.Models
                     // Ev. ikke-nett overstyres av stasjonenes nett, hvis det er entydig (ikke-entydig er en feil, og gir unntak).
                     if (hovst.nett_id > 0 && (tmpNet = db.Nett.Find(hovst.nett_id)) == null)
                         throw new ArgumentException("hovedstrekning-objektet har ugyldige data; ikke-eksisterende nett angitt");
+                    int c;
+                    // Sjekker at hovedstrekningen har minst to stasjoner:
+                    if (hovst.stasjon_Ider == null || (c = hovst.stasjon_Ider.Count()) < 2)
+                        throw new ArgumentException("hovedstrekning-objektet har ugyldige data; mindre enn to stasjoner (som kan være samme) er angitt");
+                    // Sjekker duplikater, godtar forste og siste stasjon lik (ringbane), derfor to distinct-sjekker:
+                    if (hovst.stasjon_Ider.Skip(1).Distinct().Count() != c - 1
+                            || hovst.stasjon_Ider.Take(c - 1).Distinct().Count() != c - 1)
+                        throw new ArgumentException("hovedstrekning-objektet har ugyldige data; ulovlige duplikatstasjoner");
+                    // Feil hvis stasjoner er pa annet nett enn angitt for denne hovedstrekningen (hvis det er angitt, da),
+                    // eller stasjonslista inneholder stasjoner fra forskjellige nett
+                    DbStasjon forsteSkjot = null, sisteSkjot = null;
+                    feil = (tmpSta = db.Stasjoner.Find(hovst.stasjon_Ider.First())) == null // Angitt stasjon skal eksistere
+                                                                                            // Angitt nett skal ikke vaere ulikt annet angitt nett:
+                        || (tmpSta.Nett != null && !tmpSta.Nett.Equals((tmpNet != null) ? tmpNet : tmpNet = tmpSta.Nett));
+                    if (tmpSta.Hovedstrekninger.Count() == 1 && (!tmpSta.Equals(tmpSta.Hovedstrekninger.First().Stasjoner.First())
+                                                            || !tmpSta.Equals(tmpSta.Hovedstrekninger.First().Stasjoner.Last())))
+                        forsteSkjot = tmpSta;
 
-                    // Sjekker feil mht. stasjoner:
-                    if (hovst.stasjon_Ider != null)
-                    {
-                        int c = hovst.stasjon_Ider.Count();
-                        // Sjekker duplikater, og at hovedstrekningen har minst to stasjoner (hvis den har noen):
-                        if (c > 0) // Godtar forste og siste stasjon lik (ringbane), derfor to distinct-sjekker:
-                            if (c < 2 || hovst.stasjon_Ider.Skip(1).Distinct().Count() != c - 1
-                                    || hovst.stasjon_Ider.Take(c - 1).Distinct().Count() != c - 1)
-                                throw new ArgumentException("hovedstrekning-objektet har ugyldige data; ulovlige duplikatstasjoner eller ulovlig lengde (1) på ny hovedstrekning");
-                        if (c > 0)
-                        {
-                            // Godtar som endestasjoner: Utilknyttede og motepunkt-stasjoner. Skjoting med annen strekning tillates ikke
-                            // Merk: A knytte en ny ringbane til en endestajon eller motepunkt blir tillatt. Sann skal det vaere.
-                            // Ogsa feil hvis stasjoner er pa annet nett enn angitt for denne hovedstrekningen (hvis det er angitt, da),
-                            // eller stasjonslista inneholder stasjoner fra forskjellige nett
+                    feil |= (tmpSta = db.Stasjoner.Find(hovst.stasjon_Ider.Last())) == null
+                        || (tmpSta.Nett != null && !tmpSta.Nett.Equals((tmpNet != null) ? tmpNet : tmpNet = tmpSta.Nett));
+                    if (tmpSta.Hovedstrekninger.Count() == 1 && (!tmpSta.Equals(tmpSta.Hovedstrekninger.First().Stasjoner.First()) 
+                                                            || !tmpSta.Equals(tmpSta.Hovedstrekninger.First().Stasjoner.Last())))
+                        sisteSkjot = tmpSta;
 
-                            feil = (tmpSta = db.Stasjoner.Find(hovst.stasjon_Ider.First())) == null // Angitt stasjon skal eksistere
-                                                                                                    // Angitt nett skal ikke vaere ulikt annet angitt nett:
-                                || (tmpSta.Nett != null && !tmpSta.Nett.Equals((tmpNet != null) ? tmpNet : tmpNet = tmpSta.Nett))
-                                || (tmpSta.Hovedstrekninger.Count() == 1 // Feil a tilknytte annet enn ende av andre hovedstrekninger
-                                        && !tmpSta.Equals(tmpSta.Hovedstrekninger.First().Stasjoner.First())
-                                        && !tmpSta.Equals(tmpSta.Hovedstrekninger.First().Stasjoner.Last()))
-                                // Ikke tillatt a skjote ender, unntatt a sette pa en ringbane:
-                                || (tmpSta.Hovedstrekninger.Count() == 1 && !hovst.stasjon_Ider.First().Equals(hovst.stasjon_Ider.Last()));
+                    // Ikke-endestasjoner skal vaere utilknyttede:
+                    for (int i = 1; i < c - 1; ++i)
+                        feil |= (tmpSta = db.Stasjoner.Find(hovst.stasjon_Ider[i])) == null
+                            || (tmpSta.Nett != null && !tmpSta.Nett.Equals((tmpNet != null) ? tmpNet : tmpNet = tmpSta.Nett))
+                            || tmpSta.Hovedstrekninger.Count() > 0;
 
-                            feil |= (tmpSta = db.Stasjoner.Find(hovst.stasjon_Ider.Last())) == null
-                                || (tmpSta.Nett != null && !tmpSta.Nett.Equals((tmpNet != null) ? tmpNet : tmpNet = tmpSta.Nett))
-                                || (tmpSta.Hovedstrekninger.Count() == 1
-                                        && !tmpSta.Equals(tmpSta.Hovedstrekninger.First().Stasjoner.First())
-                                        && !tmpSta.Equals(tmpSta.Hovedstrekninger.First().Stasjoner.Last()))
-                                || (tmpSta.Hovedstrekninger.Count() == 1 && !hovst.stasjon_Ider.First().Equals(hovst.stasjon_Ider.Last()));
-                            // Ikke-endestasjoner skal vaere utilknyttede:
-                            for (int i = 1; i < c - 1; ++i)
-                                feil |= (tmpSta = db.Stasjoner.Find(hovst.stasjon_Ider[i])) == null
-                                    || (tmpSta.Nett != null && !tmpSta.Nett.Equals((tmpNet != null) ? tmpNet : tmpNet = tmpSta.Nett))
-                                    || tmpSta.Hovedstrekninger.Count() > 0;
-                        }
-                        if (feil)
-                            throw new ArgumentException("hovedstrekning-objektet har ugyldige data; ikke-eksisterende stasjon angitt, tvetydig nett-angivelse eller ulovlig kopling mellom hovedstrekninger");
-                    }
+                    if (feil)
+                        throw new ArgumentException("hovedstrekning-objektet har ugyldige data; ikke-eksisterende stasjon angitt, eller tvetydig nett-angivelse");
+
                     // Her er alt i orden!
                     // Her er tmpNet enten null, angitt av argumentet eller oppfanget under feilsjekkene. Under enhver omstendighet utvetydig:
-                    DbHovedstrekning dennye = new DbHovedstrekning(hovst.hovstr_navn, tmpNet, hovst.hovstr_kortnavn);
-                    if (hovst.stasjon_Ider != null)
+                    DbHovedstrekning dennye = null;
+     
+                    if (forsteSkjot == null & sisteSkjot == null)
+                    {
+                        dennye = new DbHovedstrekning(hovst.hovstr_navn, tmpNet, hovst.hovstr_kortnavn);
+                        db.Hovedstrekninger.Add(dennye);
                         foreach (int i in hovst.stasjon_Ider)
                         {
                             tmpSta = db.Stasjoner.Find(i);
@@ -507,11 +489,211 @@ namespace VyBillettBestilling.Models
                             dennye.Stasjoner.Add(tmpSta);
                             tmpSta.Hovedstrekninger.Add(dennye);
                         }
-                    if (tmpNet != null)
-                        tmpNet.Hovedstrekninger.Add(dennye);
-                    db.Hovedstrekninger.Add(dennye);
+                        if (tmpNet != null)
+                            tmpNet.Hovedstrekninger.Add(dennye);
+                    }
+
+                    DbHovedstrekning skjotestrekn;
+                    List<DbStasjon> innsettes;
+                    int skjotIdx;
+                    if (forsteSkjot != null)
+                    {
+                        skjotestrekn = forsteSkjot.Hovedstrekninger.First();
+                        if (forsteSkjot.Equals(skjotestrekn.Stasjoner.First())) // ma inserte, reversere
+                        {   // Er en endestasjon (vet det ikke er enden pa en ringbane, sjekket ovenfor)
+                            // Legg stasjonene inn i tidligere strekning, behold navnet pa den
+                            innsettes = new List<DbStasjon>(hovst.stasjon_Ider.Count() - 1);
+                            for (int i = hovst.stasjon_Ider.Count() - 1; i > 0; --i)
+                            {
+                                tmpSta = db.Stasjoner.Find(hovst.stasjon_Ider[i]);
+                                tmpSta.Nett = tmpNet; // Setter nett pa stasjonene, i tilfelle det ikke er der fra for
+                                tmpSta.Hovedstrekninger.Add(skjotestrekn);
+                                innsettes.Add(tmpSta);
+                            }
+                            skjotestrekn.Stasjoner.InsertRange(0, innsettes);
+                            dennye = skjotestrekn; // For returverdien
+                        }
+                        else if (forsteSkjot.Equals(skjotestrekn.Stasjoner.Last())) // ma adde, ikke reversere
+                        {   // Er en endestasjon (vet det ikke er enden pa en ringbane, sjekket ovenfor)
+                            // Legg stasjonene inn i tidligere strekning, behold navnet pa den
+                            innsettes = new List<DbStasjon>(hovst.stasjon_Ider.Count() - 1);
+                            for (int i = 1; i < hovst.stasjon_Ider.Count(); ++i)
+                            {
+                                tmpSta = db.Stasjoner.Find(hovst.stasjon_Ider[i]);
+                                tmpSta.Nett = tmpNet; // Setter nett pa stasjonene, i tilfelle det ikke er der fra for
+                                tmpSta.Hovedstrekninger.Add(skjotestrekn);
+                                innsettes.Add(tmpSta);
+                            }
+                            skjotestrekn.Stasjoner.AddRange(innsettes);
+                            dennye = skjotestrekn; // For returverdien
+                        }
+                        else if (skjotestrekn.Stasjoner.First().Equals(skjotestrekn.Stasjoner.Last()) 
+                            && skjotestrekn.Stasjoner.First().Hovedstrekninger.Distinct().Count() == 1)
+                        { // Er midt pa los ringbane
+                            skjotIdx = skjotestrekn.Stasjoner.IndexOf(forsteSkjot);
+                            // Endrer rekkefolgen og legger til / fjerner en forekomst:
+                            List<DbHovedstrekningStasjon> roteres = skjotestrekn.Stasjoner.faaAlleDbElementer();
+                            double startnr = roteres.Last().rekkenr;
+                            for (int i = 1; i < skjotIdx; ++i)
+                                roteres[i].rekkenr = startnr += 10;
+                            skjotestrekn.Stasjoner.Add(roteres[skjotIdx].Stasjon);
+                            db.HovstrStasj.Remove(roteres.First());
+
+                            // Legger inn den nye strekningen:
+                            dennye = new DbHovedstrekning(hovst.hovstr_navn, tmpNet, hovst.hovstr_kortnavn);
+                            db.Hovedstrekninger.Add(dennye);
+                            foreach (int i in hovst.stasjon_Ider)
+                            {
+                                tmpSta = db.Stasjoner.Find(i);
+                                tmpSta.Nett = tmpNet; // Setter nett pa stasjonene, i tilfelle det ikke er der fra for
+                                dennye.Stasjoner.Add(tmpSta);
+                                tmpSta.Hovedstrekninger.Add(dennye);
+                            }
+                            if (tmpNet != null)
+                                tmpNet.Hovedstrekninger.Add(dennye);
+                        }
+                        else
+                        {
+                            // Pa en midtstasjon
+                            // Splitt den andre strekningen, gi nytt/nye navn til dem
+                            // Stasjoner fom. skjoten inn i ny, tom skjoten beholdes i gamle
+                            skjotIdx = skjotestrekn.Stasjoner.IndexOf(forsteSkjot);
+
+                            List<DbStasjon> skalbliny = skjotestrekn.Stasjoner.Skip(skjotIdx).ToList();
+                            List<DbStasjon> maaTommes = skalbliny.Skip(1).ToList();
+                            // Fjerner referansene begge veier:
+                            db.HovstrStasj.RemoveRange(skjotestrekn.Stasjoner.faaAlleDbElementer().Skip(skjotIdx + 1));
+                            foreach (DbStasjon stas in maaTommes)
+                                stas.Hovedstrekninger.Remove(skjotestrekn);
+
+                            // Legger inn siste del av den oppsplittede strekningen:
+                            // string nynavn; // ikke i bruk enna
+                            dennye = new DbHovedstrekning(skjotestrekn.HovstrNavn +"-"+ skalbliny[1].StasjNavn + "toget", tmpNet, skjotestrekn.HovstrKortNavn +"-"+ skalbliny[1].StasjNavn.First());
+                            db.Hovedstrekninger.Add(dennye);
+                            foreach (DbStasjon stas in skalbliny)
+                            {
+                                stas.Nett = tmpNet; // Setter nett pa stasjonene, i tilfelle det ikke er der fra for
+                                dennye.Stasjoner.Add(stas);
+                                stas.Hovedstrekninger.Add(dennye);
+                            }
+                            if (tmpNet != null)
+                                tmpNet.Hovedstrekninger.Add(dennye);
+
+                            // Legger inn den nye strekningen:
+                            dennye = new DbHovedstrekning(hovst.hovstr_navn, tmpNet, hovst.hovstr_kortnavn);
+                            db.Hovedstrekninger.Add(dennye);
+                            foreach (int i in hovst.stasjon_Ider)
+                            {
+                                tmpSta = db.Stasjoner.Find(i);
+                                tmpSta.Nett = tmpNet; // Setter nett pa stasjonene, i tilfelle det ikke er der fra for
+                                dennye.Stasjoner.Add(tmpSta);
+                                tmpSta.Hovedstrekninger.Add(dennye);
+                            }
+                            if (tmpNet != null)
+                                tmpNet.Hovedstrekninger.Add(dennye);
+                        }
+                    }
+
+                    if (sisteSkjot != null)
+                    {
+                        skjotestrekn = sisteSkjot.Hovedstrekninger.First();
+                        if (sisteSkjot.Equals(skjotestrekn.Stasjoner.First())) // ma inserte, ikke reversere
+                        {   // Er en endestasjon (vet det ikke er enden pa en ringbane, sjekket ovenfor)
+                            // Legg stasjonene inn i tidligere strekning, behold navnet pa den
+                            innsettes = new List<DbStasjon>(hovst.stasjon_Ider.Count() - 1);
+                            for (int i = 0; i < hovst.stasjon_Ider.Count() - 1; ++i)
+                            {
+                                tmpSta = db.Stasjoner.Find(hovst.stasjon_Ider[i]);
+                                tmpSta.Nett = tmpNet; // Setter nett pa stasjonene, i tilfelle det ikke er der fra for
+                                tmpSta.Hovedstrekninger.Add(skjotestrekn);
+                                innsettes.Add(tmpSta);
+                            }
+                            skjotestrekn.Stasjoner.InsertRange(0, innsettes);
+                            dennye = skjotestrekn; // For returverdien
+                        }
+                        else if (sisteSkjot.Equals(skjotestrekn.Stasjoner.Last())) // ma adde, reversere
+                        {   // Er en endestasjon (vet det ikke er enden pa en ringbane, sjekket ovenfor)
+                            // Legg stasjonene inn i tidligere strekning, behold navnet pa den
+                            innsettes = new List<DbStasjon>(hovst.stasjon_Ider.Count() - 1);
+                            for (int i = hovst.stasjon_Ider.Count() - 2; i >= 0; --i)
+                            {
+                                tmpSta = db.Stasjoner.Find(hovst.stasjon_Ider[i]);
+                                tmpSta.Nett = tmpNet; // Setter nett pa stasjonene, i tilfelle det ikke er der fra for
+                                tmpSta.Hovedstrekninger.Add(skjotestrekn);
+                                innsettes.Add(tmpSta);
+                            }
+                            skjotestrekn.Stasjoner.AddRange(innsettes);
+                            dennye = skjotestrekn; // For returverdien
+                        }
+                        else if (skjotestrekn.Stasjoner.First().Equals(skjotestrekn.Stasjoner.Last())
+                            && skjotestrekn.Stasjoner.First().Hovedstrekninger.Distinct().Count() == 1)
+                        { // Er midt pa los ringbane
+                            skjotIdx = skjotestrekn.Stasjoner.IndexOf(sisteSkjot);
+                            // Endrer rekkefolgen og legger til / fjerner en forekomst:
+                            List<DbHovedstrekningStasjon> roteres = skjotestrekn.Stasjoner.faaAlleDbElementer();
+                            double startnr = roteres.Last().rekkenr;
+                            for (int i = 1; i < skjotIdx; ++i)
+                                roteres[i].rekkenr = startnr += 10;
+                            skjotestrekn.Stasjoner.Add(roteres[skjotIdx].Stasjon);
+                            db.HovstrStasj.Remove(roteres.First());
+
+                            // Legger inn den nye strekningen:
+                            dennye = new DbHovedstrekning(hovst.hovstr_navn, tmpNet, hovst.hovstr_kortnavn);
+                            db.Hovedstrekninger.Add(dennye);
+                            foreach (int i in hovst.stasjon_Ider)
+                            {
+                                tmpSta = db.Stasjoner.Find(i);
+                                tmpSta.Nett = tmpNet; // Setter nett pa stasjonene, i tilfelle det ikke er der fra for
+                                dennye.Stasjoner.Add(tmpSta);
+                                tmpSta.Hovedstrekninger.Add(dennye);
+                            }
+                            if (tmpNet != null)
+                                tmpNet.Hovedstrekninger.Add(dennye);
+                        }
+                        else
+                        {
+                            // Pa en midtstasjon
+                            // Splitt den andre strekningen, gi nytt/nye navn til dem
+                            // Stasjoner fom. skjoten inn i ny, tom skjoten beholdes i gamle
+                            skjotIdx = skjotestrekn.Stasjoner.IndexOf(sisteSkjot);
+
+                            List<DbStasjon> skalbliny = skjotestrekn.Stasjoner.Skip(skjotIdx).ToList();
+                            List<DbStasjon> maaTommes = skalbliny.Skip(1).ToList();
+                            // Fjerner referansene begge veier:
+                            db.HovstrStasj.RemoveRange(skjotestrekn.Stasjoner.faaAlleDbElementer().Skip(skjotIdx + 1));
+                            foreach (DbStasjon stas in maaTommes)
+                                stas.Hovedstrekninger.Remove(skjotestrekn);
+
+                            // Legger inn siste del av den oppsplittede strekningen:
+                            // string nynavn; // ikke i bruk enna
+                            dennye = new DbHovedstrekning(skjotestrekn.HovstrNavn + "-" + skalbliny[1].StasjNavn + "toget", tmpNet, skjotestrekn.HovstrKortNavn + "-" + skalbliny[1].StasjNavn.First());
+                            db.Hovedstrekninger.Add(dennye);
+                            foreach (DbStasjon stas in skalbliny)
+                            {
+                                stas.Nett = tmpNet; // Setter nett pa stasjonene, i tilfelle det ikke er der fra for
+                                dennye.Stasjoner.Add(stas);
+                                stas.Hovedstrekninger.Add(dennye);
+                            }
+                            if (tmpNet != null)
+                                tmpNet.Hovedstrekninger.Add(dennye);
+
+                            // Legger inn den nye strekningen:
+                            dennye = new DbHovedstrekning(hovst.hovstr_navn, tmpNet, hovst.hovstr_kortnavn);
+                            db.Hovedstrekninger.Add(dennye);
+                            foreach (int i in hovst.stasjon_Ider)
+                            {
+                                tmpSta = db.Stasjoner.Find(i);
+                                tmpSta.Nett = tmpNet; // Setter nett pa stasjonene, i tilfelle det ikke er der fra for
+                                dennye.Stasjoner.Add(tmpSta);
+                                tmpSta.Hovedstrekninger.Add(dennye);
+                            }
+                            if (tmpNet != null)
+                                tmpNet.Hovedstrekninger.Add(dennye);
+                        }
+                    }
+
                     db.SaveChanges();
-                    return dennye.Id;
+                    return (dennye != null) ? dennye.Id : -1;
                 }
             }
             return -1; // Navnet eller kortnavnet er brukt fra for
@@ -878,11 +1060,11 @@ namespace VyBillettBestilling.Models
                         if (hstr.Stasjoner.Count() <= 2
                                 || (hstr.Stasjoner.Count() <= 3 && funnet.Equals(hstr.Stasjoner.First()) && funnet.Equals(hstr.Stasjoner.Last())))
                             fjernHs.Add(hstr.Id);
+                    db.Stasjoner.Remove(funnet);
                     foreach (int i in fjernHs)
                         fjernHovedstrekning(i);
 
                     // NBNBNB!!! Kan ha blitt splittet til flere nett. Ma gjore noe med det. Bruk stiermellomstasjoner for a sjekke(?)
-                    db.Stasjoner.Remove(funnet);
                     db.SaveChanges();
                     return true;
                 }

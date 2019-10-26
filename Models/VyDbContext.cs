@@ -87,8 +87,9 @@ namespace VyBillettBestilling.Models
             //internal virtual StasjonListeHjelper Stasjoner { get; set; } // Gir mange exceptions (50) (32)
             //public  StasjonListeHjelper Stasjoner { get; set; } // Virker ikke (no key defined)
             //internal StasjonListeHjelper Stasjoner { get; set; } // Gir mange exceptions (50) (32)
-            //public StasjonListeHjelper Stasjoner; // Gir mange exceptions (50) (32)
+            //public StasjonListeHjelper Stasjoner; // Gir mange exceptions (50) (32) // <- Bruk denne hvis den ma vaere public ved flytting, det er den eneste public som virker
             internal StasjonListeHjelper Stasjoner; // Gir mange exceptions (50) (32)
+            // Ikke bruk denne:
             //public DbHovedstrekning Stasjoner => this;  // Gir ogsa mange exceptions! (50)
 
             public class StasjonListeHjelper
@@ -113,7 +114,7 @@ namespace VyBillettBestilling.Models
                 }
                 public List<DbHovedstrekningStasjon> faaAlleDbElementer()
                 {
-                    return StasjonerNummerert.ToList();
+                    return StasjonerNummerert.OrderBy(hosta => hosta.rekkenr).ToList();
                 }
                 private List<DbStasjon> Stasjjjoner()
                 {
@@ -135,7 +136,9 @@ namespace VyBillettBestilling.Models
                 public DbStasjon Last() => StasjonerNummerert.OrderByDescending(hosta => hosta.rekkenr).First().Stasjon;
                 public DbStasjon LastOrDefault() => (StasjonerNummerert.Count() == 0) ? null
                     : StasjonerNummerert.OrderByDescending(hosta => hosta.rekkenr).First().Stasjon;
-                
+                public IEnumerable<DbStasjon> Skip(int count) => StasjonerNummerert.OrderBy(hosta => hosta.rekkenr).Select(st => st.Stasjon).Skip(count);
+                public IEnumerable<DbStasjon> Take(int count) => StasjonerNummerert.OrderBy(hosta => hosta.rekkenr).Select(st => st.Stasjon).Take(count);
+
                 public void Add(DbStasjon stas)
                 {
                     double rekkenr = (StasjonerNummerert.Count() == 0) ? 0 : StasjonerNummerert.Max(d => d.rekkenr);
