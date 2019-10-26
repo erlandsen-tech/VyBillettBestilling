@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
-namespace VyBillettBestilling.Models
+namespace VyBillettBestilling.ViewModels
 {
     //trenger en rutetabell for togene
     //Denne benyttes til bestilling

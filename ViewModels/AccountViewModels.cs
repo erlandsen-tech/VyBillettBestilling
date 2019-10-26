@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace VyBillettBestilling.Models
+namespace VyBillettBestilling.ViewModels
 {
     public class ExternalLoginConfirmationViewModel
     {

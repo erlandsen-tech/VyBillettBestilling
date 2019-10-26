@@ -1,4 +1,4 @@
-﻿@model VyBillettBestilling.Models.Hovedstrekning
+﻿@model VyBillettBestilling.ViewModels.Hovedstrekning
 
 @{
     ViewBag.Title = "Rediger Strekning";
@@ -38,11 +38,11 @@
                     <div class="form-group">
                         <div class="container">
                             <select multiple="multiple" id="stasjon_ider" name="stasjon_ider">
-                                @foreach (VyBillettBestilling.Models.Stasjon stasjon in ViewBag.Stasjoner)
+                                @foreach (VyBillettBestilling.Model.Stasjon stasjon in ViewBag.Stasjoner)
                                 {
                                     <option value="@stasjon.id">@stasjon.stasjon_navn</option>
                                 }
-                                @foreach (VyBillettBestilling.Models.Stasjon stasjon in ViewBag.stasjonerPaHovedstrekning)
+                                @foreach (VyBillettBestilling.Model.Stasjon stasjon in ViewBag.stasjonerPaHovedstrekning)
                                 {
                                     <option value="@stasjon.id" selected>@stasjon.stasjon_navn</option>
                                 }

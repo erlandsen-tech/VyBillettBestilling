@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
-using VyBillettBestilling.Models;
-using VyBillettBestilling.Methods;
-using System.Diagnostics;
+using VyBillettBestilling.Model;
+using VyBillettBestilling.BLL;
+using VyBillettBestilling.BLL.Methods;
+using VyBillettBestilling.ViewModels;
 
 namespace VyBillettBestilling.Controllers
 {
     public class HomeController : Controller
     {
+        KonverterModel konverter = new KonverterModel();
         public ActionResult Index()
         {
             if (Session["Bestilling"] == null)
@@ -19,7 +19,7 @@ namespace VyBillettBestilling.Controllers
             }
             if (Session["Handlekurv"] == null)
             {
-                Session["Handlekurv"] = new Handlekurv();
+                Session["Handlekurv"] = new Model.Handlekurv();
             }
             //Eksempeldata 
             //VyDbTilgang dbt = new VyDbTilgang();
@@ -37,13 +37,14 @@ namespace VyBillettBestilling.Controllers
         [HttpPost]
         public ActionResult Bestilling(Bestilling InnBestilling)
         {
-            List<RuteView> ruteView = new List<RuteView>();
+            List<Model.RuteView> ruteView = new List<Model.RuteView>();
             var ruter = HomeMethods.RuteTabell(InnBestilling);
-            foreach (Rute rute in ruter)
+            foreach (Model.Rute rute in ruter)
             {
                 ruteView.Add(HomeMethods.GetRuteView(rute, InnBestilling));
             }
-            return View(ruteView);
+            var returView = konverter.ruteView(ruteView);
+            return View(returView);
         }
 
         [HttpGet]

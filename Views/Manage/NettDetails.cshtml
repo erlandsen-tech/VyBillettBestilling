@@ -1,4 +1,4 @@
-﻿@model VyBillettBestilling.Models.Nett
+﻿@model VyBillettBestilling.ViewModels.Nett
 @{
 }
 
@@ -36,7 +36,7 @@
                     <dd>
                         <div class="scrollable">
                             <table>
-                                @foreach (VyBillettBestilling.Models.Stasjon stasjon in ViewBag.stasjonerpanett)
+                                @foreach (VyBillettBestilling.Model.Stasjon stasjon in ViewBag.stasjonerpanett)
                                 {
                                     <tr>
                                         <td>
