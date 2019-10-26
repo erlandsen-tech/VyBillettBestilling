@@ -209,8 +209,6 @@ namespace VyBillettBestilling.Models
                 stasjon_sted = dbst.StasjSted,
                 breddegrad = dbst.Breddegrad,
                 lengdegrad = dbst.Lengdegrad,
-                // Droppe denne?:
-
                 hovedstrekning_Ider = dbst.Hovedstrekninger.Select(hs => hs.Id).ToList(),
                 nett_id = (dbst.Nett != null) ? dbst.Nett.Id : -1
 
@@ -269,7 +267,7 @@ namespace VyBillettBestilling.Models
                 id = dbho.Id,
                 hovstr_navn = dbho.HovstrNavn,
                 hovstr_kortnavn = dbho.HovstrKortNavn,
-                // Droppe denne?:
+                // Ma bruke ToList() her, siden Stasjoner ikke er den egentlige lista, men et ekstralag mot StasjonerNummerert:
                 stasjon_Ider = dbho.Stasjoner.ToList().Select(st => st.Id).ToList(),
                 nett_id = (dbho.Nett != null) ? dbho.Nett.Id : -1
             };
@@ -311,7 +309,6 @@ namespace VyBillettBestilling.Models
             {
                 id = dbne.Id,
                 nett_navn = dbne.Nettnavn,
-                // Droppe disse?:
                 hovedstrekning_Ider = dbne.Hovedstrekninger.Select(hs => hs.Id).ToList(),
                 stasjon_Ider = dbne.Stasjoner.Select(st => st.Id).ToList()
             };
@@ -526,12 +523,6 @@ namespace VyBillettBestilling.Models
                 var funnet = db.Hovedstrekninger.Find(hovstrId);
                 if (funnet != null)
                 {
-                    // Dette trengs ikke, EF ordner det:
-                    //if (funnet.Nett != null)
-                    //{
-                    //    funnet.Nett.Hovedstrekninger.Remove(funnet); // Ma fjerne referansen til DbHovedstrekning-en som skal fjernes
-                    //    funnet.Nett = null; // Fjerner ogsa referansen andre veien
-                    //}
                     List<DbStasjon> funnetsStasjoner = funnet.Stasjoner.ToList();
                     foreach (var sta in funnetsStasjoner)
                     {
@@ -548,10 +539,10 @@ namespace VyBillettBestilling.Models
                     // Ma sjekke om fjerning av strekning har etterlatt "motepunkt" med to hovedstrekninger. Da ma hovedstrekningene slas sammen
 
                     // Sjekker forst den ene enden:
-                    var skjotes = funnetsStasjoner.First().Hovedstrekninger;
+                    DbStasjon skjotestasjon = funnetsStasjoner.First();
+                    IEnumerable<DbHovedstrekning> skjotes = skjotestasjon.Hovedstrekninger;
                     if (skjotes.Count() == 2 && skjotes.First() != skjotes.Last()) // skjotes.First() == skjotes.Last() innebaerer en losrevet ringbane
                     {
-                        DbStasjon skjotestasjon = funnetsStasjoner.First();
                         DbHovedstrekning astr = skjotes.First();
                         DbHovedstrekning bstr = skjotes.Last();
                         List<DbStasjon> aStList = astr.Stasjoner.ToList();
@@ -581,8 +572,6 @@ namespace VyBillettBestilling.Models
                             fjernes = astr;
                         }
                         // I skjotestasjonen fjernes utgaende hovedstrekning, den gjenvaerende er allerede registrert i stasjonens liste (og tilbake):
-                        // Trengs removene her? Sjekk med utskrift. 
-                        // Trengs add-ene, eller lages det pekere automatisk etter AddRange? Ja, de trengs.
                         nyStList[0].Hovedstrekninger.Remove(fjernes);
                         for (int i = 1; i < nyStList.Count; ++i)
                         {   // Erstatter utgaende hovedstrekning fra stasjonenes hovedstrekningliste med den nye felles i resten av stasjonene
@@ -590,20 +579,14 @@ namespace VyBillettBestilling.Models
                             nyStList[i].Hovedstrekninger.Add(beholdes);
                         }
                         beholdes.Stasjoner.AddRange(nyStList.Skip(1).ToList()); // Legger stasjoner fra utgaende inn i gjenvaerende (untatt skjotestasjonen, den er der fra for)
-                        // Dette trengs ikke,EF ordner det:
-                        //if (fjernes.Nett != null)
-                        //{
-                        //    fjernes.Nett.Hovedstrekninger.Remove(fjernes); // Ma fjerne referansen til DbHovedstrekning-en som utgar
-                        //    fjernes.Nett = null; // Fjerner ogsa referansen andre veien
-                        //}
                         db.Hovedstrekninger.Remove(fjernes); // fjerner utgaende hovedstrekning fra basen
                     }
 
                     // Sjekker sa den andre enden:
-                    skjotes = funnetsStasjoner.Last().Hovedstrekninger;
+                    skjotestasjon = funnetsStasjoner.Last();
+                    skjotes = skjotestasjon.Hovedstrekninger;
                     if (skjotes.Count() == 2 && skjotes.First() != skjotes.Last()) // skjotes.First() == skjotes.Last() innebaerer en losrevet ringbane
                     {
-                        DbStasjon skjotestasjon = funnetsStasjoner.Last();
                         DbHovedstrekning astr = skjotes.First();
                         DbHovedstrekning bstr = skjotes.Last();
                         List<DbStasjon> aStList = astr.Stasjoner.ToList();
@@ -680,28 +663,151 @@ namespace VyBillettBestilling.Models
         {
             using (var db = new VyDbContext())
             {
-                var fjernes = db.HovstrStasj.Where(hosta => hosta.Hovedstrekning.Id == hovstrId && stasjonIder.Contains(hosta.Stasjon.Id));
-                db.HovstrStasj.RemoveRange(fjernes);
-                db.SaveChanges();
-                return true;
+                var alle = db.HovstrStasj.ToList().Where(hosta => hosta.Hovedstrekning.Id == hovstrId).OrderBy(hosta => hosta.rekkenr);
+                var skalbort = alle.Where(hosta => stasjonIder.Contains(hosta.Stasjon.Id));
+                if (alle.Count() - skalbort.Count() < 2)
+                    throw new ArgumentException("Hovedstrekningen må ha minst to gjenværende stasjoner (som kan være samme)");
+                // Sjekke om alle stasjonene faktisk var der. Ellers gjores ingenting
+                if (skalbort.Count() >= stasjonIder.Count()) // >= fordi endestasjoner pa ev. ringbaner blir med to ganger
+                {
+                    foreach (var hosta in skalbort)
+                    {
+                        DbStasjon sta = hosta.Stasjon;
+                        sta.Hovedstrekninger.Remove(hosta.Hovedstrekning); // Fjerner referansen til DbHovedstrekning-en
+                        if (sta.Hovedstrekninger.Count() == 0 && sta.Nett != null) // Fjerner ogsa referansene til/fra nett hvis stasjonen ikke lenger er tilknyttet noe:
+                        {
+                            sta.Nett.Stasjoner.Remove(sta);
+                            sta.Nett = null;
+                        }
+                    }
+
+                    // Ma sjekke om fjerning av en endestasjon har etterlatt "motepunkt" med to hovedstrekninger. Da ma hovedstrekningene slas sammen
+                    // Sjekker forst den ene enden:
+                    DbStasjon skjotestasjon = alle.First().Stasjon;
+                    IEnumerable<DbHovedstrekning> skjotes = (skalbort.Contains(alle.First())) ? alle.First().Stasjon.Hovedstrekninger : null;
+                    if (skjotes != null && skjotes.Count() == 2 && skjotes.First() != skjotes.Last()) // skjotes.First() == skjotes.Last() innebaerer en losrevet ringbane
+                    {
+                        DbHovedstrekning astr = skjotes.First();
+                        DbHovedstrekning bstr = skjotes.Last();
+                        List<DbStasjon> aStList = astr.Stasjoner.ToList();
+                        List<DbStasjon> bStList = bstr.Stasjoner.ToList();
+                        DbHovedstrekning beholdes;
+                        DbHovedstrekning fjernes;
+                        List<DbStasjon> nyStList;
+                        // Ordner dem slik at siste stasjon i forste == skjotestasjon == forste stasjon i siste:
+                        if (aStList.Count > bStList.Count) // Eller en annen mekanisme for a velge hvilken som beholdes?
+                        {
+                            if (aStList.First().Equals(skjotestasjon))
+                                astr.Stasjoner.Reverse();
+                            if (bStList.Last().Equals(skjotestasjon))
+                                bStList.Reverse();
+                            nyStList = bStList;
+                            beholdes = astr;
+                            fjernes = bstr;
+                        }
+                        else
+                        {
+                            if (bStList.First().Equals(skjotestasjon))
+                                bstr.Stasjoner.Reverse();
+                            if (aStList.Last().Equals(skjotestasjon))
+                                aStList.Reverse();
+                            nyStList = aStList;
+                            beholdes = bstr;
+                            fjernes = astr;
+                        }
+                        // I skjotestasjonen fjernes utgaende hovedstrekning, den gjenvaerende er allerede registrert i stasjonens liste (og tilbake):
+                        nyStList[0].Hovedstrekninger.Remove(fjernes);
+                        for (int i = 1; i < nyStList.Count; ++i)
+                        {   // Erstatter utgaende hovedstrekning fra stasjonenes hovedstrekningliste med den nye felles i resten av stasjonene
+                            nyStList[i].Hovedstrekninger.Remove(fjernes);
+                            nyStList[i].Hovedstrekninger.Add(beholdes);
+                        }
+                        beholdes.Stasjoner.AddRange(nyStList.Skip(1).ToList()); // Legger stasjoner fra utgaende inn i gjenvaerende (untatt skjotestasjonen, den er der fra for)
+                        db.Hovedstrekninger.Remove(fjernes); // fjerner utgaende hovedstrekning fra basen
+                    }
+
+                    // Sjekker sa den andre enden:
+                    skjotestasjon = alle.Last().Stasjon;
+                    skjotes = (skalbort.Contains(alle.Last())) ? skjotestasjon.Hovedstrekninger.ToList() : null;
+                    if (skjotes != null && skjotes.Count() == 2 && skjotes.First() != skjotes.Last()) // skjotes.First() == skjotes.Last() innebaerer en losrevet ringbane
+                    {
+                        DbHovedstrekning astr = skjotes.First();
+                        DbHovedstrekning bstr = skjotes.Last();
+                        List<DbStasjon> aStList = astr.Stasjoner.ToList();
+                        List<DbStasjon> bStList = bstr.Stasjoner.ToList();
+                        DbHovedstrekning beholdes;
+                        DbHovedstrekning fjernes;
+                        List<DbStasjon> nyStList;
+                        // Ordner dem slik at siste stasjon i forste == skjotestasjon == forste stasjon i siste:
+                        if (aStList.Count > bStList.Count) // Eller en annen mekanisme for a velge hvilken som beholdes?
+                        {
+                            if (aStList.First().Equals(skjotestasjon))
+                                astr.Stasjoner.Reverse();
+                            if (bStList.Last().Equals(skjotestasjon))
+                                bStList.Reverse();
+                            nyStList = bStList;
+                            beholdes = astr;
+                            fjernes = bstr;
+                        }
+                        else
+                        {
+                            if (bStList.First().Equals(skjotestasjon))
+                                bstr.Stasjoner.Reverse();
+                            if (aStList.Last().Equals(skjotestasjon))
+                                aStList.Reverse();
+                            nyStList = aStList;
+                            beholdes = bstr;
+                            fjernes = astr;
+                        }
+                        // I skjotestasjonen fjernes utgaende hovedstrekning, den gjenvaerende er allerede registrert i stasjonens liste (og tilbake):
+                        nyStList[0].Hovedstrekninger.Remove(fjernes);
+                        for (int i = 1; i < nyStList.Count; ++i)
+                        {   // Erstatter utgaende hovedstrekning fra stasjonenes hovedstrekningliste med den nye felles i resten av stasjonene
+                            nyStList[i].Hovedstrekninger.Remove(fjernes);
+                            nyStList[i].Hovedstrekninger.Add(beholdes);
+                        }
+                        beholdes.Stasjoner.AddRange(nyStList.Skip(1).ToList()); // Legger stasjoner fra utgaende inn i gjenvaerende (untatt skjotestasjonen, den er der fra for)
+                        db.Hovedstrekninger.Remove(fjernes); // fjerner utgaende hovedstrekning fra basen
+                    }
+
+                    // NBNBNB!!! Kan ha blitt splittet til flere nett. Ma gjore noe med det. Bruk stiermellomstasjoner for a sjekke(?)
+                    db.HovstrStasj.RemoveRange(skalbort);
+                    db.SaveChanges();
+                    return true;
+
+                }
             }
             return false;
         }
-        public bool settInnStasjonerIHovedstrekning(int hovstrId, IEnumerable<int> stasjonIder, int plassering)
+        public bool settInnStasjonerIHovedstrekning(int hovstrId, IList<int> stasjonIder, int plassering)
         {
+            if (stasjonIder.Count() != stasjonIder.Distinct().Count())
+                throw new ArgumentException("Lista har ugyldige data; duplikatstasjoner");
             using (var db = new VyDbContext())
             {
                 DbHovedstrekning hovstr = db.Hovedstrekninger.Find(hovstrId);
-                if (plassering < 1 | plassering >= hovstr.Stasjoner.Count())
-                    throw new ArgumentOutOfRangeException("Innsetting er ikke tillatt på endene");
-                List<DbStasjon> stasjoner = new List<DbStasjon>(stasjonIder.Count());
-                DbStasjon tmpSta;
-                foreach (int i in stasjonIder)
-                    if ((tmpSta = db.Stasjoner.Find(i)) != null)
-                        stasjoner.Add(tmpSta);
-                if (stasjoner.Count() == stasjonIder.Count() && hovstr != null)
-                {   // Setter ikke inn noen hvis ikke alle stasjonene ble funnet
+                if (hovstr != null)
+                {
+                    if (plassering == 0 | plassering == hovstr.Stasjoner.Count())
+                        throw new ArgumentOutOfRangeException("Innsetting er ikke tillatt på endene. Fjern og lag ny(e) hovedstrekning(er) i stedet.");
+                    DbNett tmpNet = hovstr.Nett;
+                    List<DbStasjon> stasjoner = new List<DbStasjon>(stasjonIder.Count());
+                    DbStasjon tmpSta;
+                    bool feil = false;
+                    foreach (int i in stasjonIder)
+                        if (!(feil |= (tmpSta = db.Stasjoner.Find(i)) == null
+                                || (tmpSta.Nett != null && !tmpSta.Nett.Equals(tmpNet))
+                                || tmpSta.Hovedstrekninger.Count() > 0))
+                            stasjoner.Add(tmpSta);
+                    if (feil)
+                        throw new ArgumentException("Lista har ugyldige data; ikke-eksisterende stasjon, eller stasjonen tilhører annet nett eller hovedstrekning");
+                    foreach (DbStasjon stas in stasjoner)
+                    {
+                        stas.Hovedstrekninger.Add(hovstr);
+                        stas.Nett = tmpNet;
+                    }
                     hovstr.Stasjoner.InsertRange(plassering, stasjoner);
+                    db.SaveChanges();
                     return true;
                 }
             }
@@ -742,17 +848,14 @@ namespace VyBillettBestilling.Models
             using (var db = new VyDbContext())
             {
                 string ikkenull = (stas.stasjon_sted == null) ? "" : stas.stasjon_sted;
+                DbNett tmpNet = null;
+                // Feil hvis angitt nett ikke finnes (men det er lov, og kanskje lurt, a angi ikke-nett med nett_id <= 0):
+                if (stas.nett_id > 0 && (tmpNet = db.Nett.Find(stas.nett_id)) == null)
+                    throw new ArgumentException("stasjon-objektet har ugyldige data; ikke-eksisterende nett angitt");
                 if (!db.Stasjoner.Any(st => stas.stasjon_navn.Equals(st.StasjNavn)
                     && st.StasjSted.Equals(ikkenull) && ((st.Nett == null) ? stas.nett_id <= 0 : stas.nett_id == st.Nett.Id)))
                 {
-                    // Ma sjekke at den tillagte stasjonen ikke viser til nett som ikke finnes:
-                    DbNett tmpNet = null;
-                    // Feil hvis angitt nett ikke finnes (men det er lov, og kanskje lurt, a angi ikke-nett med nett_id <= 0):
-                    if (stas.nett_id > 0 && (tmpNet = db.Nett.Find(stas.nett_id)) == null)
-                        throw new ArgumentException("stasjon-objektet har ugyldige data; ikke-eksisterende nett angitt");
-
                     DbStasjon dennye = new DbStasjon(stas.stasjon_navn, tmpNet, ikkenull);
-
                     dennye.Breddegrad = stas.breddegrad;
                     dennye.Lengdegrad = stas.lengdegrad;
                     db.Stasjoner.Add(dennye);
@@ -766,9 +869,18 @@ namespace VyBillettBestilling.Models
         {
             using (var db = new VyDbContext())
             {
-                var funnet = db.Stasjoner.Find(stasjId);
+                DbStasjon funnet = db.Stasjoner.Find(stasjId);
                 if (funnet != null)
                 {
+                    List<DbHovedstrekning> strekninger = funnet.Hovedstrekninger;
+                    List<int> fjernHs = new List<int>();
+                    foreach (DbHovedstrekning hstr in strekninger)
+                        if (hstr.Stasjoner.Count() <= 2
+                                || (hstr.Stasjoner.Count() <= 3 && funnet.Equals(hstr.Stasjoner.First()) && funnet.Equals(hstr.Stasjoner.Last())))
+                            fjernHs.Add(hstr.Id);
+                    foreach (int i in fjernHs)
+                        fjernHovedstrekning(i);
+
                     // NBNBNB!!! Kan ha blitt splittet til flere nett. Ma gjore noe med det. Bruk stiermellomstasjoner for a sjekke(?)
                     db.Stasjoner.Remove(funnet);
                     db.SaveChanges();
